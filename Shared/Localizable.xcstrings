@@ -2,10 +2,10 @@
   "sourceLanguage" : "de",
   "strings" : {
     "" : {
-
+      "shouldTranslate" : false
     },
     "%@" : {
-
+      "shouldTranslate" : false
     },
     "%@ an Position %lld von %lld" : {
       "localizations" : {
@@ -38,10 +38,10 @@
       }
     },
     "%@: %@" : {
-
+      "shouldTranslate" : false
     },
     "%lld" : {
-
+      "shouldTranslate" : false
     },
     "%lld außer Betrieb" : {
       "localizations" : {
@@ -144,7 +144,7 @@
       }
     },
     "accessibility.cloud" : {
-
+      "shouldTranslate" : false
     },
     "Aktualisieren" : {
       "localizations" : {
@@ -382,17 +382,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Data"
-          }
-        }
-      }
-    },
-    "Daten von" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Data by"
           }
         }
       }
@@ -678,7 +667,7 @@
       }
     },
     "Hissi" : {
-
+      "shouldTranslate" : false
     },
     "Hissi-Favoriten" : {
       "localizations" : {
@@ -691,7 +680,7 @@
       }
     },
     "Hissi: %@" : {
-
+      "shouldTranslate" : false
     },
     "in Betrieb" : {
       "localizations" : {
@@ -763,17 +752,6 @@
         }
       }
     },
-    "Keine letzten Suchen" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No Recent Searches"
-          }
-        }
-      }
-    },
     "Keine Lift-Favoriten" : {
       "localizations" : {
         "en" : {
@@ -790,17 +768,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No station with an elevator within %@."
-          }
-        }
-      }
-    },
-    "Lade…" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Loading…"
           }
         }
       }
@@ -836,7 +803,14 @@
       }
     },
     "Live-Status" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live-Status"
+          }
+        }
+      }
     },
     "Live-Status beenden" : {
       "localizations" : {
@@ -919,7 +893,14 @@
       }
     },
     "Möglicherweise veraltet" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Possibly outdated"
+          }
+        }
+      }
     },
     "Nach oben bewegen" : {
       "localizations" : {
@@ -1062,7 +1043,7 @@
       }
     },
     "Sozialhelden e.V." : {
-
+      "shouldTranslate" : false
     },
     "Stand %@" : {
       "localizations" : {
