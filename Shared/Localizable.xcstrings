@@ -1,0 +1,1509 @@
+{
+  "sourceLanguage" : "de",
+  "strings" : {
+    "" : {
+
+    },
+    "%@" : {
+
+    },
+    "%@ an Position %lld von %lld" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ now at position %2$lld of %3$lld"
+          }
+        }
+      }
+    },
+    "%@ prüfen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check %@"
+          }
+        }
+      }
+    },
+    "%@ und %lld weitere" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$@ and %2$lld more"
+          }
+        }
+      }
+    },
+    "%@: %@" : {
+
+    },
+    "%lld" : {
+
+    },
+    "%lld außer Betrieb" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld out of service"
+          }
+        }
+      }
+    },
+    "%lld defekt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld broken"
+          }
+        }
+      }
+    },
+    "%lld Lifte außer Betrieb" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld elevators out of service"
+          }
+        }
+      }
+    },
+    "%lld Lifte unbekannt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld elevators unknown"
+          }
+        }
+      }
+    },
+    "%lld unbekannt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld unknown"
+          }
+        }
+      }
+    },
+    "%lld von %lld außer Betrieb" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld out of service"
+          }
+        }
+      }
+    },
+    "%lld von %lld unbekannt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%1$lld of %2$lld unknown"
+          }
+        }
+      }
+    },
+    "+ %lld weitere" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+ %lld more"
+          }
+        }
+      }
+    },
+    "1 Lift außer Betrieb" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 elevator out of service"
+          }
+        }
+      }
+    },
+    "1 Lift unbekannt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 elevator unknown"
+          }
+        }
+      }
+    },
+    "accessibility.cloud" : {
+
+    },
+    "Aktualisieren" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refresh"
+          }
+        }
+      }
+    },
+    "Alle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All"
+          }
+        }
+      }
+    },
+    "Alle Favoriten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All favorites"
+          }
+        }
+      }
+    },
+    "Alle in Betrieb" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All in service"
+          }
+        }
+      }
+    },
+    "Alle Lifte in Betrieb" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All elevators in service"
+          }
+        }
+      }
+    },
+    "Alle löschen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear all"
+          }
+        }
+      }
+    },
+    "Alle überwachten Aufzüge in einer Liste." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All monitored elevators in one list."
+          }
+        }
+      }
+    },
+    "am %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "on %@"
+          }
+        }
+      }
+    },
+    "Aufzug" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elevator"
+          }
+        }
+      }
+    },
+    "Aufzug außer Betrieb" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elevator out of service"
+          }
+        }
+      }
+    },
+    "Aufzug prüfen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check elevator"
+          }
+        }
+      }
+    },
+    "Aufzug wieder in Betrieb" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elevator back in service"
+          }
+        }
+      }
+    },
+    "Aufzug-Status" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elevator status"
+          }
+        }
+      }
+    },
+    "Aufzugstatus" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elevator status"
+          }
+        }
+      }
+    },
+    "Aufzugstatus prüfen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Check elevator status"
+          }
+        }
+      }
+    },
+    "Aus Favoriten entfernen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove from Favorites"
+          }
+        }
+      }
+    },
+    "außer Betrieb" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "out of service"
+          }
+        }
+      }
+    },
+    "Außer Betrieb" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Out of service"
+          }
+        }
+      }
+    },
+    "Beenden" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop"
+          }
+        }
+      }
+    },
+    "Beendet den laufenden Live-Status." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stops the running Live-Status."
+          }
+        }
+      }
+    },
+    "Betreiber" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Operator"
+          }
+        }
+      }
+    },
+    "bis %@ zu Fuß" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "up to %@ on foot"
+          }
+        }
+      }
+    },
+    "Bis alles wieder läuft" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Until everything runs again"
+          }
+        }
+      }
+    },
+    "Daten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data"
+          }
+        }
+      }
+    },
+    "Daten von" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data by"
+          }
+        }
+      }
+    },
+    "Daten von [accessibility.cloud](https://transit.accessibility.cloud), einem Projekt der [Sozialhelden e.V.](https://sozialhelden.de)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data by [accessibility.cloud](https://transit.accessibility.cloud), a project of [Sozialhelden e.V.](https://sozialhelden.de)"
+          }
+        }
+      }
+    },
+    "Datenstand" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data as of"
+          }
+        }
+      }
+    },
+    "Defekt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Broken"
+          }
+        }
+      }
+    },
+    "DEFEKT" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "BROKEN"
+          }
+        }
+      }
+    },
+    "Deine Favoriten auf dem Sperrbildschirm – meldet sich, wenn ein Aufzug ausfällt oder wieder läuft." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your favorites on the Lock Screen — it speaks up when an elevator breaks down or works again."
+          }
+        }
+      }
+    },
+    "Deine letzten Suchbegriffe erscheinen hier." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your recent search terms appear here."
+          }
+        }
+      }
+    },
+    "Der Status deiner Favoriten auf dem Homescreen und am Handgelenk." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your favorites' status on the Home Screen and on your wrist."
+          }
+        }
+      }
+    },
+    "Die App nutzt jetzt eine neue Datenquelle. Deine bisherigen Favoriten ließen sich nicht übernehmen und wurden entfernt – bitte füge deine Aufzüge über die Suche neu hinzu." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The app now uses a new data source. Your previous favorites could not be carried over and were removed – please re-add your elevators via search."
+          }
+        }
+      }
+    },
+    "Die Aufzugsdaten kommen von accessibility.cloud, ins Leben gerufen vom Sozialhelden e.V. – dem gemeinnützigen Verein hinter Wheelmap, der sich für Barrierefreiheit im Alltag einsetzt." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The elevator data comes from accessibility.cloud, created by Sozialhelden e.V. — the non-profit behind Wheelmap that works for accessibility in everyday life."
+          }
+        }
+      }
+    },
+    "Dieser Aufzug ist kein Favorit mehr." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This elevator is no longer a favorite."
+          }
+        }
+      }
+    },
+    "Eigene Reihenfolge" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Custom order"
+          }
+        }
+      }
+    },
+    "Ein oder mehrere Aufzüge konnten nicht abgerufen werden." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "One or more elevators could not be refreshed."
+          }
+        }
+      }
+    },
+    "Einstellungen öffnen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Settings"
+          }
+        }
+      }
+    },
+    "Endet automatisch, spätestens nach einigen Stunden." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ends automatically, after a few hours at the latest."
+          }
+        }
+      }
+    },
+    "Endet um %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ends at %@"
+          }
+        }
+      }
+    },
+    "Entfernen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remove"
+          }
+        }
+      }
+    },
+    "Evtl. veraltet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Possibly outdated"
+          }
+        }
+      }
+    },
+    "Fahrt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trip"
+          }
+        }
+      }
+    },
+    "Favoriten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorites"
+          }
+        }
+      }
+    },
+    "Favoriten exportieren" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Export favorites"
+          }
+        }
+      }
+    },
+    "Favoriten im Blick" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorites at a glance"
+          }
+        }
+      }
+    },
+    "Favoriten öffnen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open favorites"
+          }
+        }
+      }
+    },
+    "Favoriten zurückgesetzt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Favorites reset"
+          }
+        }
+      }
+    },
+    "Fehler" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error"
+          }
+        }
+      }
+    },
+    "Frag Siri nach dem Status – für alle Favoriten oder für einen bestimmten Aufzug." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ask Siri for the status — for all your favorites or for one specific elevator."
+          }
+        }
+      }
+    },
+    "Für die Fahrt (2 Std.)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For the trip (2 hrs)"
+          }
+        }
+      }
+    },
+    "Geprüft %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checked %@"
+          }
+        }
+      }
+    },
+    "gerade eben" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "just now"
+          }
+        }
+      }
+    },
+    "Hissi" : {
+
+    },
+    "Hissi-Favoriten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hissi favorites"
+          }
+        }
+      }
+    },
+    "Hissi: %@" : {
+
+    },
+    "in Betrieb" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "in service"
+          }
+        }
+      }
+    },
+    "In Betrieb" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "In service"
+          }
+        }
+      }
+    },
+    "In der Nähe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nearby"
+          }
+        }
+      }
+    },
+    "In Karten öffnen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open in Maps"
+          }
+        }
+      }
+    },
+    "Kartenausschnitt %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Map of %@"
+          }
+        }
+      }
+    },
+    "Keine Daten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No data"
+          }
+        }
+      }
+    },
+    "Keine Favoriten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Favorites"
+          }
+        }
+      }
+    },
+    "Keine letzten Suchen" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Recent Searches"
+          }
+        }
+      }
+    },
+    "Keine Lift-Favoriten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No elevator favorites"
+          }
+        }
+      }
+    },
+    "Keine Station mit Aufzug im Umkreis von %@." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No station with an elevator within %@."
+          }
+        }
+      }
+    },
+    "Lade…" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading…"
+          }
+        }
+      }
+    },
+    "Letzte Suchen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recent Searches"
+          }
+        }
+      }
+    },
+    "Lift-Status unbekannt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elevator status unknown"
+          }
+        }
+      }
+    },
+    "Lifte in der Nähe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elevators nearby"
+          }
+        }
+      }
+    },
+    "Live-Status" : {
+
+    },
+    "Live-Status beenden" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop Live-Status"
+          }
+        }
+      }
+    },
+    "Live-Status läuft" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live-Status running"
+          }
+        }
+      }
+    },
+    "Live-Status läuft noch" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live-Status still running"
+          }
+        }
+      }
+    },
+    "Live-Status starten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Live-Status"
+          }
+        }
+      }
+    },
+    "Los geht's" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get started"
+          }
+        }
+      }
+    },
+    "Löschen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
+    "Markiere Aufzüge als Favoriten und prüfe sie alle mit einem Blick." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Star elevators as favorites and check them all at a glance."
+          }
+        }
+      }
+    },
+    "Meinen Standort anzeigen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show my location"
+          }
+        }
+      }
+    },
+    "Möglicherweise veraltet" : {
+
+    },
+    "Nach oben bewegen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move up"
+          }
+        }
+      }
+    },
+    "Nach unten bewegen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move down"
+          }
+        }
+      }
+    },
+    "Noch nie geprüft" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Never checked"
+          }
+        }
+      }
+    },
+    "Öffnet die Stationen in deiner Nähe." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens the stations near you."
+          }
+        }
+      }
+    },
+    "Öffnet Hissi bei den Favoriten." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Opens Hissi on the favorites."
+          }
+        }
+      }
+    },
+    "Prüft alle favorisierten Aufzüge und meldet, ob einer außer Betrieb ist." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checks all favorited elevators and reports whether any is out of service."
+          }
+        }
+      }
+    },
+    "Prüft einen einzelnen favorisierten Aufzug." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Checks a single favorited elevator."
+          }
+        }
+      }
+    },
+    "Quelle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Source"
+          }
+        }
+      }
+    },
+    "Regionalbahn" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regional rail"
+          }
+        }
+      }
+    },
+    "Regionalverkehr" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Regional rail"
+          }
+        }
+      }
+    },
+    "Rundumansicht öffnen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open Look Around"
+          }
+        }
+      }
+    },
+    "Schließen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Close"
+          }
+        }
+      }
+    },
+    "Siri und Kurzbefehle" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Siri and Shortcuts"
+          }
+        }
+      }
+    },
+    "Sortieren" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sort"
+          }
+        }
+      }
+    },
+    "Sozialhelden e.V." : {
+
+    },
+    "Stand %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As of %@"
+          }
+        }
+      }
+    },
+    "Stand unbekannt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Data age unknown"
+          }
+        }
+      }
+    },
+    "Standort in der App erlauben" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Allow location access in the app"
+          }
+        }
+      }
+    },
+    "Standort nicht verfügbar" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Location unavailable"
+          }
+        }
+      }
+    },
+    "Standort verwenden" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use location"
+          }
+        }
+      }
+    },
+    "Standort wird ermittelt …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Locating …"
+          }
+        }
+      }
+    },
+    "Standortzugriff ist deaktiviert – erlaube ihn in den Einstellungen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Location access is off – allow it in Settings."
+          }
+        }
+      }
+    },
+    "Station finden" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find a station"
+          }
+        }
+      }
+    },
+    "Stationen finden" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Find stations"
+          }
+        }
+      }
+    },
+    "Stationen in der Nähe anzeigen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show nearby stations"
+          }
+        }
+      }
+    },
+    "Stationen in Fußweite mit dem Status ihrer Aufzüge – auch auf der Uhr und als Widget." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stations within walking distance with the status of their elevators — on the watch and as a widget, too."
+          }
+        }
+      }
+    },
+    "Stationen mit Aufzug in Fußweite und ihr Status." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stations with elevators within walking distance and their status."
+          }
+        }
+      }
+    },
+    "Stationen mit Aufzug, bis %@ zu Fuß" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stations with elevators, up to %@ on foot"
+          }
+        }
+      }
+    },
+    "Status der überwachten Aufzüge." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status of your monitored elevators."
+          }
+        }
+      }
+    },
+    "Status möglicherweise veraltet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status possibly outdated"
+          }
+        }
+      }
+    },
+    "Status unbekannt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status unknown"
+          }
+        }
+      }
+    },
+    "Status wird aktualisiert …" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updating status …"
+          }
+        }
+      }
+    },
+    "Störungsgrund" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disruption reason"
+          }
+        }
+      }
+    },
+    "Straßenansicht %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Street-level view of %@"
+          }
+        }
+      }
+    },
+    "Suche" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search"
+          }
+        }
+      }
+    },
+    "Suche fehlgeschlagen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search failed."
+          }
+        }
+      }
+    },
+    "Suche läuft" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Searching"
+          }
+        }
+      }
+    },
+    "Suche nach einer Station und sieh alle Aufzüge dort mit Live-Status." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search for a station and see all its elevators with live status."
+          }
+        }
+      }
+    },
+    "Tippe unten ins Suchfeld, um Aufzüge zu finden und hinzuzufügen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tap the search field below to find and add elevators."
+          }
+        }
+      }
+    },
+    "Über Hissi" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "About Hissi"
+          }
+        }
+      }
+    },
+    "unbekannt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "unknown"
+          }
+        }
+      }
+    },
+    "verbleibend" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "remaining"
+          }
+        }
+      }
+    },
+    "Version %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version %@"
+          }
+        }
+      }
+    },
+    "Verstanden" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Got it"
+          }
+        }
+      }
+    },
+    "vor %lld Min." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld min ago"
+          }
+        }
+      }
+    },
+    "vor %lld Std." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld h ago"
+          }
+        }
+      }
+    },
+    "vor %lld Tagen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld days ago"
+          }
+        }
+      }
+    },
+    "vor 1 Tag" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 day ago"
+          }
+        }
+      }
+    },
+    "Was ist neu" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "What's New"
+          }
+        }
+      }
+    },
+    "Weiter" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue"
+          }
+        }
+      }
+    },
+    "Widget & Watch" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widget & Watch"
+          }
+        }
+      }
+    },
+    "Willkommen bei Hissi" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Hissi"
+          }
+        }
+      }
+    },
+    "Wird aktualisiert" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refreshing"
+          }
+        }
+      }
+    },
+    "Zeigt deine Favoriten auf dem Sperrbildschirm und meldet sich, wenn ein Aufzug ausfällt oder wieder läuft." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shows your favorites on the Lock Screen and speaks up when an elevator breaks down or works again."
+          }
+        }
+      }
+    },
+    "Zu dunklem Erscheinungsbild wechseln" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch to dark appearance"
+          }
+        }
+      }
+    },
+    "Zu Favoriten hinzufügen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Add to Favorites"
+          }
+        }
+      }
+    },
+    "Zu hellem Erscheinungsbild wechseln" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switch to light appearance"
+          }
+        }
+      }
+    },
+    "Zugang" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Access"
+          }
+        }
+      }
+    },
+    "Zuletzt hinzugefügt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recently added"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

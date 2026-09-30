@@ -1,0 +1,75 @@
+{
+  "sourceLanguage" : "de",
+  "strings" : {
+    "${elevator} in ${applicationName} prüfen" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "de" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "${elevator} in ${applicationName} prüfen"
+            ]
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Check ${elevator} in ${applicationName}"
+          }
+        }
+      }
+    },
+    "Aufzugstatus in ${applicationName} prüfen" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "de" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "Aufzugstatus in ${applicationName} prüfen",
+              "Sind meine Aufzüge in ${applicationName} in Betrieb?"
+            ]
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Check elevator status in ${applicationName}"
+          }
+        }
+      }
+    },
+    "Favoriten in ${applicationName} öffnen" : {
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "de" : {
+          "stringSet" : {
+            "state" : "new",
+            "values" : [
+              "Favoriten in ${applicationName} öffnen"
+            ]
+          }
+        },
+        "en" : {
+          "stringUnit" : {
+            "state" : "needs_review",
+            "value" : "Open favorites in ${applicationName}"
+          }
+        }
+      }
+    },
+    "Sind meine Aufzüge in ${applicationName} in Betrieb?" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are my elevators in ${applicationName} working?"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

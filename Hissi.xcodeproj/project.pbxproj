@@ -1,0 +1,861 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 100;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		AA000001BB000001CC000001 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA000001BB000005CC000005 /* WidgetKit.framework */; };
+		AA000001BB000002CC000002 /* HissiWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = AA000001BB000006CC000006 /* HissiWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CDCF321D2FCCC160004E35B7 /* HissiWatch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = WA000001BB000001CC000001 /* HissiWatch.app */; platformFilter = ios; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		WW000001BB000001CC000001 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AA000001BB000005CC000005 /* WidgetKit.framework */; };
+		WW000001BB000002CC000002 /* HissiWatchWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = WW000001BB000005CC000005 /* HissiWatchWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		AA000001BB000003CC000003 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CDC9A4F82FCC9506009EDCA2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AA000001BB000009CC000009;
+			remoteInfo = HissiWidget;
+		};
+		CDCF321E2FCCC160004E35B7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CDC9A4F82FCC9506009EDCA2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = WA000001BB000006CC000006;
+			remoteInfo = HissiWatch;
+		};
+		CDCF32212FCCC168004E35B7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CDC9A4F82FCC9506009EDCA2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = WA000001BB000006CC000006;
+			remoteInfo = HissiWatch;
+		};
+		WW000001BB000003CC000003 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CDC9A4F82FCC9506009EDCA2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = WW000001BB000009CC000009;
+			remoteInfo = HissiWatchWidget;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		AA000001BB000004CC000004 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = "";
+			dstSubfolder = PlugIns;
+			files = (
+				AA000001BB000002CC000002 /* HissiWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+		};
+		CDCF32202FCCC160004E35B7 /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolder = Product;
+			files = (
+				CDCF321D2FCCC160004E35B7 /* HissiWatch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+		};
+		WW000001BB000004CC000004 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = "";
+			dstSubfolder = PlugIns;
+			files = (
+				WW000001BB000002CC000002 /* HissiWatchWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		AA000001BB000005CC000005 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		AA000001BB000006CC000006 /* HissiWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HissiWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		CDC9A5002FCC9506009EDCA2 /* Hissi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hissi.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		WA000001BB000001CC000001 /* HissiWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HissiWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		WW000001BB000005CC000005 /* HissiWatchWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HissiWatchWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		LB000001BB000001CC000001 /* Exceptions for "Hissi" folder in "Hissi" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = CDC9A4FF2FCC9506009EDCA2 /* Hissi */;
+		};
+		SH000001BB000003CC000003 /* Exceptions for "Shared" folder in "HissiWatchWidget" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"Resources/seed-catalog.json",
+			);
+			target = WW000001BB000009CC000009 /* HissiWatchWidget */;
+		};
+		WI000001BB000001CC000001 /* Exceptions for "HissiWidget" folder in "HissiWidget" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = AA000001BB000009CC000009 /* HissiWidget */;
+		};
+		WW000001BB000006CC000006 /* Exceptions for "HissiWatchWidget" folder in "HissiWatchWidget" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = WW000001BB000009CC000009 /* HissiWatchWidget */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		AA000001BB000007CC000007 /* HissiWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				WI000001BB000001CC000001 /* Exceptions for "HissiWidget" folder in "HissiWidget" target */,
+			);
+			path = HissiWidget;
+			sourceTree = "<group>";
+		};
+		CDC9A5022FCC9506009EDCA2 /* Hissi */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				LB000001BB000001CC000001 /* Exceptions for "Hissi" folder in "Hissi" target */,
+			);
+			path = Hissi;
+			sourceTree = "<group>";
+		};
+		SH000001BB000001CC000001 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				SH000001BB000003CC000003 /* Exceptions for "Shared" folder in "HissiWatchWidget" target */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		WA000001BB000002CC000002 /* HissiWatch */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HissiWatch;
+			sourceTree = "<group>";
+		};
+		WW000001BB000007CC000007 /* HissiWatchWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				WW000001BB000006CC000006 /* Exceptions for "HissiWatchWidget" folder in "HissiWatchWidget" target */,
+			);
+			path = HissiWatchWidget;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		AA000001BB000008CC000008 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+				AA000001BB000001CC000001 /* WidgetKit.framework in Frameworks */,
+			);
+		};
+		CDC9A4FD2FCC9506009EDCA2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		WA000001BB000004CC000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		WW000001BB000008CC000008 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+				WW000001BB000001CC000001 /* WidgetKit.framework in Frameworks */,
+			);
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CDC9A4F72FCC9506009EDCA2 = {
+			isa = PBXGroup;
+			children = (
+				CDC9A5022FCC9506009EDCA2 /* Hissi */,
+				AA000001BB000007CC000007 /* HissiWidget */,
+				WA000001BB000002CC000002 /* HissiWatch */,
+				WW000001BB000007CC000007 /* HissiWatchWidget */,
+				SH000001BB000001CC000001 /* Shared */,
+				CDC9A5012FCC9506009EDCA2 /* Products */,
+				CDC9A5672FCCAAAF009EDCA2 /* Recovered References */,
+				CDCF321C2FCCC160004E35B7 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		CDC9A5012FCC9506009EDCA2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CDC9A5002FCC9506009EDCA2 /* Hissi.app */,
+				AA000001BB000006CC000006 /* HissiWidget.appex */,
+				WA000001BB000001CC000001 /* HissiWatch.app */,
+				WW000001BB000005CC000005 /* HissiWatchWidget.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CDC9A5672FCCAAAF009EDCA2 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				AA000001BB000005CC000005 /* WidgetKit.framework */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+		CDCF321C2FCCC160004E35B7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		AA000001BB000009CC000009 /* HissiWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA000001BB00000FCC00000F /* Build configuration list for PBXNativeTarget "HissiWidget" */;
+			buildPhases = (
+				AA000001BB00000BCC00000B /* Sources */,
+				AA000001BB000008CC000008 /* Frameworks */,
+				AA000001BB00000ACC00000A /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				AA000001BB000007CC000007 /* HissiWidget */,
+				SH000001BB000001CC000001 /* Shared */,
+			);
+			name = HissiWidget;
+			productName = HissiWidget;
+			productReference = AA000001BB000006CC000006 /* HissiWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		CDC9A4FF2FCC9506009EDCA2 /* Hissi */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CDC9A50B2FCC9507009EDCA2 /* Build configuration list for PBXNativeTarget "Hissi" */;
+			buildPhases = (
+				CDC9A4FC2FCC9506009EDCA2 /* Sources */,
+				CDC9A4FD2FCC9506009EDCA2 /* Frameworks */,
+				CDC9A4FE2FCC9506009EDCA2 /* Resources */,
+				AA000001BB000004CC000004 /* Embed Foundation Extensions */,
+				CDCF32202FCCC160004E35B7 /* Embed Watch Content */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				AA000001BB00000CCC00000C /* PBXTargetDependency */,
+				CDCF321F2FCCC160004E35B7 /* PBXTargetDependency */,
+				CDCF32222FCCC168004E35B7 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				CDC9A5022FCC9506009EDCA2 /* Hissi */,
+				SH000001BB000001CC000001 /* Shared */,
+			);
+			name = Hissi;
+			productName = Hissi;
+			productReference = CDC9A5002FCC9506009EDCA2 /* Hissi.app */;
+			productType = "com.apple.product-type.application";
+		};
+		WA000001BB000006CC000006 /* HissiWatch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = WA000001BB000009CC000009 /* Build configuration list for PBXNativeTarget "HissiWatch" */;
+			buildPhases = (
+				WA000001BB000003CC000003 /* Sources */,
+				WA000001BB000004CC000004 /* Frameworks */,
+				WA000001BB000005CC000005 /* Resources */,
+				WW000001BB000004CC000004 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				WW000001BB00000CCC00000C /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				SH000001BB000001CC000001 /* Shared */,
+				WA000001BB000002CC000002 /* HissiWatch */,
+			);
+			name = HissiWatch;
+			productName = HissiWatch;
+			productReference = WA000001BB000001CC000001 /* HissiWatch.app */;
+			productType = "com.apple.product-type.application";
+		};
+		WW000001BB000009CC000009 /* HissiWatchWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = WW000001BB00000FCC00000F /* Build configuration list for PBXNativeTarget "HissiWatchWidget" */;
+			buildPhases = (
+				WW000001BB00000BCC00000B /* Sources */,
+				WW000001BB000008CC000008 /* Frameworks */,
+				WW000001BB00000ACC00000A /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				SH000001BB000001CC000001 /* Shared */,
+				WW000001BB000007CC000007 /* HissiWatchWidget */,
+			);
+			name = HissiWatchWidget;
+			productName = HissiWatchWidget;
+			productReference = WW000001BB000005CC000005 /* HissiWatchWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CDC9A4F82FCC9506009EDCA2 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2650;
+				LastUpgradeCheck = 2700;
+				TargetAttributes = {
+					AA000001BB000009CC000009 = {
+						CreatedOnToolsVersion = 26.5;
+					};
+					CDC9A4FF2FCC9506009EDCA2 = {
+						CreatedOnToolsVersion = 26.5;
+					};
+					WA000001BB000006CC000006 = {
+						CreatedOnToolsVersion = 26.5;
+					};
+					WW000001BB000009CC000009 = {
+						CreatedOnToolsVersion = 26.5;
+					};
+				};
+			};
+			buildConfigurationList = CDC9A4FB2FCC9506009EDCA2 /* Build configuration list for PBXProject "Hissi" */;
+			developmentRegion = de;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				de,
+				Base,
+			);
+			mainGroup = CDC9A4F72FCC9506009EDCA2;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 100;
+			productRefGroup = CDC9A5012FCC9506009EDCA2 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CDC9A4FF2FCC9506009EDCA2 /* Hissi */,
+				AA000001BB000009CC000009 /* HissiWidget */,
+				WA000001BB000006CC000006 /* HissiWatch */,
+				WW000001BB000009CC000009 /* HissiWatchWidget */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		AA000001BB00000ACC00000A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		CDC9A4FE2FCC9506009EDCA2 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		WA000001BB000005CC000005 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		WW000001BB00000ACC00000A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		AA000001BB00000BCC00000B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		CDC9A4FC2FCC9506009EDCA2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		WA000001BB000003CC000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		WW000001BB00000BCC00000B /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		AA000001BB00000CCC00000C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AA000001BB000009CC000009 /* HissiWidget */;
+			targetProxy = AA000001BB000003CC000003 /* PBXContainerItemProxy */;
+		};
+		CDCF321F2FCCC160004E35B7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = WA000001BB000006CC000006 /* HissiWatch */;
+			targetProxy = CDCF321E2FCCC160004E35B7 /* PBXContainerItemProxy */;
+		};
+		CDCF32222FCCC168004E35B7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = WA000001BB000006CC000006 /* HissiWatch */;
+			targetProxy = CDCF32212FCCC168004E35B7 /* PBXContainerItemProxy */;
+		};
+		WW000001BB00000CCC00000C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = WW000001BB000009CC000009 /* HissiWatchWidget */;
+			targetProxy = WW000001BB000003CC000003 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		AA000001BB00000DCC00000D /* Debug configuration for PBXNativeTarget "HissiWidget" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HissiWidget/HissiWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HissiWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.a11yland.Hissi.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AA000001BB00000ECC00000E /* Release configuration for PBXNativeTarget "HissiWidget" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HissiWidget/HissiWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HissiWidget/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.a11yland.Hissi.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		CDC9A5092FCC9507009EDCA2 /* Debug configuration for PBXProject "Hissi" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = HES5URWDN9;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		CDC9A50A2FCC9507009EDCA2 /* Release configuration for PBXProject "Hissi" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = HES5URWDN9;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CDC9A50C2FCC9507009EDCA2 /* Debug configuration for PBXNativeTarget "Hissi" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Hissi/Hissi.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Hissi/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Hissi;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Dein Standort wird nur lokal verwendet, um Stationen in deiner Nähe vorzuschlagen und deine Position auf der Karte zu zeigen.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.a11yland.Hissi;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CDC9A50D2FCC9507009EDCA2 /* Release configuration for PBXNativeTarget "Hissi" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Hissi/Hissi.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Hissi/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Hissi;
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Dein Standort wird nur lokal verwendet, um Stationen in deiner Nähe vorzuschlagen und deine Position auf der Karte zu zeigen.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.a11yland.Hissi;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = YES;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		WA000001BB000007CC000007 /* Debug configuration for PBXNativeTarget "HissiWatch" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HissiWatch/HissiWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Hissi;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Dein Standort wird nur lokal verwendet, um Stationen in deiner Nähe vorzuschlagen.";
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.a11yland.Hissi;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.a11yland.Hissi.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		WA000001BB000008CC000008 /* Release configuration for PBXNativeTarget "HissiWatch" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HissiWatch/HissiWatch.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Hissi;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Dein Standort wird nur lokal verwendet, um Stationen in deiner Nähe vorzuschlagen.";
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.a11yland.Hissi;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.a11yland.Hissi.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		WW000001BB00000DCC00000D /* Debug configuration for PBXNativeTarget "HissiWatchWidget" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HissiWatchWidget/HissiWatchWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HissiWatchWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.a11yland.Hissi.watchkitapp.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		WW000001BB00000ECC00000E /* Release configuration for PBXNativeTarget "HissiWatchWidget" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HissiWatchWidget/HissiWatchWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = HissiWatchWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.a11yland.Hissi.watchkitapp.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AA000001BB00000FCC00000F /* Build configuration list for PBXNativeTarget "HissiWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AA000001BB00000DCC00000D /* Debug configuration for PBXNativeTarget "HissiWidget" */,
+				AA000001BB00000ECC00000E /* Release configuration for PBXNativeTarget "HissiWidget" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		CDC9A4FB2FCC9506009EDCA2 /* Build configuration list for PBXProject "Hissi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CDC9A5092FCC9507009EDCA2 /* Debug configuration for PBXProject "Hissi" */,
+				CDC9A50A2FCC9507009EDCA2 /* Release configuration for PBXProject "Hissi" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		CDC9A50B2FCC9507009EDCA2 /* Build configuration list for PBXNativeTarget "Hissi" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CDC9A50C2FCC9507009EDCA2 /* Debug configuration for PBXNativeTarget "Hissi" */,
+				CDC9A50D2FCC9507009EDCA2 /* Release configuration for PBXNativeTarget "Hissi" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		WA000001BB000009CC000009 /* Build configuration list for PBXNativeTarget "HissiWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				WA000001BB000007CC000007 /* Debug configuration for PBXNativeTarget "HissiWatch" */,
+				WA000001BB000008CC000008 /* Release configuration for PBXNativeTarget "HissiWatch" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		WW000001BB00000FCC00000F /* Build configuration list for PBXNativeTarget "HissiWatchWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				WW000001BB00000DCC00000D /* Debug configuration for PBXNativeTarget "HissiWatchWidget" */,
+				WW000001BB00000ECC00000E /* Release configuration for PBXNativeTarget "HissiWatchWidget" */,
+			);
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CDC9A4F82FCC9506009EDCA2 /* Project object */;
+}

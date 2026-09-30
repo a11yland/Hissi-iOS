@@ -1,0 +1,23 @@
+{
+  "docs": [
+    {
+      "id": 11,
+      "normalized_name": "Adlershof (Berlin)",
+      "main_identifier": "de:11000:900193002",
+      "modes": { "servicedTransportModes": [1] },
+      "geometry": { "type": "Point", "coordinates": [13.541, 52.435] }
+    },
+    {
+      "id": 12,
+      "normalized_name": "Waßmannsdorf",
+      "main_identifier": "de:12061:900260005",
+      "modes": { "servicedTransportModes": [1] }
+    }
+  ],
+  "totalDocs": 2,
+  "limit": 500,
+  "totalPages": 1,
+  "page": 1,
+  "hasPrevPage": false,
+  "hasNextPage": false
+}

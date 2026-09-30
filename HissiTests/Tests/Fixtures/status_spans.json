@@ -1,0 +1,40 @@
+{
+  "docs": [
+    {
+      "id": 501,
+      "elevator": [101],
+      "site": [11],
+      "operational_status": "out_of_service",
+      "is_planned": "unplanned",
+      "reason_type": "failure",
+      "description": { "de": "Wird repariert" },
+      "start_date": "2026-06-01T06:00:00Z",
+      "updatedAt": "2026-06-02T08:40:01.962Z"
+    },
+    {
+      "id": 502,
+      "elevator": [102],
+      "operational_status": "operational",
+      "start_date": "2026-05-01T00:00:00Z"
+    },
+    {
+      "id": 503,
+      "elevator": [103],
+      "operational_status": "operational",
+      "start_date": "2026-06-10T00:00:00Z"
+    },
+    {
+      "id": 504,
+      "elevator": [101],
+      "operational_status": "operational",
+      "start_date": "2026-01-01T00:00:00Z",
+      "end_date": "2026-06-01T06:00:00Z"
+    }
+  ],
+  "totalDocs": 4,
+  "limit": 500,
+  "totalPages": 1,
+  "page": 1,
+  "hasPrevPage": false,
+  "hasNextPage": false
+}

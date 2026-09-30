@@ -1,0 +1,42 @@
+name: iOS
+
+# Only the Swift package's parser tests run here; the app itself is built and
+# archived by Xcode Cloud. Pull requests cover the feature branches, so the
+# push trigger is limited to main — otherwise every PR push ran twice.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Shared/**"
+      - "Hissi/**"
+      - "HissiWidget/**"
+      - "HissiWatch/**"
+      - "HissiWatchWidget/**"
+      - "HissiTests/**"
+      - "Hissi.xcodeproj/**"
+      - "Secrets.example.swift"
+      - ".github/workflows/ios.yml"
+  pull_request:
+    paths:
+      - "Shared/**"
+      - "Hissi/**"
+      - "HissiWidget/**"
+      - "HissiWatch/**"
+      - "HissiWatchWidget/**"
+      - "HissiTests/**"
+      - "Hissi.xcodeproj/**"
+      - "Secrets.example.swift"
+      - ".github/workflows/ios.yml"
+
+jobs:
+  parser-tests:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Provide Secrets stub
+        run: cp Secrets.example.swift Shared/Secrets.swift
+      - name: Swift version
+        run: swift --version
+      - name: Run parser tests
+        working-directory: HissiTests
+        run: swift test

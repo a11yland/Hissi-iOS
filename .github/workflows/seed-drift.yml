@@ -1,0 +1,66 @@
+name: Seed drift check
+
+# Weekly regeneration of the seed catalog, diffed against the bundled one.
+# On drift, opens (or updates) an issue labeled `seed-drift` so index shifts
+# and coverage changes surface between releases. The seed itself is still
+# regenerated manually per release.
+
+on:
+  schedule:
+    - cron: "0 5 * * 1" # Mondays 05:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate fresh seed
+        env:
+          ACCESSIBILITY_CLOUD_APP_TOKEN: ${{ secrets.ACCESSIBILITY_CLOUD_APP_TOKEN }}
+          ACCESSIBILITY_CLOUD_LEGACY_TOKEN: ${{ secrets.ACCESSIBILITY_CLOUD_LEGACY_TOKEN }}
+        run: python3 scripts/generate-seed-catalog.py /tmp/fresh-seed.json
+
+      # The fresh seed is uploaded so a release regen can download it instead
+      # of needing the legacy token locally.
+      - name: Upload fresh seed
+        uses: actions/upload-artifact@v4
+        with:
+          name: fresh-seed
+          path: /tmp/fresh-seed.json
+          retention-days: 7
+
+      - name: Diff against bundled seed
+        id: diff
+        run: |
+          set +e
+          python3 scripts/diff-seed-catalog.py Shared/Resources/seed-catalog.json /tmp/fresh-seed.json > /tmp/drift.md
+          rc=$?
+          set -e
+          cat /tmp/drift.md
+          # 0 = no drift, 1 = drift; anything else is a script failure.
+          [ "$rc" -le 1 ] || exit "$rc"
+          echo "drifted=$rc" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update drift issue
+        if: steps.diff.outputs.drifted == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create seed-drift --repo "$GITHUB_REPOSITORY" \
+            --description "Bundled seed catalog diverges from a fresh generation" \
+            --color D93F0B 2>/dev/null || true
+          existing=$(gh issue list --repo "$GITHUB_REPOSITORY" --label seed-drift --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --repo "$GITHUB_REPOSITORY" --body-file /tmp/drift.md
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" \
+              --title "Seed catalog drift detected" \
+              --label seed-drift \
+              --body-file /tmp/drift.md
+          fi

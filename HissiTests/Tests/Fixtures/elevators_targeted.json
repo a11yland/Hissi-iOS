@@ -1,0 +1,48 @@
+{
+  "docs": [
+    {
+      "id": 7187,
+      "operational_status": {
+        "operational_status": "out_of_service",
+        "current_status_span": {
+          "id": 2459,
+          "elevator": [7187],
+          "start_date": "2026-06-06T22:03:29.874Z",
+          "end_date": "2026-09-03T18:10:23.739Z",
+          "operational_status": "out_of_service",
+          "description": { "de": "Achtung! Aufzug außer Betrieb – Technik ist informiert.", "en": null },
+          "updatedAt": "2026-06-07T18:10:36.602Z",
+          "deletedAt": null
+        }
+      },
+      "function": { "short_visual": { "de": null, "en": null } },
+      "internal_description": "Gleis 2/3",
+      "stop_place_name": null,
+      "linked_data": { "operator_inventory_id": "10499651" },
+      "updatedAt": "2026-06-07T16:37:07.110Z"
+    },
+    {
+      "id": 5373,
+      "operational_status": { "operational_status": "in_service", "current_status_span": null },
+      "function": { "short_visual": { "de": "Gl. 1/2 ↔ Empfangsgebäude ↔ Passage" } },
+      "stop_place_name": "S Ostkreuz (Berlin)",
+      "linked_data": { "operator_inventory_id": "10315620" },
+      "updatedAt": "2026-06-04T01:38:48.049Z"
+    },
+    {
+      "id": 940,
+      "elevator_type": "escalator",
+      "operational_status": { "operational_status": "in_service" }
+    },
+    {
+      "id": 888,
+      "operational_status": { "operational_status": "out_of_service", "current_status_span": 999 }
+    }
+  ],
+  "totalDocs": 4,
+  "limit": 500,
+  "totalPages": 1,
+  "page": 1,
+  "hasPrevPage": false,
+  "hasNextPage": false
+}

@@ -60,3 +60,22 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+
+# Build output
+DerivedData/
+build/
+Package.resolved
+
+# macOS
+.DS_Store
+
+# Xcode run logs
+Run *_*.txt
+
+# Secrets (copy Secrets.example.swift here)
+Shared/Secrets.swift
+
+# Claude Code skills: track the lockfile, not the resolved skill content
+.agents/skills/
+.claude/skills/
+__pycache__/

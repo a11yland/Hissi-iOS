@@ -1,0 +1,53 @@
+{
+  "docs": [
+    {
+      "id": 101,
+      "elevator_type": "elevator",
+      "function": { "short_visual": { "de": "S-Bahnsteig Gl. 3/4 ⟷ Zugang Adlergestell" } },
+      "location": {
+        "site": 11,
+        "short_visual": { "de": "S-Bahnsteig Gl. 3/4 ⟷ Zugang Adlergestell", "en": null },
+        "short_tts": { "de": "zwischen S-Bahnsteig Gleis 3/4 und Zugang Adlergestell" }
+      },
+      "operational_status": { "operational_status": "out_of_service", "current_status_span": 501 },
+      "linked_data": { "operator_inventory_id": "10315619" },
+      "geometry": { "type": "Point", "coordinates": [13.54, 52.43] }
+    },
+    {
+      "id": 102,
+      "elevator_type": "elevator",
+      "function": { "short_visual": "nur einfache Beschreibung" },
+      "location": { "site": 11 },
+      "operational_status": { "operational_status": "in_service" },
+      "latitude": 52.44,
+      "longitude": 13.55
+    },
+    {
+      "id": 900,
+      "elevator_type": "escalator",
+      "function": { "short_visual": { "de": "Fahrtreppe zum S-Bahnsteig" } },
+      "location": { "site": 11 },
+      "operational_status": { "operational_status": "in_service" }
+    },
+    {
+      "id": 903,
+      "elevator_type": "moving_walkway",
+      "location": { "site": 11 },
+      "operational_status": { "operational_status": "in_service" }
+    },
+    {
+      "id": 103,
+      "elevator_type": "elevator",
+      "function": { "short_visual": { "de": "Aufzug zum U-Bahnsteig" } },
+      "operational_status": { "operational_status": "unknown" },
+      "stop_place_name": "U Museumsinsel (Berlin)",
+      "updatedAt": "2026-06-20T10:00:00Z"
+    }
+  ],
+  "totalDocs": 5,
+  "limit": 500,
+  "totalPages": 1,
+  "page": 1,
+  "hasPrevPage": false,
+  "hasNextPage": false
+}
