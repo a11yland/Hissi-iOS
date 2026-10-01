@@ -40,9 +40,11 @@ struct WelcomeSheet: View {
     }
 }
 
-// What the app does, in the words the welcome and the about sheet use. The
-// welcome keeps to three (first launch is not the moment for a feature
-// list); "Über Hissi" shows all of them.
+// What the app does, in the words the welcome and the about sheet use —
+// one short sentence each. The welcome keeps to three (first launch is not
+// the moment for a feature list); "Über Hissi" shows all of them, in the
+// order of a trip: find, nearby, favorites, then the two ways of knowing
+// without opening the app — the passive surfaces and the active live status.
 struct AppFeature: Identifiable {
     let symbol: String
     let title: LocalizedStringKey
@@ -52,36 +54,31 @@ struct AppFeature: Identifiable {
     static let search = AppFeature(
         symbol: "magnifyingglass",
         title: "Stationen finden",
-        detail: "Suche nach einer Station und sieh alle Aufzüge dort mit Live-Status."
+        detail: "Alle Aufzüge einer Station mit Live-Status."
     )
     static let nearby = AppFeature(
         symbol: "location.fill",
         title: "In der Nähe",
-        detail: "Stationen in Fußweite mit dem Status ihrer Aufzüge – auch auf der Uhr und als Widget."
+        detail: "Stationen mit Aufzügen in der Nähe, inkl. Aufzug-Status."
     )
     static let favorites = AppFeature(
         symbol: "star.fill",
-        title: "Favoriten im Blick",
-        detail: "Markiere Aufzüge als Favoriten und prüfe sie alle mit einem Blick."
+        title: "Favoriten",
+        detail: "Deine Aufzüge, alle auf einen Blick."
+    )
+    static let glanceable = AppFeature(
+        symbol: "applewatch",
+        title: "Widget, Watch und Siri",
+        detail: "Der Status deiner Favoriten auf Homescreen, Sperrbildschirm, Uhr und per Kurzbefehl."
     )
     static let liveStatus = AppFeature(
         symbol: "bell.badge",
         title: "Live-Status",
-        detail: "Deine Favoriten auf dem Sperrbildschirm – meldet sich, wenn ein Aufzug ausfällt oder wieder läuft."
-    )
-    static let glanceable = AppFeature(
-        symbol: "applewatch",
-        title: "Widget & Watch",
-        detail: "Der Status deiner Favoriten auf dem Homescreen und am Handgelenk."
-    )
-    static let siri = AppFeature(
-        symbol: "mic.fill",
-        title: "Siri und Kurzbefehle",
-        detail: "Frag Siri nach dem Status – für alle Favoriten oder für einen bestimmten Aufzug."
+        detail: "Meldet sich unterwegs, wenn ein Favorit ausfällt oder wieder läuft."
     )
 
     static let welcome: [AppFeature] = [search, favorites, glanceable]
-    static let all: [AppFeature] = [search, nearby, favorites, liveStatus, glanceable, siri]
+    static let all: [AppFeature] = [search, nearby, favorites, glanceable, liveStatus]
 }
 
 struct WhatsNewSheet: View {

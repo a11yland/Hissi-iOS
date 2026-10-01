@@ -1,11 +1,14 @@
 import SwiftUI
 
-// "Über Hissi", behind the toolbar logo: what the app does (the same
-// feature rows the welcome sheet draws from) and where the data comes from
-// — accessibility.cloud, a project of Sozialhelden e.V. The attribution is
-// also required by accessibility.cloud's terms (see AttributionFooter); here
-// it gets the room to say who is behind it.
+// "Über Hissi", behind the toolbar logo. Not an onboarding moment but a
+// reference screen, so it is a sectioned list rather than the welcome's
+// scaffold: nothing sits below the fold behind a pinned button, and the
+// data attribution — required by accessibility.cloud's terms, see
+// AttributionFooter — has a section of its own instead of a paragraph the
+// close button hides.
 struct AboutSheet: View {
+    @Environment(\.dismiss) private var dismiss
+
     private var version: String {
         let short = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
         let build = Bundle.main.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? ""
@@ -13,48 +16,95 @@ struct AboutSheet: View {
     }
 
     var body: some View {
-        OnboardingScaffold(buttonTitle: "Schließen") {
-            // Headline: the icon left, name and version beside it — one
-            // VoiceOver element, "Hissi, Version 8.0 (12)".
-            HStack(spacing: 16) {
-                Image("Logo")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 64, height: 64)
-                    .clipShape(RoundedRectangle(cornerRadius: 14))
-                    .accessibilityHidden(true)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(verbatim: "Hissi")
-                        .font(.largeTitle.bold())
-                    Text("Version \(version)")
+        NavigationStack {
+            List {
+                Section {
+                    header
+                        .listRowBackground(Color.clear)
+                        .listRowInsets(EdgeInsets(top: 8, leading: 0, bottom: 8, trailing: 0))
+                }
+
+                Section("Funktionen") {
+                    ForEach(AppFeature.all) { feature in
+                        FeatureRow(feature: feature)
+                            .padding(.vertical, 4)
+                    }
+                }
+                .hissiRows()
+
+                Section("Daten") {
+                    Text("Die Aufzugsdaten stammen von accessibility.cloud, einem Projekt des gemeinnützigen Sozialhelden e.V.")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.hissiTextSecondary)
+                    LinkRow(title: "accessibility.cloud", destination: AttributionLinks.accessibilityCloud)
+                    LinkRow(title: "Sozialhelden e.V.", destination: AttributionLinks.sozialhelden)
+                }
+                .hissiRows()
+
+                Section("Datenschutz") {
+                    Text("Hissi braucht kein Konto und sammelt keine Daten. Favoriten liegen auf deinem Gerät und in deiner iCloud, dein Standort verlässt das Gerät nicht.")
                         .font(.subheadline)
                         .foregroundStyle(Color.hissiTextSecondary)
                 }
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .accessibilityElement(children: .combine)
+                .hissiRows()
 
-            VStack(alignment: .leading, spacing: 24) {
-                ForEach(AppFeature.all) { feature in
-                    FeatureRow(feature: feature)
+                Section {
+                    LabeledContent("Version", value: version)
+                }
+                .hissiRows()
+            }
+            .hissiList()
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Fertig") { dismiss() }
                 }
             }
-            .padding(.top, 8)
+        }
+        .presentationDragIndicator(.visible)
+        .presentationBackground(Color.hissiBackground)
+    }
 
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Daten")
-                    .font(.headline)
-                Text("Die Aufzugsdaten kommen von accessibility.cloud, ins Leben gerufen vom Sozialhelden e.V. – dem gemeinnützigen Verein hinter Wheelmap, der sich für Barrierefreiheit im Alltag einsetzt.")
+    // Icon, name and tagline — the sheet's title, one VoiceOver element and
+    // a heading, so the navigation bar can stay empty.
+    private var header: some View {
+        HStack(spacing: 16) {
+            Image("Logo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 64, height: 64)
+                .clipShape(RoundedRectangle(cornerRadius: 14))
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verbatim: "Hissi")
+                    .font(.largeTitle.bold())
+                Text("Aufzugstatus für Berlin und Brandenburg")
                     .font(.subheadline)
                     .foregroundStyle(Color.hissiTextSecondary)
-                HStack(spacing: 16) {
-                    Link("accessibility.cloud", destination: AttributionLinks.accessibilityCloud)
-                    Link("Sozialhelden e.V.", destination: AttributionLinks.sozialhelden)
-                }
-                .font(.subheadline.weight(.semibold))
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, 24)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isHeader)
+    }
+}
+
+// A list row that opens a web page: title left, an outward arrow right so
+// the row says it leaves the app.
+private struct LinkRow: View {
+    let title: LocalizedStringKey
+    let destination: URL
+
+    var body: some View {
+        Link(destination: destination) {
+            HStack {
+                Text(title)
+                Spacer()
+                Image(systemName: "arrow.up.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(Color.hissiTextSecondary)
+                    .accessibilityHidden(true)
+            }
         }
     }
 }

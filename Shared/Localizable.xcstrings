@@ -1,6 +1,136 @@
 {
   "sourceLanguage" : "de",
   "strings" : {
+    "Alle Aufzüge einer Station mit Live-Status." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "All elevators of a station, with live status."
+          }
+        }
+      }
+    },
+    "Stationen mit Aufzügen in der Nähe, inkl. Aufzug-Status." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stations with elevators nearby, including elevator status."
+          }
+        }
+      }
+    },
+    "Deine Aufzüge, alle auf einen Blick." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your elevators, all at a glance."
+          }
+        }
+      }
+    },
+    "Widget, Watch und Siri" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widget, Watch and Siri"
+          }
+        }
+      }
+    },
+    "Der Status deiner Favoriten auf Homescreen, Sperrbildschirm, Uhr und per Kurzbefehl." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your favorites' status on the Home Screen, the Lock Screen, your watch and via Shortcuts."
+          }
+        }
+      }
+    },
+    "Meldet sich unterwegs, wenn ein Favorit ausfällt oder wieder läuft." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speaks up on the go when a favorite breaks down or works again."
+          }
+        }
+      }
+    },
+    "Aufzugstatus für Berlin und Brandenburg" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elevator status for Berlin and Brandenburg"
+          }
+        }
+      }
+    },
+    "Funktionen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Features"
+          }
+        }
+      }
+    },
+    "Die Aufzugsdaten stammen von accessibility.cloud, einem Projekt des gemeinnützigen Sozialhelden e.V." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elevator data comes from accessibility.cloud, a project by the non-profit Sozialhelden e.V."
+          }
+        }
+      }
+    },
+    "Datenschutz" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy"
+          }
+        }
+      }
+    },
+    "Hissi braucht kein Konto und sammelt keine Daten. Favoriten liegen auf deinem Gerät und in deiner iCloud, dein Standort verlässt das Gerät nicht." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hissi needs no account and collects no data. Favorites stay on your device and in your iCloud; your location never leaves the device."
+          }
+        }
+      }
+    },
+    "Version" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Version"
+          }
+        }
+      }
+    },
+    "Fertig" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        }
+      }
+    },
     "" : {
       "shouldTranslate" : false
     },
@@ -426,16 +556,6 @@
         }
       }
     },
-    "Deine Favoriten auf dem Sperrbildschirm – meldet sich, wenn ein Aufzug ausfällt oder wieder läuft." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your favorites on the Lock Screen — it speaks up when an elevator breaks down or works again."
-          }
-        }
-      }
-    },
     "Deine letzten Suchbegriffe erscheinen hier." : {
       "localizations" : {
         "en" : {
@@ -446,32 +566,12 @@
         }
       }
     },
-    "Der Status deiner Favoriten auf dem Homescreen und am Handgelenk." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Your favorites' status on the Home Screen and on your wrist."
-          }
-        }
-      }
-    },
     "Die App nutzt jetzt eine neue Datenquelle. Deine bisherigen Favoriten ließen sich nicht übernehmen und wurden entfernt – bitte füge deine Aufzüge über die Suche neu hinzu." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "The app now uses a new data source. Your previous favorites could not be carried over and were removed – please re-add your elevators via search."
-          }
-        }
-      }
-    },
-    "Die Aufzugsdaten kommen von accessibility.cloud, ins Leben gerufen vom Sozialhelden e.V. – dem gemeinnützigen Verein hinter Wheelmap, der sich für Barrierefreiheit im Alltag einsetzt." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The elevator data comes from accessibility.cloud, created by Sozialhelden e.V. — the non-profit behind Wheelmap that works for accessibility in everyday life."
           }
         }
       }
@@ -586,16 +686,6 @@
         }
       }
     },
-    "Favoriten im Blick" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Favorites at a glance"
-          }
-        }
-      }
-    },
     "Favoriten öffnen" : {
       "localizations" : {
         "en" : {
@@ -622,16 +712,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Error"
-          }
-        }
-      }
-    },
-    "Frag Siri nach dem Status – für alle Favoriten oder für einen bestimmten Aufzug." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ask Siri for the status — for all your favorites or for one specific elevator."
           }
         }
       }
@@ -872,16 +952,6 @@
         }
       }
     },
-    "Markiere Aufzüge als Favoriten und prüfe sie alle mit einem Blick." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Star elevators as favorites and check them all at a glance."
-          }
-        }
-      }
-    },
     "Meinen Standort anzeigen" : {
       "localizations" : {
         "en" : {
@@ -1012,26 +1082,6 @@
         }
       }
     },
-    "Schließen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Close"
-          }
-        }
-      }
-    },
-    "Siri und Kurzbefehle" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Siri and Shortcuts"
-          }
-        }
-      }
-    },
     "Sortieren" : {
       "localizations" : {
         "en" : {
@@ -1141,16 +1191,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Show nearby stations"
-          }
-        }
-      }
-    },
-    "Stationen in Fußweite mit dem Status ihrer Aufzüge – auch auf der Uhr und als Widget." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Stations within walking distance with the status of their elevators — on the watch and as a widget, too."
           }
         }
       }
@@ -1265,16 +1305,6 @@
         }
       }
     },
-    "Suche nach einer Station und sieh alle Aufzüge dort mit Live-Status." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Search for a station and see all its elevators with live status."
-          }
-        }
-      }
-    },
     "Tippe unten ins Suchfeld, um Aufzüge zu finden und hinzuzufügen." : {
       "localizations" : {
         "en" : {
@@ -1311,16 +1341,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "remaining"
-          }
-        }
-      }
-    },
-    "Version %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Version %@"
           }
         }
       }
@@ -1391,16 +1411,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Continue"
-          }
-        }
-      }
-    },
-    "Widget & Watch" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Widget & Watch"
           }
         }
       }
