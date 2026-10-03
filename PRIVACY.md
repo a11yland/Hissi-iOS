@@ -9,7 +9,11 @@ Hissi hat kein Konto, keine Werbung, kein Tracking und keine Analyse-Dienste. Wi
 
 ## Verantwortlich
 
-a11yland — ⟨Name, Anschrift, E-Mail-Adresse eintragen⟩
+Ingo Stöcker (a11yland)  
+Blankenburger Straße 130  
+13156 Berlin  
+Deutschland  
+E-Mail: Kobe24LAL@gmx.de
 
 ## Was die App verarbeitet
 
@@ -51,7 +55,11 @@ Hissi has no account, no ads, no tracking and no analytics. We, the developers, 
 
 ## Controller
 
-a11yland — ⟨name, postal address, e-mail⟩
+Ingo Stöcker (a11yland)  
+Blankenburger Straße 130  
+13156 Berlin  
+Germany  
+E-mail: Kobe24LAL@gmx.de
 
 ## What the app processes
 
