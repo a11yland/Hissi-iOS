@@ -27,6 +27,8 @@ E-Mail: Kobe24LAL@gmx.de
 
 **Siri und Kurzbefehle.** Die Kurzbefehle laufen auf dem Gerät. Was du Siri sagst, verarbeitet Apple nach den eigenen Regeln.
 
+**Android-Version.** Auf Android gibt es keine iCloud-Kopie; Favoriten liegen nur auf dem Gerät. Kartenausschnitt und Straßenansicht kommen vom Google Maps SDK, das die Stationskoordinaten und gerätebezogene Kennungen an Google übermittelt; es gilt die [Datenschutzerklärung von Google](https://policies.google.com/privacy). Störungsalarme erzeugt die App lokal auf dem Gerät, ohne Push-Dienst.
+
 **Letzte Suchen, Einstellungen, Cache.** Bleiben auf dem Gerät und lassen sich in der App löschen oder verschwinden mit dem Deinstallieren.
 
 **Export.** Die Funktion „Favoriten exportieren" erzeugt eine Datei nur auf deinen Wunsch; was du damit tust, liegt bei dir.
@@ -72,6 +74,8 @@ E-mail: Kobe24LAL@gmx.de
 **Maps.** Map snippets and Look Around come from Apple Maps, which receives the station coordinates; Apple's privacy policy applies.
 
 **Siri and Shortcuts.** The shortcuts run on the device. What you say to Siri is handled by Apple under its own terms.
+
+**Android version.** On Android there is no iCloud copy; favorites live on the device only. Map snippets and Street View come from the Google Maps SDK, which sends the station coordinates and device-related identifiers to Google; [Google's privacy policy](https://policies.google.com/privacy) applies. Disruption alerts are generated locally on the device, without a push service.
 
 **Recent searches, settings, cache.** Stay on the device, can be cleared in the app and disappear with an uninstall.
 
