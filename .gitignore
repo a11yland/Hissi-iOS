@@ -79,3 +79,6 @@ Shared/Secrets.swift
 .agents/skills/
 .claude/skills/
 __pycache__/
+
+# App Store screenshots: the JPEG upload sets are versioned, the raw PNGs are not
+screenshots/**/raw/
