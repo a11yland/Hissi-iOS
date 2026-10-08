@@ -19,6 +19,9 @@ struct ContentView: View {
     // Lets the empty favorites state open the search (and with it the nearby
     // block) from a button — the field itself is system-provided.
     @State private var isSearchPresented = false
+    // Tapping a nearby station or recent search fills the field; the keyboard
+    // has done its job by then and would cover the result.
+    @FocusState private var isSearchFocused: Bool
     // Welcome on first launch, "Was ist neu" once per curated release.
     @State private var onboarding: WelcomeGate.Sheet?
 
@@ -37,11 +40,13 @@ struct ContentView: View {
                 liveStatus: liveStatus,
                 query: $query,
                 isSearchPresented: $isSearchPresented,
+                isSearchFocused: $isSearchFocused,
                 appearance: $appearance,
                 isDark: isDark
             )
         }
         .searchable(text: $query, isPresented: $isSearchPresented, prompt: "Station finden")
+        .searchFocused($isSearchFocused)
         .autocorrectionDisabled()
         .onSubmit(of: .search) { recents.add(query) }
         .preferredColorScheme(appearance.colorScheme)
@@ -122,6 +127,7 @@ private struct SearchableContent: View {
     @ObservedObject var liveStatus: LiveActivityController
     @Binding var query: String
     @Binding var isSearchPresented: Bool
+    var isSearchFocused: FocusState<Bool>.Binding
     @Binding var appearance: AppAppearance
     let isDark: Bool
 
@@ -414,10 +420,12 @@ private struct SearchableContent: View {
                 NearbyStationsSection(location: location) { name in
                     query = name
                     recents.add(name)
+                    isSearchFocused.wrappedValue = false
                 }
                 RecentSearchChips(recents: recents) { term in
                     query = term
                     recents.add(term)
+                    isSearchFocused.wrappedValue = false
                 }
             }
             .padding()
