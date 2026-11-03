@@ -7635,5 +7635,119 @@
    "organizationName": "S-Bahn Berlin GmbH",
    "region": "berlin"
   }
+ ],
+ "stations": [
+  {
+   "stationId": "900002201",
+   "dhid": "de:11000:900002201",
+   "name": "Birkenstraße (Berlin)",
+   "latitude": 52.532269,
+   "longitude": 13.341418
+  },
+  {
+   "stationId": "900005201",
+   "dhid": "de:11000:900005201",
+   "name": "Kurfürstenstraße (Berlin)",
+   "latitude": 52.499778,
+   "longitude": 13.362857
+  },
+  {
+   "stationId": "900009103",
+   "dhid": "de:11000:900009103",
+   "name": "Seestraße (Berlin)",
+   "latitude": 52.55047,
+   "longitude": 13.351969
+  },
+  {
+   "stationId": "900017102",
+   "dhid": "de:11000:900017102",
+   "name": "Platz der Luftbrücke (Berlin)",
+   "latitude": 52.48487,
+   "longitude": 13.385927
+  },
+  {
+   "stationId": "900022101",
+   "dhid": "de:11000:900022101",
+   "name": "Sophie-Charlotte-Platz (Berlin)",
+   "latitude": 52.51097,
+   "longitude": 13.297463
+  },
+  {
+   "stationId": "900023202",
+   "dhid": "de:11000:900023202",
+   "name": "Augsburger Straße (Berlin)",
+   "latitude": 52.500442,
+   "longitude": 13.336461
+  },
+  {
+   "stationId": "900041201",
+   "dhid": "de:11000:900041201",
+   "name": "Konstanzer Straße (Berlin)",
+   "latitude": 52.493567,
+   "longitude": 13.310084
+  },
+  {
+   "stationId": "900054101",
+   "dhid": "de:11000:900054101",
+   "name": "Rathaus Schöneberg (Berlin)",
+   "latitude": 52.483332,
+   "longitude": 13.341989
+  },
+  {
+   "stationId": "900055102",
+   "dhid": "de:11000:900055102",
+   "name": "Bayerischer Platz (Berlin)",
+   "latitude": 52.488654,
+   "longitude": 13.340237
+  },
+  {
+   "stationId": "900080202",
+   "dhid": "de:11000:900080202",
+   "name": "Grenzallee (Berlin)",
+   "latitude": 52.463516,
+   "longitude": 13.444828
+  },
+  {
+   "stationId": "900085203",
+   "dhid": "de:11000:900085203",
+   "name": "Residenzstraße (Berlin)",
+   "latitude": 52.570843,
+   "longitude": 13.360635
+  },
+  {
+   "stationId": "900100015",
+   "dhid": "de:11000:900100015",
+   "name": "Klosterstraße (Berlin)",
+   "latitude": 52.517229,
+   "longitude": 13.412455
+  },
+  {
+   "stationId": "900100016",
+   "dhid": "de:11000:900100016",
+   "name": "Rosa-Luxemburg-Platz (Berlin)",
+   "latitude": 52.528191,
+   "longitude": 13.410405
+  },
+  {
+   "stationId": "900100045",
+   "dhid": "de:11000:900100045",
+   "name": "Rotes Rathaus (Berlin)",
+   "latitude": 52.518462,
+   "longitude": 13.407061
+  },
+  {
+   "stationId": "900100513",
+   "dhid": "de:11000:900100513",
+   "name": "Unter den Linden (Berlin)",
+   "latitude": 52.516996,
+   "longitude": 13.388876
+  },
+  {
+   "stationId": "900100537",
+   "dhid": "de:11000:900100537",
+   "name": "Museumsinsel (Berlin)",
+   "latitude": 52.518086,
+   "longitude": 13.400394
+  }
  ]
 }

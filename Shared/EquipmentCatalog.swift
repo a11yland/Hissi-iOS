@@ -31,6 +31,7 @@ actor EquipmentCatalog {
     // The bundled seed, injectable for tests (the test package bundles no
     // resource, so the default is empty there).
     private let seed: [SeedCatalog.Record]
+    private let stations: [SeedCatalog.Station]
     // The live fetch, injectable for tests. Returns the joined live catalog
     // WITHOUT the seed overlay — the overlay is applied on every load so a
     // release with a newer bundled seed reworks persisted data.
@@ -51,6 +52,7 @@ actor EquipmentCatalog {
         ttl: TimeInterval = 600,
         cacheFileURL: URL? = defaultCacheFileURL,
         seed: [SeedCatalog.Record] = SeedCatalog.records,
+        stations: [SeedCatalog.Station] = SeedCatalog.stations,
         buildLive: @escaping @Sendable () async -> [AccessibilityCloudClient.Equipment]? = {
             await AccessibilityCloudClient.fetchCatalog()
         }
@@ -58,6 +60,7 @@ actor EquipmentCatalog {
         self.ttl = ttl
         self.cacheFileURL = cacheFileURL
         self.seed = seed
+        self.stations = stations
         self.buildLive = buildLive
     }
 
@@ -88,7 +91,7 @@ actor EquipmentCatalog {
         }
         if let built = await startBuild().value { return built }
         if !cached.isEmpty { return cached }
-        let seedOnly = Self.overlaid(live: [], seed: seed)
+        let seedOnly = Self.overlaid(live: [], seed: seed, stations: stations)
         return seedOnly.isEmpty ? nil : seedOnly
     }
 
@@ -105,7 +108,7 @@ actor EquipmentCatalog {
     private func finishBuild(live: [AccessibilityCloudClient.Equipment]?) -> [AccessibilityCloudClient.Equipment]? {
         inFlight = nil
         guard let live else { return nil }
-        cached = Self.overlaid(live: live, seed: seed)
+        cached = Self.overlaid(live: live, seed: seed, stations: stations)
         fetchedAt = Date()
         persist(live: live)
         return cached
@@ -131,7 +134,7 @@ actor EquipmentCatalog {
               let persisted = try? JSONDecoder().decode(PersistedCatalog.self, from: data),
               !persisted.live.isEmpty
         else { return }
-        cached = Self.overlaid(live: persisted.live, seed: seed)
+        cached = Self.overlaid(live: persisted.live, seed: seed, stations: stations)
         fetchedAt = persisted.fetchedAt
     }
 
@@ -173,7 +176,7 @@ actor EquipmentCatalog {
             // A failed fetch degrades to the seed overlay: numeric favorites
             // stay unresolved (previous values survive), seed-id favorites
             // still answer — status unknown, never a false "working".
-            resolved = Self.overlaid(live: live ?? [], seed: seed)
+            resolved = Self.overlaid(live: live ?? [], seed: seed, stations: stations)
         }
         let byId = Dictionary(resolved.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         var result: [String: AccessibilityCloudClient.Equipment] = [:]
@@ -187,7 +190,7 @@ actor EquipmentCatalog {
         // spurious failure report.
         let missingSeedIds = ids.filter { result[$0] == nil && Int($0) == nil }
         if !missingSeedIds.isEmpty {
-            for record in Self.overlaid(live: [], seed: seed.filter { missingSeedIds.contains($0.id) }) {
+            for record in Self.overlaid(live: [], seed: seed.filter { missingSeedIds.contains($0.id) }, stations: stations) {
                 result[record.id] = record
             }
         }
@@ -235,10 +238,18 @@ actor EquipmentCatalog {
     // record would just sit next to the real elevators), and the entire seed
     // when offline. Unmatched accessibilityCloud records stay out either way
     // — their stations are live, appending them would duplicate elevators.
+    // Whatever still has no coordinate after all that takes the station's
+    // from the seed's `stations` list (keyed by the station number) — the
+    // last resort for a station whose records carry no centroid upstream.
     nonisolated static func overlaid(
         live: [AccessibilityCloudClient.Equipment],
-        seed: [SeedCatalog.Record]
+        seed: [SeedCatalog.Record],
+        stations: [SeedCatalog.Station] = SeedCatalog.stations
     ) -> [AccessibilityCloudClient.Equipment] {
+        let stationsById = Dictionary(
+            stations.map { ($0.stationId, $0) },
+            uniquingKeysWith: { first, _ in first }
+        )
         let seedByInventory = Dictionary(
             seed.compactMap { record in
                 record.fastaEquipmentNumber.map { (String($0), record) }
@@ -313,7 +324,37 @@ actor EquipmentCatalog {
                 region: record.region.flatMap(TransitRegion.init(rawValue:))
             ))
         }
-        return appended
+        return appended.map { stationCoordinated($0, from: stationsById) }
+    }
+
+    // The station's own coordinate for a record that has none — after the
+    // live centroid and the seed's siblings, never instead of them. Pure,
+    // unit-tested.
+    nonisolated static func stationCoordinated(
+        _ equipment: AccessibilityCloudClient.Equipment,
+        from stationsById: [String: SeedCatalog.Station]
+    ) -> AccessibilityCloudClient.Equipment {
+        guard equipment.latitude == nil || equipment.longitude == nil,
+              let station = stationsById[equipment.stationId]
+        else { return equipment }
+        return AccessibilityCloudClient.Equipment(
+            id: equipment.id,
+            inventoryId: equipment.inventoryId,
+            stationId: equipment.stationId,
+            stationName: equipment.stationName,
+            stationNetworks: equipment.stationNetworks,
+            description: equipment.description,
+            isWorking: equipment.isWorking,
+            lastUpdate: equipment.lastUpdate,
+            sourceName: equipment.sourceName,
+            organizationName: equipment.organizationName,
+            stateExplanation: equipment.stateExplanation,
+            latitude: station.latitude,
+            longitude: station.longitude,
+            fastaEquipmentNumber: equipment.fastaEquipmentNumber,
+            brokenliftsIndex: equipment.brokenliftsIndex,
+            region: equipment.region
+        )
     }
 
     // What a live record the inventory number answered incompletely (or not

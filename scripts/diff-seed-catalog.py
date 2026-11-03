@@ -6,6 +6,9 @@
 Prints a Markdown summary of added/removed/changed records and exits 1 when
 the catalogs differ. Ignored: `generatedAt` (always differs) and coordinates
 (source jitter would cause weekly noise; they don't affect matching or search).
+The `stations` list (coordinates for stations the live data cannot place) is
+compared by membership and name — a station dropping out means the platform
+now carries a centroid for it.
 The fields that matter are identity and mapping — `fastaEquipmentNumber` is
 the app's metadata-backfill key against transit.accessibility.cloud, and a
 dropped `brokenlifts` record means the platform now covers that station.
@@ -23,9 +26,12 @@ COMPARED_FIELDS = [
 ]
 
 
-def load(path: str) -> dict[str, dict]:
-    records = json.loads(Path(path).read_text())["elevators"]
-    return {r["id"]: r for r in records}
+def load(path: str) -> tuple[dict[str, dict], dict[str, dict]]:
+    file = json.loads(Path(path).read_text())
+    return (
+        {r["id"]: r for r in file["elevators"]},
+        {s["stationId"]: s for s in file.get("stations", [])},
+    )
 
 
 def describe(record: dict) -> str:
@@ -33,7 +39,14 @@ def describe(record: dict) -> str:
 
 
 def main() -> int:
-    bundled, fresh = load(sys.argv[1]), load(sys.argv[2])
+    (bundled, bundled_stations), (fresh, fresh_stations) = load(sys.argv[1]), load(sys.argv[2])
+    stations_added = [fresh_stations[i] for i in sorted(fresh_stations.keys() - bundled_stations.keys())]
+    stations_removed = [bundled_stations[i] for i in sorted(bundled_stations.keys() - fresh_stations.keys())]
+    stations_renamed = [
+        (bundled_stations[i], fresh_stations[i])
+        for i in sorted(bundled_stations.keys() & fresh_stations.keys())
+        if bundled_stations[i].get("name") != fresh_stations[i].get("name")
+    ]
 
     added = [fresh[i] for i in sorted(fresh.keys() - bundled.keys())]
     removed = [bundled[i] for i in sorted(bundled.keys() - fresh.keys())]
@@ -47,11 +60,12 @@ def main() -> int:
         if diffs:
             changed.append((bundled[rid], diffs))
 
-    if not (added or removed or changed):
+    if not (added or removed or changed or stations_added or stations_removed or stations_renamed):
         print("No drift — bundled seed matches a fresh generation.")
         return 0
 
-    print(f"## Seed drift: {len(added)} added, {len(removed)} removed, {len(changed)} changed\n")
+    print(f"## Seed drift: {len(added)} added, {len(removed)} removed, {len(changed)} changed, "
+          f"{len(stations_added) + len(stations_removed) + len(stations_renamed)} station coordinates\n")
     for title, records in (("Added", added), ("Removed", removed)):
         if records:
             print(f"### {title} ({len(records)})\n")
@@ -64,6 +78,17 @@ def main() -> int:
             print(f"- {describe(record)}")
             for d in diffs:
                 print(f"  - {d}")
+        print()
+    for title, stations in (("Station coordinates added", stations_added), ("Station coordinates removed", stations_removed)):
+        if stations:
+            print(f"### {title} ({len(stations)})\n")
+            for s in stations:
+                print(f"- `{s['stationId']}` — {s.get('name', '?')}")
+            print()
+    if stations_renamed:
+        print(f"### Station coordinates renamed ({len(stations_renamed)})\n")
+        for old, new in stations_renamed:
+            print(f"- `{old['stationId']}` — {old.get('name')} → {new.get('name')}")
         print()
     print("Regenerate before the next release: `python3 scripts/generate-seed-catalog.py`. "
           "Watch for `brokenliftsIndex` shifts — existing favorites keep their old "

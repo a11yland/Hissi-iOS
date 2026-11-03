@@ -155,7 +155,12 @@ only when they all name the same one — a station served by two operators
 keeps those rows empty rather than claiming the wrong one. Live always wins,
 and the inventory number is never taken from a sibling: it identifies the
 elevator, not the station. Without this fallback the detail view silently
-drops its map, its Look Around view and both name rows.
+drops its map, its Look Around view and both name rows. What still has no
+coordinate after that takes the station's from the seed's `stations` list (`EquipmentCatalog.stationCoordinated`, keyed by the
+station number): VBB GTFS coordinates the generator writes for exactly the
+stations whose live elevators carry no `location.centroid` and that no seed
+record places — the last resort, after the live centroid and the seed's
+siblings.
 
 Results are grouped by `SearchGrouping` (pure, unit-tested): **region →
 station → network**. Region (Berlin/Brandenburg; headers only when both are

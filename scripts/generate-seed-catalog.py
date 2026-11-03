@@ -21,10 +21,22 @@ Sources:
   credentials are retired) are carried over unchanged, "brokenlifts" records
   only while the platform still lacks their station (currently S
   Fredersdorf).
+- **VBB GTFS** (public, ~80 MB): station coordinates for the `stations`
+  list — the stations whose live elevators carry no `location.centroid` and
+  that no seed record places either (16 on 2026-11-03, mostly the newer U5
+  stations and BVG retrofits). Keyed by DHID (`stop_id` = the stop place's
+  `main_identifier`), so no name matching. The app uses them as the last
+  coordinate fallback, after the live centroid and the seed's siblings. The
+  download is cached for a week in the temp directory (`VBB_GTFS_ZIP` points
+  at a local copy instead); a failed download fails the run.
 
     ACCESSIBILITY_CLOUD_APP_TOKEN=trtok_… \\
     ACCESSIBILITY_CLOUD_LEGACY_TOKEN=… \\
     python3 scripts/generate-seed-catalog.py [output-path]
+
+`--stations-only` skips the legacy API and carries the bundled `elevators`
+and `generatedAt` over unchanged, recomputing just the `stations` list — the
+transit token and the GTFS are all it needs.
 
 Before writing, the run checks the result for stations whose records
 disagree about where the station is (see report_coordinate_outliers) — since
@@ -35,14 +47,18 @@ The transit token falls back to `accessibilityCloudAppToken` in
 Shared/Secrets.swift; the legacy token must come from the environment.
 """
 
+import csv
+import io
 import json
 import math
 import os
 import re
 import sys
+import tempfile
 import time
 import unicodedata
 import urllib.request
+import zipfile
 from collections import defaultdict
 from pathlib import Path
 
@@ -57,6 +73,10 @@ LEGACY_SOURCE_IDS = "v7c7T5ivwqdbffXQn,Wkd92kW7X2rAsbTdH,ZpdNXw3AJpphwn68T"
 
 TRANSIT_HOST = "https://transit.accessibility.cloud"
 TRANSIT_PAGE_SIZE = 500
+
+VBB_GTFS_URL = "https://www.vbb.de/fileadmin/user_upload/VBB/Dokumente/API-Datensaetze/gtfs-mastscharf/GTFS.zip"
+VBB_GTFS_CACHE = Path(tempfile.gettempdir()) / "hissi-vbb-gtfs.zip"
+VBB_GTFS_CACHE_SECONDS = 7 * 86_400
 
 # Elevators of one station sit within a few hundred metres of each other;
 # beyond this the records disagree about where the station is.
@@ -141,17 +161,25 @@ def fetch_transit_pages(token: str, resource: str, select: str) -> list[dict]:
         page += 1
 
 
-def fetch_transit_coverage(token: str) -> tuple[set[str], set[str]]:
-    """(live inventory numbers, live VBB station numbers of stations that
-    have at least one elevator)."""
+def fetch_transit(token: str) -> tuple[list[dict], list[dict]]:
+    """The live elevators (inventory number, site, centroid) and stop places
+    (DHID, name) — everything the coverage and the station list read."""
     elevators = fetch_transit_pages(
         token, "elevators",
-        "select%5Blinked_data%5D%5Boperator_inventory_id%5D=true&select%5Blocation%5D%5Bsite%5D=true",
+        "select%5Blinked_data%5D%5Boperator_inventory_id%5D=true&select%5Blocation%5D%5Bsite%5D=true"
+        "&select%5Blocation%5D%5Bcentroid%5D=true",
     )
-    stops = fetch_transit_pages(token, "stop-places", "select%5Bmain_identifier%5D=true")
-    station_number = {
-        s["id"]: (s.get("main_identifier") or "").rsplit(":", 1)[-1] for s in stops
-    }
+    stops = fetch_transit_pages(
+        token, "stop-places",
+        "select%5Bmain_identifier%5D=true&select%5Bnormalized_name%5D=true",
+    )
+    return elevators, stops
+
+
+def transit_coverage(elevators: list[dict], stops: list[dict]) -> tuple[set[str], set[str]]:
+    """(live inventory numbers, live VBB station numbers of stations that
+    have at least one elevator)."""
+    station_number = {s["id"]: station_number_of(s) for s in stops}
     inventory = set()
     covered_stations = set()
     for e in elevators:
@@ -162,6 +190,110 @@ def fetch_transit_coverage(token: str) -> tuple[set[str], set[str]]:
         if site in station_number:
             covered_stations.add(station_number[site])
     return inventory, covered_stations
+
+
+def station_number_of(stop: dict) -> str:
+    return (stop.get("main_identifier") or "").rsplit(":", 1)[-1]
+
+
+def stop_name(stop: dict) -> str:
+    name = stop.get("normalized_name")
+    if isinstance(name, dict):
+        name = name.get("de") or next((v for v in name.values() if v), "")
+    return name or ""
+
+
+def station_gaps(elevators: list[dict], stops: list[dict], records: list[dict]) -> list[dict]:
+    """Stations with live elevators that nothing places: no elevator carries
+    a centroid, and no seed record with coordinates covers the station — by
+    inventory number or by station key, the two ways the app backfills."""
+    seed_inventory = {
+        str(r["fastaEquipmentNumber"]) for r in records
+        if r.get("fastaEquipmentNumber") is not None and r.get("latitude") is not None
+    }
+    seed_keys = {station_key(r["stationName"]) for r in records if r.get("latitude") is not None}
+    by_site: dict[int, list[dict]] = defaultdict(list)
+    for e in elevators:
+        site = (e.get("location") or {}).get("site")
+        if site is not None:
+            by_site[site].append(e)
+    gaps = []
+    for stop in stops:
+        group = by_site.get(stop["id"])
+        if not group:
+            continue
+        if any((e.get("location") or {}).get("centroid") for e in group):
+            continue
+        if any(str((e.get("linked_data") or {}).get("operator_inventory_id")) in seed_inventory for e in group):
+            continue
+        name = stop_name(stop)
+        if station_key(name) in seed_keys:
+            continue
+        gaps.append({
+            "stationId": station_number_of(stop),
+            "dhid": stop.get("main_identifier") or "",
+            "name": name,
+        })
+    return sorted(gaps, key=lambda g: g["stationId"])
+
+
+def gtfs_stops_zip() -> Path:
+    override = os.environ.get("VBB_GTFS_ZIP")
+    if override:
+        return Path(override)
+    cache = VBB_GTFS_CACHE
+    if cache.exists() and time.time() - cache.stat().st_mtime < VBB_GTFS_CACHE_SECONDS:
+        return cache
+    print(f"  downloading {VBB_GTFS_URL}")
+    with urllib.request.urlopen(VBB_GTFS_URL, timeout=600) as response:
+        cache.write_bytes(response.read())
+    return cache
+
+
+def gtfs_station_coordinates(dhids: set[str]) -> dict[str, tuple[float, float]]:
+    """DHID → (latitude, longitude) from the VBB GTFS stops: the parent
+    station row (location_type 1) when there is one, else the mean of the
+    station's platforms (`parent_station`, or a `<dhid>::n` id)."""
+    parents: dict[str, tuple[float, float]] = {}
+    children: dict[str, list[tuple[float, float]]] = defaultdict(list)
+    with zipfile.ZipFile(gtfs_stops_zip()) as archive, archive.open("stops.txt") as stops:
+        for row in csv.DictReader(io.TextIOWrapper(stops, encoding="utf-8-sig")):
+            try:
+                point = (float(row["stop_lat"]), float(row["stop_lon"]))
+            except (KeyError, ValueError):
+                continue
+            stop_id = row["stop_id"]
+            if stop_id in dhids and row.get("location_type") == "1":
+                parents[stop_id] = point
+                continue
+            parent = row.get("parent_station") or stop_id.split("::", 1)[0]
+            if parent in dhids:
+                children[parent].append(point)
+    found = dict(parents)
+    for dhid, points in children.items():
+        if dhid not in found:
+            found[dhid] = (
+                sum(p[0] for p in points) / len(points),
+                sum(p[1] for p in points) / len(points),
+            )
+    return found
+
+
+def build_stations(elevators: list[dict], stops: list[dict], records: list[dict]) -> list[dict]:
+    gaps = station_gaps(elevators, stops, records)
+    print(f"  {len(gaps)} stations need a coordinate from the GTFS")
+    if not gaps:
+        return []
+    coordinates = gtfs_station_coordinates({g["dhid"] for g in gaps if g["dhid"]})
+    stations = []
+    for gap in gaps:
+        point = coordinates.get(gap["dhid"])
+        if point is None:
+            print(f"  not in the GTFS: {gap['dhid']} {gap['name']}", file=sys.stderr)
+            continue
+        stations.append({**gap, "latitude": round(point[0], 6), "longitude": round(point[1], 6)})
+    print(f"  {len(stations)} station coordinates")
+    return stations
 
 
 def station_key(name: str) -> str:
@@ -251,22 +383,33 @@ def report_coordinate_outliers(records: list, limit: float = COORDINATE_SPREAD_L
 
 
 def main() -> None:
-    output = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_OUTPUT
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    stations_only = "--stations-only" in sys.argv[1:]
+    output = Path(args[0]) if args else DEFAULT_OUTPUT
     transit_token = os.environ.get("ACCESSIBILITY_CLOUD_APP_TOKEN") \
         or secrets().get("accessibilityCloudAppToken", "")
     legacy_token = os.environ.get("ACCESSIBILITY_CLOUD_LEGACY_TOKEN", "")
-    if not legacy_token:
+    if not legacy_token and not stations_only:
         sys.exit("ACCESSIBILITY_CLOUD_LEGACY_TOKEN is not set (legacy www.accessibility.cloud app token)")
+
+    bundled_file = json.loads(BUNDLED.read_text())
+    bundled = bundled_file["elevators"]
+
+    print("Fetching transit.accessibility.cloud coverage…")
+    live_elevators, live_stops = fetch_transit(transit_token)
+    inventory, covered_stations = transit_coverage(live_elevators, live_stops)
+    print(f"  {len(inventory)} live inventory numbers, {len(covered_stations)} stations with elevators")
+
+    if stations_only:
+        print("Carrying the bundled elevators over unchanged (--stations-only)")
+        print("Building station coordinates…")
+        stations = build_stations(live_elevators, live_stops, bundled)
+        write(output, bundled_file["generatedAt"], bundled, stations)
+        return
 
     print("Fetching legacy accessibility.cloud catalog…")
     records = fetch_legacy_catalog(legacy_token)
     print(f"  {len(records)} elevators")
-
-    print("Fetching transit.accessibility.cloud coverage…")
-    inventory, covered_stations = fetch_transit_coverage(transit_token)
-    print(f"  {len(inventory)} live inventory numbers, {len(covered_stations)} stations with elevators")
-
-    bundled = json.loads(BUNDLED.read_text())["elevators"]
 
     # DB renumbers equipment while the legacy originalId stays frozen (e.g.
     # S Pankow-Heinersdorf: 10313414 retired, 10906243 current). The previous
@@ -322,9 +465,16 @@ def main() -> None:
     print("Checking station coordinates…")
     report_coordinate_outliers(records)
 
+    print("Building station coordinates…")
+    stations = build_stations(live_elevators, live_stops, records)
+
+    write(output, time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), records, stations)
+
+
+def write(output: Path, generated_at: str, records: list[dict], stations: list[dict]) -> None:
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(
-        {"generatedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "elevators": records},
+        {"generatedAt": generated_at, "elevators": records, "stations": stations},
         ensure_ascii=False, indent=1,
     ) + "\n")
     print(f"Wrote {output}")

@@ -56,6 +56,15 @@ private let seedJSON = Data("""
    "sourceName": "brokenlifts.org",
    "organizationName": "Berliner Verkehrsbetriebe (BVG)"
   }
+ ],
+ "stations": [
+  {
+   "stationId": "900100015",
+   "dhid": "de:11000:900100015",
+   "name": "Klosterstraße (Berlin)",
+   "latitude": 52.517229,
+   "longitude": 13.412455
+  }
  ]
 }
 """.utf8)
@@ -76,6 +85,70 @@ private let seedJSON = Data("""
 
     @Test func unparseableDataYieldsEmpty() {
         #expect(SeedCatalog.parse(Data("nonsense".utf8)).isEmpty)
+    }
+
+    @Test func parsesTheStationListAndToleratesItsAbsence() throws {
+        let stations = SeedCatalog.parseStations(seedJSON)
+        let klosterstrasse = try #require(stations.first)
+        #expect(stations.count == 1)
+        #expect(klosterstrasse.stationId == "900100015")
+        #expect(klosterstrasse.latitude == 52.517229)
+        // A seed from before the list existed.
+        #expect(SeedCatalog.parseStations(Data(#"{"elevators": []}"#.utf8)).isEmpty)
+        #expect(SeedCatalog.parse(Data(#"{"elevators": []}"#.utf8)).isEmpty)
+    }
+}
+
+// The seed's station list: the station's own coordinate for a record that
+// nothing else places — a live record without a centroid at a station the
+// seed has no elevator for.
+@Suite struct StationCoordinateTests {
+    private var seed: [SeedCatalog.Record] { SeedCatalog.parse(seedJSON) }
+    private var stations: [SeedCatalog.Station] { SeedCatalog.parseStations(seedJSON) }
+
+    private func live(
+        stationId: String, stationName: String, inventoryId: String? = nil,
+        latitude: Double? = nil, longitude: Double? = nil
+    ) -> AccessibilityCloudClient.Equipment {
+        AccessibilityCloudClient.Equipment(
+            id: "6740", inventoryId: inventoryId, stationId: stationId, stationName: stationName,
+            description: "Straße ↔ Bahnsteig", isWorking: true, lastUpdate: nil,
+            latitude: latitude, longitude: longitude
+        )
+    }
+
+    @Test func placesARecordNothingElseCan() throws {
+        let merged = EquipmentCatalog.overlaid(
+            live: [live(stationId: "900100015", stationName: "Klosterstraße (Berlin)")],
+            seed: seed, stations: stations
+        )
+        let record = try #require(merged.first { $0.id == "6740" })
+        #expect(record.latitude == 52.517229)
+        #expect(record.longitude == 13.412455)
+    }
+
+    @Test func liveCentroidAndSeedSiblingsWin() throws {
+        let own = EquipmentCatalog.overlaid(
+            live: [live(stationId: "900100015", stationName: "Klosterstraße (Berlin)", latitude: 52.5, longitude: 13.4)],
+            seed: seed, stations: stations
+        )
+        #expect(try #require(own.first).latitude == 52.5)
+        // Waßmannsdorf: the matched seed record has no coordinates, its
+        // fasta sibling does — that sibling comes before the station list.
+        let sibling = EquipmentCatalog.overlaid(
+            live: [live(stationId: "900260022", stationName: "Waßmannsdorf", inventoryId: "10466002")],
+            seed: seed,
+            stations: [SeedCatalog.Station(stationId: "900260022", dhid: nil, name: "Waßmannsdorf", latitude: 1, longitude: 1)]
+        )
+        #expect(try #require(sibling.first { $0.id == "6740" }).latitude == 52.3683272)
+    }
+
+    @Test func unknownStationStaysUnplaced() throws {
+        let merged = EquipmentCatalog.overlaid(
+            live: [live(stationId: "900000001", stationName: "Nirgendwo")],
+            seed: seed, stations: stations
+        )
+        #expect(try #require(merged.first).latitude == nil)
     }
 }
 
