@@ -151,8 +151,24 @@ private struct SearchableContent: View {
     }
 
     var body: some View {
-        content
+        VStack(alignment: .leading, spacing: 0) {
+            // The mode's headline sits below the toolbar, not in it: large
+            // and left-aligned like a large title, but outside the scroll
+            // view, so it stays put while the list moves under it (a system
+            // large title would collapse into the bar instead).
+            Text(title)
+                .font(.largeTitle.weight(.bold))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal, 16)
+                .padding(.top, 4)
+                .padding(.bottom, 8)
+                .accessibilityAddTraits(.isHeader)
+            content
+        }
             .background(Color.hissiBackground.ignoresSafeArea())
+            // The title stays set for the detail's back button ("Favoriten"
+            // rather than "Zurück"); the empty principal item keeps it out
+            // of the bar itself — the headline above is the visible one.
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showsAbout) { AboutSheet() }
@@ -160,6 +176,10 @@ private struct SearchableContent: View {
                 LiveStatusSheet(service: service, liveStatus: liveStatus)
             }
             .toolbar {
+                ToolbarItem(placement: .principal) {
+                    Color.clear.frame(width: 0, height: 0)
+                        .accessibilityHidden(true)
+                }
                 ToolbarItem(placement: .topBarLeading) {
                     // The app icon doubles as the way to "Über Hissi"; the
                     // "Logo" imageset mirrors the AppIcon assets (icon sets

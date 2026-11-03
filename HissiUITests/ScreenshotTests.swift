@@ -179,7 +179,7 @@ final class ScreenshotTests: XCTestCase {
             app.terminate()
             app.launch()
         }
-        require(app.navigationBars["Favoriten"], "favorites after closing the search")
+        require(app.staticTexts["Favoriten"], "favorites after closing the search")
         sleep(1)
     }
 
