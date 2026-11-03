@@ -3,9 +3,9 @@ import SwiftUI
 // "Über Hissi", behind the toolbar logo. Not an onboarding moment but a
 // reference screen, so it is a sectioned list rather than the welcome's
 // scaffold: nothing sits below the fold behind a pinned button, and the
-// data attribution — required by accessibility.cloud's terms, see
-// AttributionFooter — has a section of its own instead of a paragraph the
-// close button hides.
+// data attribution — required by accessibility.cloud's terms, and since
+// the favorites footer dropped its links the one place that carries it —
+// has a section of its own instead of a paragraph the close button hides.
 struct AboutSheet: View {
     @Environment(\.dismiss) private var dismiss
 

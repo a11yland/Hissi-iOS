@@ -396,16 +396,6 @@
         }
       }
     },
-    "Daten von [accessibility.cloud](https://transit.accessibility.cloud), einem Projekt der [Sozialhelden e.V.](https://sozialhelden.de)" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Data by [accessibility.cloud](https://transit.accessibility.cloud), a project of [Sozialhelden e.V.](https://sozialhelden.de)"
-          }
-        }
-      }
-    },
     "Datenschutz" : {
       "localizations" : {
         "en" : {
@@ -587,6 +577,7 @@
       }
     },
     "Favoriten exportieren" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -690,6 +681,7 @@
       }
     },
     "Hissi-Favoriten" : {
+      "extractionState" : "stale",
       "localizations" : {
         "en" : {
           "stringUnit" : {
@@ -795,22 +787,22 @@
         }
       }
     },
-    "Letzte Suchen löschen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear recent searches"
-          }
-        }
-      }
-    },
     "Letzte Suchen" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Recent Searches"
+          }
+        }
+      }
+    },
+    "Letzte Suchen löschen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear recent searches"
           }
         }
       }

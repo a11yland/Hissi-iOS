@@ -156,13 +156,10 @@ private struct SearchableContent: View {
             // and left-aligned like a large title, but outside the scroll
             // view, so it stays put while the list moves under it (a system
             // large title would collapse into the bar instead).
-            Text(title)
-                .font(.largeTitle.weight(.bold))
-                .frame(maxWidth: .infinity, alignment: .leading)
+            headline
                 .padding(.horizontal, 16)
                 .padding(.top, 4)
                 .padding(.bottom, 8)
-                .accessibilityAddTraits(.isHeader)
             content
         }
             // One action per mode, pinned right above the search field so a
@@ -245,6 +242,40 @@ private struct SearchableContent: View {
                     }
                 }
             }
+    }
+
+    // The favorites carry the poll time at the headline's right: one shared
+    // poll covers all of them, so "checked" is global (the rows show the
+    // source's data age). Side by side while it fits, stacked at the larger
+    // text sizes.
+    private var headline: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack(alignment: .firstTextBaseline, spacing: 12) {
+                headlineTitle
+                Spacer(minLength: 0)
+                checkedLabel
+            }
+            VStack(alignment: .leading, spacing: 2) {
+                headlineTitle
+                checkedLabel
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var headlineTitle: some View {
+        Text(title)
+            .font(.largeTitle.weight(.bold))
+            .accessibilityAddTraits(.isHeader)
+    }
+
+    @ViewBuilder
+    private var checkedLabel: some View {
+        if mode == .favorites, let checked = service.elevators.compactMap(\.lastChecked).max() {
+            Text("Geprüft \(MonitoredElevator.relativeTime(since: checked))")
+                .font(.caption)
+                .foregroundStyle(Color.hissiTextSecondary)
+        }
     }
 
     @ViewBuilder
@@ -413,28 +444,6 @@ private struct SearchableContent: View {
                     service.move(from: source, to: destination)
                 }
 
-                Section {} footer: {
-                    VStack(spacing: 6) {
-                        // One shared poll covers all favorites, so "checked" is
-                        // global; the per-row line shows the source's data age.
-                        if let checked = service.elevators.compactMap(\.lastChecked).max() {
-                            Text("Geprüft \(MonitoredElevator.relativeTime(since: checked))")
-                                .font(.caption2)
-                        }
-                        // A file of the favorites to keep or hand on (FR4b) —
-                        // quiet, in the footer: it is an occasional errand, not
-                        // part of checking elevators.
-                        ShareLink(
-                            item: FavoritesExportFile(favorites: service.elevators, order: service.order),
-                            preview: SharePreview("Hissi-Favoriten")
-                        ) {
-                            Label("Favoriten exportieren", systemImage: "square.and.arrow.up")
-                                .font(.caption)
-                        }
-                        .padding(.vertical, 4)
-                        AttributionFooter()
-                    }
-                }
             }
             .hissiList()
             .refreshable { await service.refreshRequestedByUser() }
@@ -478,18 +487,6 @@ private struct SearchableContent: View {
             }
             .padding()
         }
-    }
-}
-
-// accessibility.cloud requires visible attribution of its data — and the
-// platform is Sozialhelden's, so the footer names them too. One Text with
-// two markdown links so the line wraps as a whole on narrow widths.
-private struct AttributionFooter: View {
-    var body: some View {
-        Text("Daten von [accessibility.cloud](https://transit.accessibility.cloud), einem Projekt der [Sozialhelden e.V.](https://sozialhelden.de)")
-            .font(.caption2)
-            .multilineTextAlignment(.center)
-            .frame(maxWidth: .infinity, alignment: .center)
     }
 }
 
