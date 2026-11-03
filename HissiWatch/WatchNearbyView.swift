@@ -50,7 +50,7 @@ struct WatchNearbyView: View {
             case .located(let latitude, let longitude):
                 List {
                     if hasLoaded, stations.isEmpty {
-                        Text("Keine Station mit Aufzug im Umkreis von \(radiusLabel).")
+                        Text("Keine Station mit Aufzug in der Nähe gefunden.")
                             .font(.footnote)
                             .foregroundStyle(Color.watchTextSecondary)
                             .listRowBackground(Color.clear)

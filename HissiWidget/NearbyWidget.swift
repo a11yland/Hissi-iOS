@@ -238,7 +238,7 @@ struct NearbyWidgetSmallView: View {
                 Spacer(minLength: 0)
             } else {
                 Spacer(minLength: 0)
-                Text("Keine Station mit Aufzug im Umkreis von \(radiusLabel()).")
+                Text("Keine Station mit Aufzug in der Nähe gefunden.")
                     .font(.caption)
                     .foregroundStyle(Color.hissiTextSecondary)
                 Spacer(minLength: 0)
@@ -248,7 +248,7 @@ struct NearbyWidgetSmallView: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(
             stations.first.map(accessibleRow)
-                ?? String(localized: "Keine Station mit Aufzug im Umkreis von \(radiusLabel()).")
+                ?? String(localized: "Keine Station mit Aufzug in der Nähe gefunden.")
         )
     }
 }
@@ -277,7 +277,7 @@ struct NearbyWidgetListView: View {
             .accessibilityElement(children: .combine)
 
             if stations.isEmpty {
-                Text("Keine Station mit Aufzug im Umkreis von \(radiusLabel()).")
+                Text("Keine Station mit Aufzug in der Nähe gefunden.")
                     .font(.caption)
                     .foregroundStyle(Color.hissiTextSecondary)
             }

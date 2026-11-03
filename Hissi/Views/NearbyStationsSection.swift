@@ -85,7 +85,7 @@ struct NearbyStationsSection: View {
             case .located(let latitude, let longitude):
                 VStack(spacing: 0) {
                     if hasLoaded, stations.isEmpty {
-                        Text("Keine Station mit Aufzug im Umkreis von \(radiusLabel).")
+                        Text("Keine Station mit Aufzug in der Nähe gefunden.")
                             .font(.footnote)
                             .foregroundStyle(Color.hissiTextSecondary)
                     }

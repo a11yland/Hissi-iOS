@@ -795,12 +795,12 @@
         }
       }
     },
-    "Keine Station mit Aufzug im Umkreis von %@." : {
+    "Keine Station mit Aufzug in der Nähe gefunden." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No station with an elevator within %@."
+            "value" : "No station with an elevator found nearby."
           }
         }
       }
