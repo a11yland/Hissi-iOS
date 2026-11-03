@@ -9,41 +9,53 @@ import SwiftUI
 // next couple of hours, and — only while something is actually broken — "Bis
 // alles wieder läuft", which ends itself the moment the news is good. The
 // sheet stays up after a start so the switch to "läuft" is seen, not guessed.
+//
+// Sized to its content: one card, no list — the sheet is as tall as the
+// card plus its title row, measured, so it never shows an empty half.
 struct LiveStatusSheet: View {
     @ObservedObject var service: ElevatorMonitorService
     @ObservedObject var liveStatus: LiveActivityController
     @Environment(\.dismiss) private var dismiss
+    // The measured content height drives the one detent; the initial value
+    // only covers the first frame before the measurement lands.
+    @State private var contentHeight: CGFloat = 240
 
     private var hasBroken: Bool {
         service.elevators.contains { $0.isWorking == false }
     }
 
     var body: some View {
-        NavigationStack {
-            List {
-                Section {
-                    VStack(alignment: .leading, spacing: 8) {
-                        if let mode = liveStatus.mode {
-                            running(mode)
-                        } else {
-                            idle
-                        }
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(.vertical, 4)
-                }
-                .hissiRows()
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text("Live-Status")
+                    .font(.headline)
+                    .accessibilityAddTraits(.isHeader)
+                Spacer()
+                Button("Fertig") { dismiss() }
+                    .font(.body.weight(.semibold))
             }
-            .hissiList()
-            .navigationTitle("Live-Status")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Fertig") { dismiss() }
+            VStack(alignment: .leading, spacing: 8) {
+                if let mode = liveStatus.mode {
+                    running(mode)
+                } else {
+                    idle
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+            .background(Color.hissiSurface, in: RoundedRectangle(cornerRadius: 12))
         }
-        .presentationDetents([.medium, .large])
+        .padding(.horizontal, 16)
+        // Room for the drag indicator above, the home indicator below.
+        .padding(.top, 24)
+        .padding(.bottom, 16)
+        // Measured at its ideal height, not at the sheet's current one —
+        // otherwise the text wraps to whatever the first detent allows and
+        // the measurement just confirms the truncation.
+        .fixedSize(horizontal: false, vertical: true)
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { contentHeight = $0 }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .presentationDetents([.height(contentHeight)])
         .presentationDragIndicator(.visible)
         .presentationBackground(Color.hissiBackground)
     }
@@ -60,12 +72,15 @@ struct LiveStatusSheet: View {
                 .font(.footnote)
                 .foregroundStyle(Color.hissiTextSecondary)
             // Side by side while they fit; from the larger accessibility
-            // text sizes on, one below the other.
+            // text sizes on, one below the other. Centered and 44 pt tall,
+            // like the nearby button above the search field.
             ViewThatFits(in: .horizontal) {
                 HStack(spacing: 12) { startButtons }
-                VStack(alignment: .leading, spacing: 12) { startButtons }
+                VStack(spacing: 12) { startButtons }
             }
-            .font(.footnote.weight(.semibold))
+            .controlSize(.large)
+            .frame(maxWidth: .infinity)
+            .padding(.top, 4)
         }
     }
 
@@ -105,7 +120,7 @@ struct LiveStatusSheet: View {
                 Task { await liveStatus.end() }
             }
             .buttonStyle(.bordered)
-            .font(.footnote.weight(.semibold))
+            .controlSize(.large)
         }
     }
 
