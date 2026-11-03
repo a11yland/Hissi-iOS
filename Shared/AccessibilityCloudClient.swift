@@ -146,6 +146,9 @@ nonisolated enum AccessibilityCloudClient {
             TransitAPI.elevators,
             extraQuery: select(
                 ["function", "short_visual"], ["location", "site"],
+                // The elevator's own coordinate — what places a station in
+                // the nearby list and frames the detail map without the seed.
+                ["location", "centroid"], ["location", "stopPlaceCentroid"],
                 ["operational_status", "operational_status"],
                 ["operational_status", "current_status_span"],
                 ["linked_data", "operator_inventory_id"],
@@ -213,6 +216,7 @@ nonisolated enum AccessibilityCloudClient {
         guard !ids.isEmpty else { return [] }
         let query = select(
             ["function", "short_visual"],
+            ["location", "centroid"], ["location", "stopPlaceCentroid"],
             ["operational_status", "operational_status"],
             ["operational_status", "current_status_span"],
             ["linked_data", "operator_inventory_id"],
@@ -770,11 +774,21 @@ nonisolated enum AccessibilityCloudClient {
             return nil
         }
 
-        // Coordinates as GeoJSON geometry ([longitude, latitude]) or flat
-        // latitude/longitude fields.
+        // Coordinates: the elevator's own `location.centroid` (what the API
+        // serves today — [longitude, latitude], 96 % of the records as of
+        // 2026-11-03; `stopPlaceCentroid` next to it is null so far but is
+        // the station-level fallback once it isn't), a GeoJSON `geometry`
+        // or flat latitude/longitude fields.
         static func point(_ c: KeyedDecodingContainer<AnyKey>) -> (latitude: Double, longitude: Double)? {
             struct Geometry: Decodable {
                 let coordinates: [Double]
+            }
+            if let location = try? c.nestedContainer(keyedBy: AnyKey.self, forKey: AnyKey("location")) {
+                for key in ["centroid", "stopPlaceCentroid"] {
+                    if let pair = try? location.decodeIfPresent([Double].self, forKey: AnyKey(key)), pair.count == 2 {
+                        return (pair[1], pair[0])
+                    }
+                }
             }
             if let geometry = try? c.decodeIfPresent(Geometry.self, forKey: AnyKey("geometry")),
                geometry.coordinates.count == 2 {

@@ -58,8 +58,12 @@ private func joinedFixtures() throws -> [AccessibilityCloudClient.Equipment] {
         #expect(elevators.first { $0.id == "103" }?.isWorking == nil)
     }
 
-    @Test func decodesCoordinatesFromGeometryAndFlatFields() throws {
+    @Test func decodesCoordinatesFromCentroidGeometryAndFlatFields() throws {
         let (elevators, _, _) = AccessibilityCloudClient.parseElevators(try fixtureData("elevators"))
+        // The live shape: location.centroid, [longitude, latitude].
+        let centroid = try #require(elevators.first { $0.id == "103" })
+        #expect(centroid.latitude == 52.52)
+        #expect(centroid.longitude == 13.4)
         // GeoJSON order is [longitude, latitude].
         let geo = try #require(elevators.first { $0.id == "101" })
         #expect(geo.latitude == 52.43)

@@ -39,6 +39,7 @@
       "id": 103,
       "elevator_type": "elevator",
       "function": { "short_visual": { "de": "Aufzug zum U-Bahnsteig" } },
+      "location": { "short_visual": { "de": "Aufzug zum U-Bahnsteig" }, "centroid": [13.4, 52.52] },
       "operational_status": { "operational_status": "unknown" },
       "stop_place_name": "U Museumsinsel (Berlin)",
       "updatedAt": "2026-06-20T10:00:00Z"

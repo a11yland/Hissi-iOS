@@ -9,7 +9,8 @@ import Foundation
 //
 // The live fetch is overlaid with the bundled seed catalog (SeedCatalog),
 // which backfills what the API doesn't serve — source/operator names (only
-// feed ids at depth=0), coordinates (none at all), region; station names
+// feed ids at depth=0), coordinates where a record carries no centroid
+// (~4 % of them, 2026-11-03), region; station names
 // only where a matched record has none, which today is never (every seed
 // match is stop-place linked) — keeps gap stations
 // searchable (e.g. S Fredersdorf, missing upstream) and carries the search
@@ -317,8 +318,8 @@ actor EquipmentCatalog {
 
     // What a live record the inventory number answered incompletely (or not
     // at all) still gets from the seed: the metadata that holds for a whole
-    // station. The API serves neither coordinates nor source/operator names,
-    // so without this an unmatched record loses its map, its Look Around view
+    // station. The API serves no source/operator names and no coordinates for
+    // some records, so without this an unmatched record loses its map, its Look Around view
     // and both name rows in the detail view — even though the bundle knows
     // the station. Two guards keep the fallback honest: it only fills what is
     // still missing (live always wins), and source/operator are adopted only
