@@ -44,6 +44,7 @@ struct NearbyStationsSection: View {
                     Text("Status wird aktualisiert …")
                         .font(.footnote)
                         .foregroundStyle(Color.hissiTextSecondary)
+                        .announceOnAppear("Status wird aktualisiert …")
                 }
             }
             .accessibilityElement(children: .combine)
@@ -161,7 +162,7 @@ private struct NearbyStationRow: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(station.name)
                     .font(.subheadline)
-                    .lineLimit(1)
+                    .lineLimit(2)
 
                 HStack(spacing: 4) {
                     // Shape carries the status, colour only reinforces it.
@@ -173,7 +174,7 @@ private struct NearbyStationRow: View {
                         .accessibilityHidden(true)
                     Text(station.statusLabel)
                         .font(.caption)
-                        .lineLimit(1)
+                        .lineLimit(2)
                 }
                 .foregroundStyle(station.status.textColor)
             }

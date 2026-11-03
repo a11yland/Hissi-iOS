@@ -76,6 +76,20 @@ import Testing
         }
     }
 
+    // The symbol colours are not text, but they still have to be visible
+    // against the ground — the amber was 2.9:1 on cream once.
+    @Test func statusSymbolsAreVisibleOnEveryGround() throws {
+        for name in ["HissiStatusOK", "HissiStatusUnknown", "HissiStatusDown"] {
+            let pair = try colors(named: name)
+            for ground in Palette.lightGrounds {
+                #expect(WCAGContrast.ratio(pair.light, ground) >= Palette.nonTextContrast, "\(name) light on \(ground)")
+            }
+            for ground in Palette.darkGrounds {
+                #expect(WCAGContrast.ratio(pair.dark, ground) >= Palette.nonTextContrast, "\(name) dark on \(ground)")
+            }
+        }
+    }
+
     @Test func badgesCarryWhiteTextAtEnhancedContrast() {
         for badge in [Palette.uBahnBadge, Palette.sBahnBadge, Palette.regionalBadge, Palette.accessBadge] {
             #expect(WCAGContrast.ratio("#FFFFFF", badge) >= Palette.enhancedTextContrast, Comment(rawValue: badge))

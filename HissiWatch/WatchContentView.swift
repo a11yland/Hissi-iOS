@@ -85,7 +85,7 @@ struct WatchContentView: View {
                 if let checked = elevators.compactMap(\.lastChecked).max() {
                     Text("Geprüft \(MonitoredElevator.relativeTime(since: checked))")
                         .font(.caption2)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(Color.watchTextSecondary)
                         .frame(maxWidth: .infinity)
                         .listRowBackground(Color.clear)
                 }
@@ -182,7 +182,7 @@ struct WatchElevatorDetailView: View {
 
             Text(elevator.lastUpdatedLabel)
                 .font(.caption2)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(Color.watchTextSecondary)
 
             if elevator.isDataStale {
                 Label("Evtl. veraltet", systemImage: "exclamationmark.triangle.fill")
@@ -196,7 +196,7 @@ struct WatchElevatorDetailView: View {
                     if !elevator.organizationName.isEmpty { Text(elevator.organizationName) }
                 }
                 .font(.caption2)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(Color.watchTextSecondary)
                 .multilineTextAlignment(.center)
                 .lineLimit(2)
             }

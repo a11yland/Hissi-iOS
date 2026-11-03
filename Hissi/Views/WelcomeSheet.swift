@@ -153,6 +153,9 @@ struct FeatureRow: View {
     let symbol: String
     let title: LocalizedStringKey
     let detail: LocalizedStringKey
+    // The icon is .title2, so its column grows with the text size — fixed at
+    // 36 pt it overflows into the title at the largest accessibility sizes.
+    @ScaledMetric(relativeTo: .title2) private var iconWidth: CGFloat = 36
 
     init(symbol: String, title: LocalizedStringKey, detail: LocalizedStringKey) {
         self.symbol = symbol
@@ -169,7 +172,7 @@ struct FeatureRow: View {
             Image(systemName: symbol)
                 .font(.title2)
                 .foregroundStyle(.tint)
-                .frame(width: 36)
+                .frame(width: iconWidth)
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 2) {

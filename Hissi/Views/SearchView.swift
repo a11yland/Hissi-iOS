@@ -80,6 +80,7 @@ private struct RefreshingNotice: View {
             Text("Status wird aktualisiert …")
                 .font(.footnote)
                 .foregroundStyle(Color.hissiTextSecondary)
+                .announceOnAppear("Status wird aktualisiert …")
         }
         .frame(maxWidth: .infinity, alignment: .center)
         .listRowBackground(Color.clear)

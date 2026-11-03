@@ -44,30 +44,38 @@ struct LiveStatusSection: View {
             Text("Zeigt deine Favoriten auf dem Sperrbildschirm und meldet sich, wenn ein Aufzug ausfällt oder wieder läuft.")
                 .font(.footnote)
                 .foregroundStyle(Color.hissiTextSecondary)
-            HStack(spacing: 12) {
-                Button {
-                    liveStatus.start(
-                        .trip(endsAt: Date().addingTimeInterval(LiveStatusMode.tripDuration)),
-                        with: service.elevators
-                    )
-                } label: {
-                    Text("Für die Fahrt (2 Std.)")
-                        .prominentButtonLabel()
-                }
-                .buttonStyle(.borderedProminent)
-                if hasBroken {
-                    Button("Bis alles wieder läuft") {
-                        liveStatus.start(.untilRepaired, with: service.elevators)
-                    }
-                    .buttonStyle(.bordered)
-                }
+            // Side by side while they fit; from the larger accessibility
+            // text sizes on, one below the other.
+            ViewThatFits(in: .horizontal) {
+                HStack(spacing: 12) { startButtons }
+                VStack(alignment: .leading, spacing: 12) { startButtons }
             }
             .font(.footnote.weight(.semibold))
             // The system ends Live Activities after a few hours — said once
             // here instead of surprising anyone later.
             Text("Endet automatisch, spätestens nach einigen Stunden.")
                 .font(.caption2)
-                .foregroundStyle(.tertiary)
+                .foregroundStyle(Color.hissiTextSecondary)
+        }
+    }
+
+    @ViewBuilder
+    private var startButtons: some View {
+        Button {
+            liveStatus.start(
+                .trip(endsAt: Date().addingTimeInterval(LiveStatusMode.tripDuration)),
+                with: service.elevators
+            )
+        } label: {
+            Text("Für die Fahrt (2 Std.)")
+                .prominentButtonLabel()
+        }
+        .buttonStyle(.borderedProminent)
+        if hasBroken {
+            Button("Bis alles wieder läuft") {
+                liveStatus.start(.untilRepaired, with: service.elevators)
+            }
+            .buttonStyle(.bordered)
         }
     }
 

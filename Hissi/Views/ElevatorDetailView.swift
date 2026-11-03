@@ -66,6 +66,7 @@ struct ElevatorDetailView: View {
     // it: it frames the station, and the device position only when that fits
     // without losing the station's surroundings (see cameraRegion).
     @State private var camera: MapCameraPosition
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     // Roughly 600 m across — enough to recognise the street the elevator is
     // on. Widening beyond `maxFitMeters` would trade that context for a dot.
@@ -168,7 +169,9 @@ struct ElevatorDetailView: View {
         // A fix (or a later one) can bring the device into the frame.
         .onChange(of: location.state) { _, _ in
             guard let coordinate = elevator.coordinate else { return }
-            withAnimation { camera = .region(cameraRegion(for: coordinate)) }
+            withAnimation(reduceMotion ? nil : .default) {
+                camera = .region(cameraRegion(for: coordinate))
+            }
         }
         .task(id: elevator.id) {
             guard let coordinate = elevator.coordinate else {
@@ -293,6 +296,9 @@ struct ElevatorDetailView: View {
         .buttonStyle(.plain)
         .accessibilityLabel("Kartenausschnitt \(elevator.stationName)")
         .accessibilityHint("In Karten öffnen")
+        // Voice Control: what is visible on the snippet is the pill's text,
+        // so saying it has to hit this button.
+        .accessibilityInputLabels(["In Karten öffnen", "Karte"])
         // Layered over the map button, not inside its label: a button nested
         // in another button's label leaves neither reliably tappable. Top
         // leading is the one free corner — the open-in-Maps pill holds the

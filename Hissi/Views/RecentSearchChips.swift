@@ -47,7 +47,8 @@ struct RecentSearchChips: View {
                     .accessibilityHidden(true)
                 Text(term)
                     .font(.subheadline)
-                    .lineLimit(1)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
             }
             .padding(.horizontal, 14)
             .padding(.vertical, 9)
@@ -65,7 +66,9 @@ struct RecentSearchChips: View {
 }
 
 // Minimal left-aligned wrapping layout for the chips — SwiftUI ships no
-// flow container.
+// flow container. Each chip is offered the container's width, so a long
+// term (or a large text size) wraps inside its chip instead of growing it
+// past the screen.
 private struct FlowLayout: Layout {
     var spacing: CGFloat
 
@@ -78,16 +81,20 @@ private struct FlowLayout: Layout {
         for (subview, position) in zip(subviews, arrange(subviews, in: bounds.width).positions) {
             subview.place(
                 at: CGPoint(x: bounds.minX + position.x, y: bounds.minY + position.y),
-                proposal: .unspecified
+                proposal: Self.chipProposal(in: bounds.width)
             )
         }
+    }
+
+    private static func chipProposal(in width: CGFloat) -> ProposedViewSize {
+        ProposedViewSize(width: width.isFinite ? width : nil, height: nil)
     }
 
     private func arrange(_ subviews: Subviews, in width: CGFloat) -> (size: CGSize, positions: [CGPoint]) {
         var positions: [CGPoint] = []
         var x: CGFloat = 0, y: CGFloat = 0, rowHeight: CGFloat = 0, maxX: CGFloat = 0
         for subview in subviews {
-            let size = subview.sizeThatFits(.unspecified)
+            let size = subview.sizeThatFits(Self.chipProposal(in: width))
             if x > 0, x + size.width > width {
                 x = 0
                 y += rowHeight + spacing

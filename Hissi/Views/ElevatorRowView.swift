@@ -40,7 +40,7 @@ struct ElevatorRowView: View {
 
                 Text(elevator.lastUpdatedLabel)
                     .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(Color.hissiTextSecondary)
 
                 if elevator.isDataStale {
                     Label("Status möglicherweise veraltet", systemImage: "exclamationmark.triangle.fill")

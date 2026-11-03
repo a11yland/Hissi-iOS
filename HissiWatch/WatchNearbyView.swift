@@ -72,7 +72,7 @@ struct WatchNearbyView: View {
                         Text("bis \(radiusLabel) zu Fuß")
                     }
                     .font(.caption2)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(Color.watchTextSecondary)
                     .frame(maxWidth: .infinity)
                     .listRowBackground(Color.clear)
                     .accessibilityElement(children: .combine)

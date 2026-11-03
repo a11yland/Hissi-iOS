@@ -25,6 +25,10 @@ nonisolated enum Palette {
 
     // WCAG 2.2 SC 1.4.6 (AAA) for normal text.
     static let enhancedTextContrast = 7.0
+
+    // WCAG 2.2 SC 1.4.11 (non-text contrast) — the status symbols, whose
+    // shape carries the status and whose colour must still be seen.
+    static let nonTextContrast = 3.0
 }
 
 nonisolated enum WCAGContrast {
