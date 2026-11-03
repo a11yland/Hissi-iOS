@@ -42,8 +42,8 @@ struct LiveStatusLockScreenView: View {
                     ForEach(state.rows.prefix(Self.visibleRows)) { row in
                         LiveStatusRowView(row: row)
                     }
-                    if state.total > Self.visibleRows {
-                        Text("+ \(state.total - Self.visibleRows) weitere")
+                    if state.affectedCount > Self.visibleRows {
+                        Text("+ \(state.affectedCount - Self.visibleRows) weitere")
                             .font(.caption2)
                             .foregroundStyle(Color.hissiTextSecondary)
                     }
@@ -61,8 +61,10 @@ struct LiveStatusLockScreenView: View {
     private var header: some View {
         let status = state.verdict.status
         return HStack(spacing: 10) {
+            // With no rows to carry, the all-clear gives the mark the room —
+            // the same move as the widgets' all-clear.
             LogoMark()
-                .frame(height: 32)
+                .frame(height: state.rows.isEmpty ? 44 : 32)
             HStack(spacing: 6) {
                 Image(systemName: state.summary.symbolName)
                     .font(.title3)
@@ -72,6 +74,8 @@ struct LiveStatusLockScreenView: View {
                     .foregroundStyle(status.textColor)
                     .lineLimit(1)
             }
+            // The verdict is the message; the countdown yields to it.
+            .layoutPriority(1)
             Spacer(minLength: 8)
             remaining
         }
@@ -85,9 +89,13 @@ struct LiveStatusLockScreenView: View {
     private var remaining: some View {
         if let endsAt = context.attributes.mode.endsAt {
             VStack(alignment: .trailing, spacing: 0) {
+                // A timer Text reserves the width of its longest possible
+                // rendering, which would squeeze the verdict into an
+                // ellipsis — a trip is two hours, "1:59:59" fits in 64 pt.
                 Text(endsAt, style: .timer)
                     .font(.caption.monospacedDigit())
                     .multilineTextAlignment(.trailing)
+                    .frame(maxWidth: 64, alignment: .trailing)
                 Text("verbleibend")
                     .font(.caption2)
                     .foregroundStyle(Color.hissiTextSecondary)
@@ -219,6 +227,7 @@ struct LiveStatusWatchView: View {
                         Text(endsAt, style: .timer)
                             .monospacedDigit()
                             .multilineTextAlignment(.trailing)
+                            .frame(maxWidth: 64, alignment: .trailing)
                     }
                 }
                 .font(.caption2)

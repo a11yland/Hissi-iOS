@@ -43,15 +43,28 @@ import Testing
         #expect(state.summary.detailLine == "S+U Pankow")
     }
 
-    // The payload is capped (4 KB), so the rows are — but a broken elevator must
-    // never be the one that falls off the end.
-    @Test func rowsAreCappedWithBrokenSurviving() {
-        let elevators = (1...6).map { elevator("e\($0)", true) } + [elevator("broken", false)]
+    // Only what is not working makes a row — broken first, then unknown; the
+    // payload is capped (4 KB), so the rows are, and the overflow line counts
+    // the affected ones beyond the cap, not the working ones.
+    @Test func rowsListOnlyTheAffectedBrokenFirstAndCapped() {
+        let elevators = (1...6).map { elevator("e\($0)", true) }
+            + (1...4).map { elevator("u\($0)", nil) }
+            + [elevator("broken", false)]
         let state = LiveStatusState(elevators)
         #expect(state.rows.count == LiveStatusState.maxRows)
         #expect(state.rows.first?.id == "broken")
-        #expect(state.total == 7)
-        #expect(state.hiddenRowCount == 3)
+        #expect(state.rows.allSatisfy { $0.isWorking != true })
+        #expect(state.total == 11)
+        #expect(state.affectedCount == 5)
+        #expect(state.hiddenRowCount == 1)
+    }
+
+    // An all-clear is the header alone — a working elevator is no news.
+    @Test func allClearCarriesNoRows() {
+        let state = LiveStatusState((1...3).map { elevator("e\($0)", true) })
+        #expect(state.verdict == .allWorking)
+        #expect(state.rows.isEmpty)
+        #expect(state.hiddenRowCount == 0)
     }
 
     // "Geprüft vor …" on the activity must mean the poll, not the moment the

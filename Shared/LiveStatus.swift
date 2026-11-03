@@ -58,8 +58,11 @@ nonisolated struct LiveStatusState: Codable, Hashable {
         var status: ElevatorStatus { ElevatorStatus(isWorking: isWorking) }
     }
 
-    // The Lock Screen fits three rows, the expanded Dynamic Island four —
-    // beyond that the counts in the header do the talking.
+    // The rows are the elevators that are *not* working — broken first, then
+    // unknown; a working elevator is no news, so an all-clear carries none
+    // and the header is the whole message. The Lock Screen fits three rows,
+    // the expanded Dynamic Island four — beyond that the counts in the
+    // header do the talking.
     static let maxRows = 4
 
     let verdict: ElevatorSummary.Verdict
@@ -85,6 +88,7 @@ nonisolated struct LiveStatusState: Codable, Hashable {
         total = summary.total
         affectedStations = summary.affectedStations
         rows = ElevatorRanking.byUrgency(elevators)
+            .filter { $0.isWorking != true }
             .prefix(Self.maxRows)
             .map {
                 Row(
@@ -110,8 +114,11 @@ nonisolated struct LiveStatusState: Codable, Hashable {
         )
     }
 
-    // Favorites beyond the row cap — the "+ n weitere" line.
-    var hiddenRowCount: Int { max(0, total - rows.count) }
+    // Elevators not working — what the rows list, before the cap.
+    var affectedCount: Int { brokenCount + unknownCount }
+
+    // Affected favorites beyond the row cap — the "+ n weitere" line.
+    var hiddenRowCount: Int { max(0, affectedCount - rows.count) }
 }
 
 // MARK: - Alerts
