@@ -207,11 +207,35 @@ struct NearbyWidgetEntryView: View {
     }
 }
 
-// The nearest station only — the one the user is most likely standing at.
+// Only what is not working makes a row — a station whose lifts all run is
+// no news. With every nearby lift working, the mark takes the room and the
+// verdict is one line, like the status widgets' all-clear.
+private func affected(_ stations: [NearbyStations.Station]) -> [NearbyStations.Station] {
+    stations.filter { $0.status != .working }
+}
+
+private func allClear(_ stations: [NearbyStations.Station]) -> Bool {
+    !stations.isEmpty && affected(stations).isEmpty
+}
+
+private let nearbyAllClearLabel = String(localized: "In der Nähe alle in Betrieb")
+
+// The nearest affected station only — the one the user is most likely
+// heading for.
 struct NearbyWidgetSmallView: View {
     let stations: [NearbyStations.Station]
 
     var body: some View {
+        if allClear(stations) {
+            WidgetAllClearView(label: nearbyAllClearLabel, markHeight: 40)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(nearbyAllClearLabel)
+        } else {
+            content
+        }
+    }
+
+    private var content: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack(spacing: 6) {
                 WidgetMark()
@@ -219,7 +243,7 @@ struct NearbyWidgetSmallView: View {
                     .font(.caption2.weight(.semibold))
                     .foregroundStyle(Color.hissiTextSecondary)
             }
-            if let station = stations.first {
+            if let station = affected(stations).first {
                 Spacer(minLength: 0)
                 Text(station.name)
                     .font(.subheadline.weight(.semibold))
@@ -247,7 +271,7 @@ struct NearbyWidgetSmallView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(
-            stations.first.map(accessibleRow)
+            affected(stations).first.map(accessibleRow)
                 ?? String(localized: "Keine Station mit Aufzug in der Nähe gefunden.")
         )
     }
@@ -261,7 +285,18 @@ struct NearbyWidgetListView: View {
     let maxRows: Int
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        if allClear(stations) {
+            WidgetAllClearView(label: nearbyAllClearLabel, markHeight: 56)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel(nearbyAllClearLabel)
+        } else {
+            list
+        }
+    }
+
+    private var list: some View {
+        let rows = affected(stations)
+        return VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 6) {
                 WidgetMark()
                 Image(systemName: "location.fill")
@@ -281,11 +316,11 @@ struct NearbyWidgetListView: View {
                     .font(.caption)
                     .foregroundStyle(Color.hissiTextSecondary)
             }
-            ForEach(stations.prefix(maxRows)) { station in
+            ForEach(rows.prefix(maxRows)) { station in
                 row(station)
             }
-            if stations.count > maxRows {
-                Text("+ \(stations.count - maxRows) weitere")
+            if rows.count > maxRows {
+                Text("+ \(rows.count - maxRows) weitere")
                     .font(.caption2)
                     .foregroundStyle(Color.hissiTextSecondary)
             }

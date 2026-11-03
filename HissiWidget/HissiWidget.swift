@@ -37,6 +37,28 @@ struct WidgetMark: View {
     }
 }
 
+// The all-clear, shared by every home-screen family: with nothing to list,
+// the mark takes the room and the verdict is one line in the status pair —
+// the same wording every other surface speaks (ElevatorSummary).
+struct WidgetAllClearView: View {
+    let label: String
+    var markHeight: CGFloat = 48
+
+    var body: some View {
+        VStack(spacing: 10) {
+            WidgetMark(height: markHeight)
+            HStack(spacing: 5) {
+                Image(systemName: ElevatorStatus.working.symbolName)
+                    .foregroundStyle(ElevatorStatus.working.symbolColor)
+                Text(label)
+                    .foregroundStyle(ElevatorStatus.working.textColor)
+            }
+            .font(.subheadline.weight(.semibold))
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
 private func statusLabel(_ working: Bool?) -> String {
     ElevatorStatus(isWorking: working).shortLabel
 }
@@ -145,29 +167,35 @@ struct HissiWidgetSmallView: View {
     let entry: LiftEntry
 
     var body: some View {
-        VStack(spacing: 6) {
-            // The mark, top-leading, is the tile's identity; the verdict below
-            // it gets the rest of the room.
-            WidgetMark()
-                .frame(maxWidth: .infinity, alignment: .leading)
-            Spacer(minLength: 0)
-            if entry.elevators.isEmpty {
-                // Without favorites there is nothing to monitor — "Alle in
-                // Betrieb" here would be a false all-clear.
-                Image(systemName: "star")
-                    .font(.title2)
-                    .foregroundStyle(Color.hissiTextSecondary)
-                Text("Keine Favoriten")
-                    .font(.caption)
-                    .foregroundStyle(Color.hissiTextSecondary)
-            } else if entry.brokenCount > 0 {
-                verdict(.broken, number: "\(entry.brokenCount)", caption: "außer Betrieb")
-            } else if entry.unknownCount > 0 {
-                verdict(.unknown, number: "\(entry.unknownCount)", caption: "unbekannt")
+        Group {
+            if entry.summary.verdict == .allWorking {
+                // Nothing to count: the mark grows and the verdict is the
+                // one line.
+                WidgetAllClearView(label: entry.summary.label, markHeight: 40)
             } else {
-                verdict(.working, number: String(localized: "Alle"), caption: "in Betrieb")
+                VStack(spacing: 6) {
+                    // The mark, top-leading, is the tile's identity; the
+                    // verdict below it gets the rest of the room.
+                    WidgetMark()
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    Spacer(minLength: 0)
+                    if entry.elevators.isEmpty {
+                        // Without favorites there is nothing to monitor —
+                        // "Alle in Betrieb" here would be a false all-clear.
+                        Image(systemName: "star")
+                            .font(.title2)
+                            .foregroundStyle(Color.hissiTextSecondary)
+                        Text("Keine Favoriten")
+                            .font(.caption)
+                            .foregroundStyle(Color.hissiTextSecondary)
+                    } else if entry.brokenCount > 0 {
+                        verdict(.broken, number: "\(entry.brokenCount)", caption: "außer Betrieb")
+                    } else {
+                        verdict(.unknown, number: "\(entry.unknownCount)", caption: "unbekannt")
+                    }
+                    Spacer(minLength: 0)
+                }
             }
-            Spacer(minLength: 0)
         }
         .hissiWidgetBackground()
         // One element, one sentence — instead of symbol/number/caption as
@@ -191,16 +219,20 @@ struct HissiWidgetSmallView: View {
     }
 }
 
-// Shared by systemMedium and systemLarge: same rows, different cap. Both
-// open with a header line — the mark as the tile's identity and the
-// aggregate verdict — which is why medium fits three rows, not four.
+// Shared by systemMedium and systemLarge: same rows, different cap. The
+// rows are the elevators that are *not* working — broken first, then
+// unknown — under a header line with the mark and the aggregate verdict;
+// a working elevator is no news, so an all-clear lists nothing and shows
+// the mark large instead.
 struct HissiWidgetListView: View {
     let entry: LiftEntry
     let maxRows: Int
 
-    // Broken elevators must survive the cap — the shared urgency order, which
-    // the Live Activity's row list uses as well.
-    private var ranked: [MonitoredElevator] { ElevatorRanking.byUrgency(entry.elevators) }
+    // Broken elevators first — the shared urgency order, which the Live
+    // Activity's row list uses as well — and only what is not working.
+    private var affected: [MonitoredElevator] {
+        ElevatorRanking.byUrgency(entry.elevators).filter { $0.isWorking != true }
+    }
 
     var body: some View {
         Group {
@@ -214,14 +246,18 @@ struct HissiWidgetListView: View {
                         .font(.caption)
                         .foregroundStyle(Color.hissiTextSecondary)
                 }
+            } else if entry.summary.verdict == .allWorking {
+                WidgetAllClearView(label: entry.summary.label, markHeight: 56)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(entry.summary.label)
             } else {
                 VStack(alignment: .leading, spacing: 6) {
                     header
-                    ForEach(ranked.prefix(maxRows)) { elevator in
+                    ForEach(affected.prefix(maxRows)) { elevator in
                         row(elevator)
                     }
-                    if entry.elevators.count > maxRows {
-                        Text("+ \(entry.elevators.count - maxRows) weitere")
+                    if affected.count > maxRows {
+                        Text("+ \(affected.count - maxRows) weitere")
                             .font(.caption2)
                             .foregroundStyle(Color.hissiTextSecondary)
                     }
