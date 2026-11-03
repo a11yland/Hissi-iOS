@@ -206,16 +206,6 @@
         }
       }
     },
-    "Alle löschen" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Clear all"
-          }
-        }
-      }
-    },
     "Alle überwachten Aufzüge in einer Liste." : {
       "localizations" : {
         "en" : {
@@ -801,6 +791,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No station with an elevator found nearby."
+          }
+        }
+      }
+    },
+    "Letzte Suchen löschen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clear recent searches"
           }
         }
       }

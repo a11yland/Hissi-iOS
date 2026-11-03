@@ -85,9 +85,7 @@ struct NearbyStationsSection: View {
             case .located(let latitude, let longitude):
                 VStack(spacing: 0) {
                     if hasLoaded, stations.isEmpty {
-                        Text("Keine Station mit Aufzug in der Nähe gefunden.")
-                            .font(.footnote)
-                            .foregroundStyle(Color.hissiTextSecondary)
+                        NoticeCard(text: "Keine Station mit Aufzug in der Nähe gefunden.", systemImage: "location.slash")
                     }
                     ForEach(stations) { station in
                         Button {

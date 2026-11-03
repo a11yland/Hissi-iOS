@@ -1,31 +1,23 @@
 import SwiftUI
 
-// Recent searches as tappable capsule chips (replaces the plain list rows).
-// Tap re-runs the search; long-press offers deletion — plus the "Alle
-// löschen" header button as the bulk path. A plain section: the recents
-// screen (ContentView) owns the surrounding scroll view, so the nearby
-// suggestions can sit above.
+// Recent searches as tappable chips (replaces the plain list rows) in the
+// same bordered, 44 pt style as the nearby button, so the screen's targets
+// are one size. Tap re-runs the search; long-press offers deletion — the bulk
+// path is the "Letzte Suchen löschen" button ContentView pins above the
+// search field. A plain section: the recents screen (ContentView) owns the
+// surrounding scroll view, so the nearby suggestions can sit above.
 struct RecentSearchChips: View {
     @ObservedObject var recents: RecentSearchesStore
     let onSelect: (String) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("Letzte Suchen")
-                    .font(.subheadline.weight(.semibold))
-                    .foregroundStyle(Color.hissiTextSecondary)
-                Spacer()
-                if !recents.searches.isEmpty {
-                    Button("Alle löschen") { recents.clear() }
-                        .font(.caption)
-                }
-            }
+            Text("Letzte Suchen")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Color.hissiTextSecondary)
 
             if recents.searches.isEmpty {
-                Text("Deine letzten Suchbegriffe erscheinen hier.")
-                    .font(.footnote)
-                    .foregroundStyle(Color.hissiTextSecondary)
+                NoticeCard(text: "Deine letzten Suchbegriffe erscheinen hier.", systemImage: "clock.arrow.circlepath")
             } else {
                 FlowLayout(spacing: 8) {
                     ForEach(recents.searches, id: \.self) { term in
@@ -40,21 +32,13 @@ struct RecentSearchChips: View {
         Button {
             onSelect(term)
         } label: {
-            HStack(spacing: 6) {
-                Image(systemName: "clock.arrow.circlepath")
-                    .font(.caption)
-                    .foregroundStyle(Color.hissiTextSecondary)
-                    .accessibilityHidden(true)
-                Text(term)
-                    .font(.subheadline)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.leading)
-            }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 9)
-            .background(Color.hissiSurface, in: Capsule())
+            Label(term, systemImage: "clock.arrow.circlepath")
+                .lineLimit(2)
+                .multilineTextAlignment(.leading)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(.bordered)
+        // 44 pt tall — WCAG 2.5.5 (AAA) target size, like the nearby button.
+        .controlSize(.large)
         .contextMenu {
             Button(role: .destructive) {
                 recents.remove(term)

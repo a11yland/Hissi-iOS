@@ -165,26 +165,11 @@ private struct SearchableContent: View {
                 .accessibilityAddTraits(.isHeader)
             content
         }
-            // The nearby entry sits right above the search field it opens,
-            // in favorites mode only — while the search is up, nearby is
-            // already in view. Pinned, so a long list never hides it.
-            .safeAreaInset(edge: .bottom) {
-                if mode == .favorites {
-                    Button {
-                        showNearby()
-                    } label: {
-                        Label("Stationen in der Nähe anzeigen", systemImage: "location")
-                    }
-                    .buttonStyle(.bordered)
-                    // 44 pt tall — WCAG 2.5.5 (AAA) target size; the default
-                    // bordered control is ~30 pt.
-                    .controlSize(.large)
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 8)
-                    .frame(maxWidth: .infinity)
-                    .background(Color.hissiBackground)
-                }
-            }
+            // One action per mode, pinned right above the search field so a
+            // long list never hides it: the nearby entry on the favorites
+            // (while the search is up, nearby is already in view), the bulk
+            // delete on the recents.
+            .safeAreaInset(edge: .bottom) { bottomAction }
             .background(Color.hissiBackground.ignoresSafeArea())
             // The title stays set for the detail's back button ("Favoriten"
             // rather than "Zurück"); the empty principal item keeps it out
@@ -260,6 +245,34 @@ private struct SearchableContent: View {
                     }
                 }
             }
+    }
+
+    @ViewBuilder
+    private var bottomAction: some View {
+        switch mode {
+        case .favorites:
+            pinnedAction("Stationen in der Nähe anzeigen", systemImage: "location") { showNearby() }
+        case .recents:
+            if !recents.searches.isEmpty {
+                pinnedAction("Letzte Suchen löschen", systemImage: "trash") { recents.clear() }
+            }
+        case .results:
+            EmptyView()
+        }
+    }
+
+    private func pinnedAction(_ title: LocalizedStringKey, systemImage: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Label(title, systemImage: systemImage)
+        }
+        .buttonStyle(.bordered)
+        // 44 pt tall — WCAG 2.5.5 (AAA) target size; the default bordered
+        // control is ~30 pt.
+        .controlSize(.large)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity)
+        .background(Color.hissiBackground)
     }
 
     // Sorting sits on the top level, not behind an overflow menu: it belongs
