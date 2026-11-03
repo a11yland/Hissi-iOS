@@ -165,6 +165,26 @@ private struct SearchableContent: View {
                 .accessibilityAddTraits(.isHeader)
             content
         }
+            // The nearby entry sits right above the search field it opens,
+            // in favorites mode only — while the search is up, nearby is
+            // already in view. Pinned, so a long list never hides it.
+            .safeAreaInset(edge: .bottom) {
+                if mode == .favorites {
+                    Button {
+                        showNearby()
+                    } label: {
+                        Label("Stationen in der Nähe anzeigen", systemImage: "location")
+                    }
+                    .buttonStyle(.bordered)
+                    // 44 pt tall — WCAG 2.5.5 (AAA) target size; the default
+                    // bordered control is ~30 pt.
+                    .controlSize(.large)
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 8)
+                    .frame(maxWidth: .infinity)
+                    .background(Color.hissiBackground)
+                }
+            }
             .background(Color.hissiBackground.ignoresSafeArea())
             // The title stays set for the detail's back button ("Favoriten"
             // rather than "Zurück"); the empty principal item keeps it out
@@ -340,16 +360,6 @@ private struct SearchableContent: View {
                     Label("Keine Favoriten", systemImage: "star")
                 } description: {
                     Text("Tippe unten ins Suchfeld, um Aufzüge zu finden und hinzuzufügen.")
-                } actions: {
-                    Button {
-                        showNearby()
-                    } label: {
-                        Label("Stationen in der Nähe anzeigen", systemImage: "location")
-                    }
-                    .buttonStyle(.bordered)
-                    // 44 pt tall — WCAG 2.5.5 (AAA) target size; the default
-                    // bordered control is ~30 pt.
-                    .controlSize(.large)
                 }
             }
         } else {
@@ -360,16 +370,6 @@ private struct SearchableContent: View {
                     }
                     .hissiRows()
                 }
-                // Same entry as the empty state's button, above the favorites
-                // (the list can run long, the entry must not sit under it).
-                Section {
-                    Button {
-                        showNearby()
-                    } label: {
-                        Label("Stationen in der Nähe anzeigen", systemImage: "location")
-                    }
-                }
-                .hissiRows()
                 ForEach(service.elevators) { elevator in
                     NavigationLink {
                         ElevatorDetailView(elevator: elevator, service: service, location: location)
