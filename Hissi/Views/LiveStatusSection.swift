@@ -41,7 +41,9 @@ struct LiveStatusSection: View {
         VStack(alignment: .leading, spacing: 8) {
             Label("Live-Status starten", systemImage: "bell.badge")
                 .font(.subheadline.weight(.semibold))
-            Text("Zeigt deine Favoriten auf dem Sperrbildschirm und meldet sich, wenn ein Aufzug ausfällt oder wieder läuft.")
+            // The system ends Live Activities after a few hours — said once
+            // here instead of surprising anyone later.
+            Text("Zeigt deine Favoriten auf dem Sperrbildschirm und meldet sich, wenn ein Aufzug ausfällt oder wieder läuft. Endet automatisch, spätestens nach einigen Stunden.")
                 .font(.footnote)
                 .foregroundStyle(Color.hissiTextSecondary)
             // Side by side while they fit; from the larger accessibility
@@ -51,11 +53,6 @@ struct LiveStatusSection: View {
                 VStack(alignment: .leading, spacing: 12) { startButtons }
             }
             .font(.footnote.weight(.semibold))
-            // The system ends Live Activities after a few hours — said once
-            // here instead of surprising anyone later.
-            Text("Endet automatisch, spätestens nach einigen Stunden.")
-                .font(.caption2)
-                .foregroundStyle(Color.hissiTextSecondary)
         }
     }
 
