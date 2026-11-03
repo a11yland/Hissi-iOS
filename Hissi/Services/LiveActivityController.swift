@@ -181,7 +181,7 @@ import Combine
 import Foundation
 
 // Mac Catalyst has no ActivityKit. Same interface, nothing behind it, so the
-// favorites UI (LiveStatusSection hides itself off areActivitiesEnabled), the
+// favorites UI (the toolbar bell hides itself off areActivitiesEnabled), the
 // refresh loop and the fan-out compile unchanged — the live status simply is
 // not offered on the Mac.
 @MainActor

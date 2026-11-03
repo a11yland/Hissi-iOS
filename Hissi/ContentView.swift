@@ -133,6 +133,7 @@ private struct SearchableContent: View {
 
     @Environment(\.isSearching) private var isSearching
     @State private var showsAbout = false
+    @State private var showsLiveStatus = false
 
     private enum Mode { case favorites, recents, results }
     private var mode: Mode {
@@ -155,6 +156,9 @@ private struct SearchableContent: View {
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showsAbout) { AboutSheet() }
+            .sheet(isPresented: $showsLiveStatus) {
+                LiveStatusSheet(service: service, liveStatus: liveStatus)
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     // The app icon doubles as the way to "Über Hissi"; the
@@ -198,6 +202,22 @@ private struct SearchableContent: View {
                         Image(systemName: isDark ? "sun.max.fill" : "moon.stars.fill")
                     }
                     .accessibilityLabel(isDark ? "Zu hellem Erscheinungsbild wechseln" : "Zu dunklem Erscheinungsbild wechseln")
+                }
+                // The live status covers the whole favorites set, so it is
+                // an action of this screen — the bell, filled while it runs.
+                // Only with favorites (nothing to report on otherwise), and
+                // not at all while Live Activities are switched off for Hissi:
+                // the user turned them off on purpose.
+                if mode == .favorites, !service.elevators.isEmpty,
+                   liveStatus.areActivitiesEnabled || liveStatus.isRunning {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            showsLiveStatus = true
+                        } label: {
+                            Image(systemName: liveStatus.isRunning ? "bell.badge.fill" : "bell.badge")
+                        }
+                        .accessibilityLabel(liveStatus.isRunning ? "Live-Status läuft" : "Live-Status")
+                    }
                 }
             }
     }
@@ -320,11 +340,6 @@ private struct SearchableContent: View {
                     }
                     .hissiRows()
                 }
-                // Above the list because the live status covers the whole
-                // list. Only here: with no favorites there is nothing to report
-                // on. Brings its own Section — it disappears entirely when Live
-                // Activities are switched off.
-                LiveStatusSection(service: service, liveStatus: liveStatus)
                 // Same entry as the empty state's button, above the favorites
                 // (the list can run long, the entry must not sit under it).
                 Section {

@@ -291,7 +291,7 @@ never falls off the cap).
 | Stop button | `Shared/LiveStatusIntents.swift` | `LiveActivityIntent`; in `Shared/` because the extension references it and the app runs it |
 | Plumbing | `Hissi/Services/LiveActivityController.swift` | start / update / end, adoption after a cold start |
 | UI | `HissiWidget/LiveStatusActivity.swift` | Lock Screen + Dynamic Island (compact, minimal, expanded) |
-| Start & stop | `Hissi/Views/LiveStatusSection.swift` | above the favorites list — that is exactly its scope |
+| Start & stop | `Hissi/Views/LiveStatusSheet.swift` | a sheet behind the bell in the favorites toolbar — the whole set is its scope |
 
 Two ways to end, chosen at start and fixed for the activity's lifetime (they are
 part of the static attributes): **`trip(endsAt:)`** runs for two hours (the Lock

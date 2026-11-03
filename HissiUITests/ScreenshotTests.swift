@@ -48,7 +48,7 @@ final class ScreenshotTests: XCTestCase {
         cancelSearch()
 
         // Favorites list, light and dark.
-        require(app.staticTexts["Live-Status starten"], "favorites list")
+        require(app.buttons["Stationen in der Nähe anzeigen"].firstMatch, "favorites list")
         sleep(2)
         snap("04-favorites")
         toggleAppearance()
@@ -73,15 +73,21 @@ final class ScreenshotTests: XCTestCase {
         snap("06-nearby")
         cancelSearch()
 
-        // Live status: start it, show the running section.
-        let tripButton = app.buttons["Für die Fahrt (2 Std.)"]
-        if tripButton.waitForExistence(timeout: 5) {
-            tripButton.tap()
-            if app.staticTexts["Live-Status läuft"].waitForExistence(timeout: 10) {
-                sleep(1)
-                snap("07-live-status")
-                lockScreenShot("08-lock-screen")
+        // Live status: the bell opens the sheet; start it, show it running.
+        let bell = app.buttons["Live-Status"]
+        if bell.waitForExistence(timeout: 5) {
+            bell.tap()
+            let tripButton = app.buttons["Für die Fahrt (2 Std.)"]
+            if tripButton.waitForExistence(timeout: 5) {
+                tripButton.tap()
+                if app.staticTexts["Live-Status läuft"].waitForExistence(timeout: 10) {
+                    sleep(1)
+                    snap("07-live-status")
+                    lockScreenShot("08-lock-screen")
+                }
             }
+            app.activate()
+            if app.buttons["Fertig"].waitForExistence(timeout: 5) { app.buttons["Fertig"].tap() }
         }
 
         // About.

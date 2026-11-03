@@ -1,38 +1,51 @@
 import SwiftUI
 
-// The one place the live status (Live Activity) is started and stopped. It sits
-// above the favorites list because that is exactly its scope — the whole set,
-// not a single elevator.
+// The one place the live status (Live Activity) is started and stopped — a
+// sheet behind the bell in the favorites toolbar, so the list itself stays
+// the favorites. Its scope is the whole set, not a single elevator, which is
+// why it is a toolbar action of the favorites screen and not a row.
 //
 // Two ways to start, because there are two situations: "Für die Fahrt" for the
 // next couple of hours, and — only while something is actually broken — "Bis
-// alles wieder läuft", which ends itself the moment the news is good.
-struct LiveStatusSection: View {
+// alles wieder läuft", which ends itself the moment the news is good. The
+// sheet stays up after a start so the switch to "läuft" is seen, not guessed.
+struct LiveStatusSheet: View {
     @ObservedObject var service: ElevatorMonitorService
     @ObservedObject var liveStatus: LiveActivityController
+    @Environment(\.dismiss) private var dismiss
 
     private var hasBroken: Bool {
         service.elevators.contains { $0.isWorking == false }
     }
 
-    // Carries its own Section so that switching Live Activities off leaves no
-    // empty section behind in the favorites list.
     var body: some View {
-        // Live Activities switched off for Hissi: nothing is offered and
-        // nothing is nagged about — the user turned them off on purpose.
-        if liveStatus.areActivitiesEnabled || liveStatus.isRunning {
-            Section {
-                VStack(alignment: .leading, spacing: 8) {
-                    if let mode = liveStatus.mode {
-                        running(mode)
-                    } else {
-                        idle
+        NavigationStack {
+            List {
+                Section {
+                    VStack(alignment: .leading, spacing: 8) {
+                        if let mode = liveStatus.mode {
+                            running(mode)
+                        } else {
+                            idle
+                        }
                     }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.vertical, 4)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .hissiRows()
             }
-            .hissiRows()
+            .hissiList()
+            .navigationTitle("Live-Status")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Fertig") { dismiss() }
+                }
+            }
         }
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
+        .presentationBackground(Color.hissiBackground)
     }
 
     // MARK: - Not running
