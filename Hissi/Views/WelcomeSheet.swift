@@ -102,10 +102,32 @@ struct WhatsNewSheet: View {
 
     // Curated per release; versions listed here must appear in
     // WelcomeGate.curatedVersions, or the sheet never shows. 1.0 has none —
-    // the welcome says what the app does.
+    // the welcome says what the app does. Four rows at most: this is a
+    // sheet in the way of the favorites, not release notes.
     @ViewBuilder
     private var notes: some View {
         switch version {
+        case "1.1.0":
+            FeatureRow(
+                symbol: "location.fill",
+                title: "Mehr Stationen in der Nähe",
+                detail: "Auch Stationen, deren Aufzüge ohne Standort gemeldet werden, erscheinen jetzt in der Nähe – zum Beispiel U Klosterstraße."
+            )
+            FeatureRow(
+                symbol: "square.grid.2x2",
+                title: "Widgets zeigen nur Störungen",
+                detail: "Widgets und Live-Status listen nur Aufzüge, die nicht in Betrieb sind. Läuft alles, zeigen sie das Hissi-Zeichen."
+            )
+            FeatureRow(
+                symbol: "sparkles",
+                title: "Aufgeräumte Oberfläche",
+                detail: "Live-Status hinter der Glocke, mehr Platz für deine Favoritenliste, ein größerer Knopf für Stationen in der Nähe und klarere Hinweise."
+            )
+            FeatureRow(
+                symbol: "accessibility",
+                title: "Besser lesbar",
+                detail: "Höhere Kontraste, mehr Platz für große Schrift und keine Kamerafahrt bei reduzierter Bewegung."
+            )
         default:
             EmptyView()
         }
@@ -192,5 +214,5 @@ struct FeatureRow: View {
 }
 
 #Preview("Was ist neu") {
-    WhatsNewSheet(version: "1.0")
+    WhatsNewSheet(version: "1.1.0")
 }

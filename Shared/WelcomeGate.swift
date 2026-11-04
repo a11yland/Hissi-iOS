@@ -14,7 +14,7 @@ nonisolated enum WelcomeGate {
 
     // Releases with curated notes; the note content lives with the UI
     // (WhatsNewSheet), where the literals double as localization keys.
-    static let curatedVersions: Set<String> = []
+    static let curatedVersions: Set<String> = ["1.1.0"]
 
     static func sheet(
         hasSeenWelcome: Bool,

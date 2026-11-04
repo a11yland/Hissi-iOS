@@ -216,6 +216,26 @@
         }
       }
     },
+    "Auch Stationen, deren Aufzüge ohne Standort gemeldet werden, erscheinen jetzt in der Nähe – zum Beispiel U Klosterstraße." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stations whose elevators are reported without a location now show up nearby too – U Klosterstraße, for example."
+          }
+        }
+      }
+    },
+    "Aufgeräumte Oberfläche" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tidier interface"
+          }
+        }
+      }
+    },
     "Aufzug" : {
       "localizations" : {
         "en" : {
@@ -342,6 +362,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Stops the running Live-Status."
+          }
+        }
+      }
+    },
+    "Besser lesbar" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Easier to read"
           }
         }
       }
@@ -684,6 +714,16 @@
     "Hissi: %@" : {
       "shouldTranslate" : false
     },
+    "Höhere Kontraste, mehr Platz für große Schrift und keine Kamerafahrt bei reduzierter Bewegung." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Higher contrast, more room for large text, and no map animation when Reduce Motion is on."
+          }
+        }
+      }
+    },
     "In Betrieb" : {
       "localizations" : {
         "en" : {
@@ -837,6 +877,16 @@
         }
       }
     },
+    "Live-Status hinter der Glocke, mehr Platz für deine Favoritenliste, ein größerer Knopf für Stationen in der Nähe und klarere Hinweise." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Live status behind the bell, more room for your favorites list, a bigger nearby stations button and clearer notices."
+          }
+        }
+      }
+    },
     "Live-Status läuft" : {
       "localizations" : {
         "en" : {
@@ -883,6 +933,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete"
+          }
+        }
+      }
+    },
+    "Mehr Stationen in der Nähe" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "More stations nearby"
           }
         }
       }
@@ -943,6 +1003,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Never checked"
+          }
+        }
+      }
+    },
+    "Widgets und Live-Status listen nur Aufzüge, die nicht in Betrieb sind. Läuft alles, zeigen sie das Hissi-Zeichen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widgets and the live status list only elevators that are out of service. When everything is running, they show the Hissi mark."
+          }
+        }
+      }
+    },
+    "Widgets zeigen nur Störungen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Widgets show only what's not working"
           }
         }
       }
