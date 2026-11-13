@@ -18,7 +18,7 @@ jobs:
   drift:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Generate fresh seed
         env:
@@ -29,7 +29,7 @@ jobs:
       # The fresh seed is uploaded so a release regen can download it instead
       # of needing the legacy token locally.
       - name: Upload fresh seed
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: fresh-seed
           path: /tmp/fresh-seed.json

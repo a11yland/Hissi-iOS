@@ -30,7 +30,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -77,8 +77,11 @@ jobs:
         run: |
           set -euo pipefail
           # Read at the tagged commit, not at main's tip: the notes must be
-          # the ones the submitted build shows.
+          # the ones the submitted build shows. The script itself comes from
+          # main — a commit older than it doesn't have it.
           git checkout -q "$SHA"
+          mkdir -p scripts
+          git show origin/main:scripts/release-notes.py > scripts/release-notes.py
           python3 scripts/release-notes.py "$VERSION" > "$RUNNER_TEMP/notes.md"
           cat "$RUNNER_TEMP/notes.md"
 
