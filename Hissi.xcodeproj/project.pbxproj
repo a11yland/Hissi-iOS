@@ -36,13 +36,6 @@
 			remoteGlobalIDString = WA000001BB000006CC000006;
 			remoteInfo = HissiWatch;
 		};
-		WW000001BB000003CC000003 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = CDC9A4F82FCC9506009EDCA2 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = WW000001BB000009CC000009;
-			remoteInfo = HissiWatchWidget;
-		};
 		UT000001BB000003CC000003 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = CDC9A4F82FCC9506009EDCA2 /* Project object */;
@@ -56,6 +49,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = WA000001BB000006CC000006;
 			remoteInfo = HissiWatch;
+		};
+		WW000001BB000003CC000003 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CDC9A4F82FCC9506009EDCA2 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = WW000001BB000009CC000009;
+			remoteInfo = HissiWatchWidget;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -93,10 +93,10 @@
 		AA000001BB000005CC000005 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		AA000001BB000006CC000006 /* HissiWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HissiWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDC9A5002FCC9506009EDCA2 /* Hissi.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Hissi.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		WA000001BB000001CC000001 /* HissiWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HissiWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		WW000001BB000005CC000005 /* HissiWatchWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HissiWatchWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		UT000001BB000001CC000001 /* HissiUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HissiUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		WA000001BB000001CC000001 /* HissiWatch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HissiWatch.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		WT000001BB000001CC000001 /* HissiWatchUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HissiWatchUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		WW000001BB000005CC000005 /* HissiWatchWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = HissiWatchWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -155,9 +155,19 @@
 			path = Shared;
 			sourceTree = "<group>";
 		};
+		UT000001BB000002CC000002 /* HissiUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HissiUITests;
+			sourceTree = "<group>";
+		};
 		WA000001BB000002CC000002 /* HissiWatch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = HissiWatch;
+			sourceTree = "<group>";
+		};
+		WT000001BB000002CC000002 /* HissiWatchUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = HissiWatchUITests;
 			sourceTree = "<group>";
 		};
 		WW000001BB000007CC000007 /* HissiWatchWidget */ = {
@@ -166,16 +176,6 @@
 				WW000001BB000006CC000006 /* Exceptions for "HissiWatchWidget" folder in "HissiWatchWidget" target */,
 			);
 			path = HissiWatchWidget;
-			sourceTree = "<group>";
-		};
-		UT000001BB000002CC000002 /* HissiUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = HissiUITests;
-			sourceTree = "<group>";
-		};
-		WT000001BB000002CC000002 /* HissiWatchUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = HissiWatchUITests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -192,7 +192,17 @@
 			files = (
 			);
 		};
+		UT000001BB000006CC000006 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
 		WA000001BB000004CC000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		WT000001BB000006CC000006 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
 			);
@@ -201,16 +211,6 @@
 			isa = PBXFrameworksBuildPhase;
 			files = (
 				WW000001BB000001CC000001 /* WidgetKit.framework in Frameworks */,
-			);
-		};
-		UT000001BB000006CC000006 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			files = (
-			);
-		};
-		WT000001BB000006CC000006 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			files = (
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -308,6 +308,27 @@
 			productReference = CDC9A5002FCC9506009EDCA2 /* Hissi.app */;
 			productType = "com.apple.product-type.application";
 		};
+		UT000001BB000008CC000008 /* HissiUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = UT000001BB00000BCC00000B /* Build configuration list for PBXNativeTarget "HissiUITests" */;
+			buildPhases = (
+				UT000001BB000005CC000005 /* Sources */,
+				UT000001BB000006CC000006 /* Frameworks */,
+				UT000001BB000007CC000007 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				UT000001BB000004CC000004 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				UT000001BB000002CC000002 /* HissiUITests */,
+			);
+			name = HissiUITests;
+			productName = HissiUITests;
+			productReference = UT000001BB000001CC000001 /* HissiUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 		WA000001BB000006CC000006 /* HissiWatch */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = WA000001BB000009CC000009 /* Build configuration list for PBXNativeTarget "HissiWatch" */;
@@ -331,46 +352,6 @@
 			productReference = WA000001BB000001CC000001 /* HissiWatch.app */;
 			productType = "com.apple.product-type.application";
 		};
-		WW000001BB000009CC000009 /* HissiWatchWidget */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = WW000001BB00000FCC00000F /* Build configuration list for PBXNativeTarget "HissiWatchWidget" */;
-			buildPhases = (
-				WW000001BB00000BCC00000B /* Sources */,
-				WW000001BB000008CC000008 /* Frameworks */,
-				WW000001BB00000ACC00000A /* Resources */,
-			);
-			buildRules = (
-			);
-			fileSystemSynchronizedGroups = (
-				SH000001BB000001CC000001 /* Shared */,
-				WW000001BB000007CC000007 /* HissiWatchWidget */,
-			);
-			name = HissiWatchWidget;
-			productName = HissiWatchWidget;
-			productReference = WW000001BB000005CC000005 /* HissiWatchWidget.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
-		UT000001BB000008CC000008 /* HissiUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = UT000001BB00000BCC00000B /* Build configuration list for PBXNativeTarget "HissiUITests" */;
-			buildPhases = (
-				UT000001BB000005CC000005 /* Sources */,
-				UT000001BB000006CC000006 /* Frameworks */,
-				UT000001BB000007CC000007 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				UT000001BB000004CC000004 /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				UT000001BB000002CC000002 /* HissiUITests */,
-			);
-			name = HissiUITests;
-			productName = HissiUITests;
-			productReference = UT000001BB000001CC000001 /* HissiUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
-		};
 		WT000001BB000008CC000008 /* HissiWatchUITests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = WT000001BB00000BCC00000B /* Build configuration list for PBXNativeTarget "HissiWatchUITests" */;
@@ -392,6 +373,25 @@
 			productReference = WT000001BB000001CC000001 /* HissiWatchUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		WW000001BB000009CC000009 /* HissiWatchWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = WW000001BB00000FCC00000F /* Build configuration list for PBXNativeTarget "HissiWatchWidget" */;
+			buildPhases = (
+				WW000001BB00000BCC00000B /* Sources */,
+				WW000001BB000008CC000008 /* Frameworks */,
+				WW000001BB00000ACC00000A /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				SH000001BB000001CC000001 /* Shared */,
+				WW000001BB000007CC000007 /* HissiWatchWidget */,
+			);
+			name = HissiWatchWidget;
+			productName = HissiWatchWidget;
+			productReference = WW000001BB000005CC000005 /* HissiWatchWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -400,7 +400,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2650;
-				LastUpgradeCheck = 2700;
+				LastUpgradeCheck = 2720;
 				TargetAttributes = {
 					AA000001BB000009CC000009 = {
 						CreatedOnToolsVersion = 26.5;
@@ -408,19 +408,19 @@
 					CDC9A4FF2FCC9506009EDCA2 = {
 						CreatedOnToolsVersion = 26.5;
 					};
-					WA000001BB000006CC000006 = {
-						CreatedOnToolsVersion = 26.5;
-					};
-					WW000001BB000009CC000009 = {
-						CreatedOnToolsVersion = 26.5;
-					};
 					UT000001BB000008CC000008 = {
 						CreatedOnToolsVersion = 26.5;
 						TestTargetID = CDC9A4FF2FCC9506009EDCA2;
 					};
+					WA000001BB000006CC000006 = {
+						CreatedOnToolsVersion = 26.5;
+					};
 					WT000001BB000008CC000008 = {
 						CreatedOnToolsVersion = 26.5;
 						TestTargetID = WA000001BB000006CC000006;
+					};
+					WW000001BB000009CC000009 = {
+						CreatedOnToolsVersion = 26.5;
 					};
 				};
 			};
@@ -460,22 +460,22 @@
 			files = (
 			);
 		};
-		WA000001BB000005CC000005 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			files = (
-			);
-		};
-		WW000001BB00000ACC00000A /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			files = (
-			);
-		};
 		UT000001BB000007CC000007 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
 			);
 		};
+		WA000001BB000005CC000005 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
 		WT000001BB000007CC000007 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		WW000001BB00000ACC00000A /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
 			);
@@ -493,22 +493,22 @@
 			files = (
 			);
 		};
-		WA000001BB000003CC000003 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			files = (
-			);
-		};
-		WW000001BB00000BCC00000B /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			files = (
-			);
-		};
 		UT000001BB000005CC000005 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			files = (
 			);
 		};
+		WA000001BB000003CC000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
 		WT000001BB000005CC000005 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
+		WW000001BB00000BCC00000B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			files = (
 			);
@@ -531,11 +531,6 @@
 			target = WA000001BB000006CC000006 /* HissiWatch */;
 			targetProxy = CDCF32212FCCC168004E35B7 /* PBXContainerItemProxy */;
 		};
-		WW000001BB00000CCC00000C /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = WW000001BB000009CC000009 /* HissiWatchWidget */;
-			targetProxy = WW000001BB000003CC000003 /* PBXContainerItemProxy */;
-		};
 		UT000001BB000004CC000004 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = CDC9A4FF2FCC9506009EDCA2 /* Hissi */;
@@ -545,6 +540,11 @@
 			isa = PBXTargetDependency;
 			target = WA000001BB000006CC000006 /* HissiWatch */;
 			targetProxy = WT000001BB000003CC000003 /* PBXContainerItemProxy */;
+		};
+		WW000001BB00000CCC00000C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = WW000001BB000009CC000009 /* HissiWatchWidget */;
+			targetProxy = WW000001BB000003CC000003 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -620,6 +620,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -685,6 +686,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -824,6 +826,54 @@
 			};
 			name = Release;
 		};
+		UT000001BB000009CC000009 /* Debug configuration for PBXNativeTarget "HissiUITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.a11yland.HissiUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Hissi;
+			};
+			name = Debug;
+		};
+		UT000001BB00000ACC00000A /* Release configuration for PBXNativeTarget "HissiUITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.a11yland.HissiUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = Hissi;
+			};
+			name = Release;
+		};
 		WA000001BB000007CC000007 /* Debug configuration for PBXNativeTarget "HissiWatch" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -870,6 +920,52 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Release;
+		};
+		WT000001BB000009CC000009 /* Debug configuration for PBXNativeTarget "HissiWatchUITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.a11yland.HissiWatchUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = HissiWatch;
+				WATCHOS_DEPLOYMENT_TARGET = 10.0;
+			};
+			name = Debug;
+		};
+		WT000001BB00000ACC00000A /* Release configuration for PBXNativeTarget "HissiWatchUITests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.a11yland.HissiWatchUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				TEST_TARGET_NAME = HissiWatch;
 				WATCHOS_DEPLOYMENT_TARGET = 10.0;
 			};
 			name = Release;
@@ -934,100 +1030,6 @@
 			};
 			name = Release;
 		};
-		UT000001BB000009CC000009 /* Debug configuration for PBXNativeTarget "HissiUITests" */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.a11yland.HissiUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Hissi;
-			};
-			name = Debug;
-		};
-		UT000001BB00000ACC00000A /* Release configuration for PBXNativeTarget "HissiUITests" */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.a11yland.HissiUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-				TEST_TARGET_NAME = Hissi;
-			};
-			name = Release;
-		};
-		WT000001BB000009CC000009 /* Debug configuration for PBXNativeTarget "HissiWatchUITests" */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.a11yland.HissiWatchUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				TEST_TARGET_NAME = HissiWatch;
-				WATCHOS_DEPLOYMENT_TARGET = 10.0;
-			};
-			name = Debug;
-		};
-		WT000001BB00000ACC00000A /* Release configuration for PBXNativeTarget "HissiWatchUITests" */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				GENERATE_INFOPLIST_FILE = YES;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.a11yland.HissiWatchUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = watchos;
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 4;
-				TEST_TARGET_NAME = HissiWatch;
-				WATCHOS_DEPLOYMENT_TARGET = 10.0;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1055,22 +1057,6 @@
 			);
 			defaultConfigurationName = Release;
 		};
-		WA000001BB000009CC000009 /* Build configuration list for PBXNativeTarget "HissiWatch" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				WA000001BB000007CC000007 /* Debug configuration for PBXNativeTarget "HissiWatch" */,
-				WA000001BB000008CC000008 /* Release configuration for PBXNativeTarget "HissiWatch" */,
-			);
-			defaultConfigurationName = Release;
-		};
-		WW000001BB00000FCC00000F /* Build configuration list for PBXNativeTarget "HissiWatchWidget" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				WW000001BB00000DCC00000D /* Debug configuration for PBXNativeTarget "HissiWatchWidget" */,
-				WW000001BB00000ECC00000E /* Release configuration for PBXNativeTarget "HissiWatchWidget" */,
-			);
-			defaultConfigurationName = Release;
-		};
 		UT000001BB00000BCC00000B /* Build configuration list for PBXNativeTarget "HissiUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1079,11 +1065,27 @@
 			);
 			defaultConfigurationName = Release;
 		};
+		WA000001BB000009CC000009 /* Build configuration list for PBXNativeTarget "HissiWatch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				WA000001BB000007CC000007 /* Debug configuration for PBXNativeTarget "HissiWatch" */,
+				WA000001BB000008CC000008 /* Release configuration for PBXNativeTarget "HissiWatch" */,
+			);
+			defaultConfigurationName = Release;
+		};
 		WT000001BB00000BCC00000B /* Build configuration list for PBXNativeTarget "HissiWatchUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				WT000001BB000009CC000009 /* Debug configuration for PBXNativeTarget "HissiWatchUITests" */,
 				WT000001BB00000ACC00000A /* Release configuration for PBXNativeTarget "HissiWatchUITests" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		WW000001BB00000FCC00000F /* Build configuration list for PBXNativeTarget "HissiWatchWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				WW000001BB00000DCC00000D /* Debug configuration for PBXNativeTarget "HissiWatchWidget" */,
+				WW000001BB00000ECC00000E /* Release configuration for PBXNativeTarget "HissiWatchWidget" */,
 			);
 			defaultConfigurationName = Release;
 		};
