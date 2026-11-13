@@ -128,6 +128,12 @@ struct WhatsNewSheet: View {
                 title: "Besser lesbar",
                 detail: "Höhere Kontraste, mehr Platz für große Schrift und keine Kamerafahrt bei reduzierter Bewegung."
             )
+        case "1.2.0":
+            FeatureRow(
+                symbol: "speaker.wave.2.fill",
+                title: "Rückmeldung für VoiceOver",
+                detail: "Nach dem Aktualisieren sagt VoiceOver an, ob sich etwas geändert hat. Fällt ein Aufzug aus oder geht er wieder, hörst du es, solange Hissi offen ist."
+            )
         default:
             EmptyView()
         }

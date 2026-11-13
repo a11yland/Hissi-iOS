@@ -987,6 +987,16 @@
         }
       }
     },
+    "Nach dem Aktualisieren sagt VoiceOver an, ob sich etwas geändert hat. Fällt ein Aufzug aus oder geht er wieder, hörst du es, solange Hissi offen ist." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "After a refresh, VoiceOver tells you whether anything changed. If an elevator breaks down or works again, you hear it while Hissi is open."
+          }
+        }
+      }
+    },
     "Nach oben bewegen" : {
       "localizations" : {
         "en" : {
@@ -1113,6 +1123,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open Look Around"
+          }
+        }
+      }
+    },
+    "Rückmeldung für VoiceOver" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Feedback for VoiceOver"
           }
         }
       }
