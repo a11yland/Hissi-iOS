@@ -1,0 +1,109 @@
+name: Release
+
+# Manual only. Marks a released version: tags the commit `v<version>` and
+# publishes a GitHub release whose notes are the in-app "Was ist neu"
+# (scripts/release-notes.py, German and English). Nothing is built or
+# uploaded here — Xcode Cloud archives every push to main into TestFlight,
+# and the version is bumped by hand at the start of a release cycle
+# (MARKETING_VERSION stays put until the version is approved, see CLAUDE.md).
+#
+# Run it once App Store Connect has the version approved, with the commit of
+# the build that was submitted (Xcode Cloud shows it on the build); without
+# one it tags the tip of main. The version is read from that commit's
+# project, so the tag can never name a version the commit doesn't carry.
+on:
+  workflow_dispatch:
+    inputs:
+      commit:
+        description: "Commit of the submitted build (SHA). Empty = tip of main."
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Resolve commit and version
+        env:
+          COMMIT: ${{ inputs.commit }}
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "::error::Releases are cut from main only (got $GITHUB_REF)."
+            exit 1
+          fi
+          sha=$(git rev-parse --verify "${COMMIT:-origin/main}^{commit}") || {
+            echo "::error::Unknown commit '$COMMIT'."
+            exit 1
+          }
+          if ! git merge-base --is-ancestor "$sha" origin/main; then
+            echo "::error::$sha is not on main."
+            exit 1
+          fi
+
+          # App, widget, watch app and complications must agree, or App Store
+          # Connect rejects the upload — one distinct value across all twelve.
+          versions=$(git show "$sha:Hissi.xcodeproj/project.pbxproj" \
+            | sed -nE 's/^[[:space:]]*MARKETING_VERSION = ([^;]+);$/\1/p' | sort -u)
+          if [ "$(echo "$versions" | wc -l)" -ne 1 ]; then
+            echo "::error::MARKETING_VERSION differs between targets: $(echo $versions)"
+            exit 1
+          fi
+          # Three parts: WelcomeGate compares the bundle version as a string.
+          if ! [[ "$versions" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::MARKETING_VERSION must look like 1.2.0 (got '$versions')."
+            exit 1
+          fi
+          if git rev-parse -q --verify "refs/tags/v$versions" >/dev/null; then
+            echo "::error::Tag v$versions already exists."
+            exit 1
+          fi
+          echo "SHA=$sha" >> "$GITHUB_ENV"
+          echo "VERSION=$versions" >> "$GITHUB_ENV"
+          echo "Releasing $versions from $sha"
+
+      - name: Release notes from "Was ist neu"
+        run: |
+          set -euo pipefail
+          # Read at the tagged commit, not at main's tip: the notes must be
+          # the ones the submitted build shows.
+          git checkout -q "$SHA"
+          python3 scripts/release-notes.py "$VERSION" > "$RUNNER_TEMP/notes.md"
+          cat "$RUNNER_TEMP/notes.md"
+
+      # Annotated tag through the API, like Hissi-Android's release: no commit
+      # is made, so main's signature rule isn't involved, but the tag object
+      # carries a message and GitHub as its tagger.
+      - name: Tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          api="repos/$GITHUB_REPOSITORY"
+          tag=$(jq -n --arg tag "v$VERSION" --arg msg "Hissi $VERSION" --arg sha "$SHA" \
+            '{tag: $tag, message: $msg, object: $sha, type: "commit"}' \
+            | gh api "$api/git/tags" --input - --jq .sha)
+          gh api "$api/git/refs" -f ref="refs/tags/v$VERSION" -f sha="$tag" >/dev/null
+          echo "Tagged v$VERSION -> $SHA"
+
+      - name: Publish GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # --generate-notes appends the compare link to the previous tag.
+          gh release create "v$VERSION" \
+            --verify-tag \
+            --title "Hissi $VERSION" \
+            --notes-file "$RUNNER_TEMP/notes.md" \
+            --generate-notes
