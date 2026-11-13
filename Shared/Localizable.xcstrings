@@ -156,6 +156,16 @@
         }
       }
     },
+    "Aktualisiert, keine Änderung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Refreshed, no change"
+          }
+        }
+      }
+    },
     "Alle Aufzüge einer Station mit Live-Status." : {
       "localizations" : {
         "en" : {

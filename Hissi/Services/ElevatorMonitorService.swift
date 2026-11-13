@@ -7,6 +7,15 @@ class ElevatorMonitorService: ObservableObject {
     @Published var elevators: [MonitoredElevator]
     @Published var isLoading = false
     @Published var errorMessage: String?
+    // What the last refresh has to say to VoiceOver (RefreshAnnouncement), or
+    // nil. A new value per refresh, so the same sentence twice in a row is
+    // still spoken twice.
+    @Published private(set) var announcement: Announcement?
+
+    struct Announcement: Equatable {
+        let id = UUID()
+        let message: String
+    }
     // Favorites from before the transit.accessibility.cloud migration were
     // deleted once (their old ids don't exist in the new API) — surfaced as a
     // dismissible notice in the favorites area.
@@ -64,10 +73,11 @@ class ElevatorMonitorService: ObservableObject {
         // try? on purpose: a donation is a hint to the system, and losing one
         // must never cost the user their refresh.
         _ = try? await IntentDonationManager.shared.donate(intent: CheckElevatorsIntent())
-        await refresh()
+        await refresh(requestedByUser: true)
     }
 
-    func refresh() async {
+    // `requestedByUser`: only such a refresh answers "no change" to VoiceOver.
+    func refresh(requestedByUser: Bool = false) async {
         isLoading = true
         errorMessage = nil
         let current = elevators
@@ -87,6 +97,14 @@ class ElevatorMonitorService: ObservableObject {
         elevators = updated.filter { seen.insert($0.id).inserted }
         if !failed.isEmpty {
             errorMessage = String(localized: "Ein oder mehrere Aufzüge konnten nicht abgerufen werden.")
+        }
+        if let message = RefreshAnnouncement.message(
+            previous: current,
+            current: elevators,
+            requestedByUser: requestedByUser,
+            failed: !failed.isEmpty
+        ) {
+            announcement = Announcement(message: message)
         }
         await RefreshFanOut.distribute(elevators, previous: current)
         isLoading = false

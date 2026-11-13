@@ -108,6 +108,13 @@ struct ContentView: View {
         .onChange(of: service.errorMessage) { _, message in
             if let message { AccessibilityNotification.Announcement(message).post() }
         }
+        // A refresh's outcome: the status change in the live status alert's
+        // words, or "no change" after a refresh the user asked for.
+        .onChange(of: service.announcement) { _, announcement in
+            if let announcement {
+                AccessibilityNotification.Announcement(announcement.message).post()
+            }
+        }
         // The nearby widget's tap: same as the empty state's button.
         .onOpenURL { url in
             guard AppDeepLink(url) == .nearby else { return }
