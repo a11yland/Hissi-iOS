@@ -10,7 +10,7 @@
 # An unset variable becomes an empty string; the API then answers 403 and the
 # app falls back to the bundled seed catalog. If no variable is set at all,
 # fall back to the checked-in template — mirroring the CI step in
-# .github/workflows/ios.yml.
+# .github/workflows/ci.yml.
 set -eu
 
 REPO="${CI_PRIMARY_REPOSITORY_PATH:-$(cd "$(dirname "$0")/.." && pwd)}"

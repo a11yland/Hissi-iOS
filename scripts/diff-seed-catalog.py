@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compare two seed catalogs and report drift (used by the seed-drift workflow).
+"""Compare two seed catalogs and report drift (used by the Seed update workflow).
 
     python3 scripts/diff-seed-catalog.py <bundled.json> <fresh.json>
 
