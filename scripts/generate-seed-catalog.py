@@ -57,6 +57,8 @@ import sys
 import tempfile
 import time
 import unicodedata
+import urllib.error
+import urllib.parse
 import urllib.request
 import zipfile
 from collections import defaultdict
@@ -88,11 +90,21 @@ def secrets() -> dict:
     return dict(re.findall(r'let (\w+) = "([^"]+)"', src))
 
 
-def fetch_json(url: str, headers: dict | None = None):
+def fetch_json(url: str, headers: dict | None = None, credential: str = ""):
     # accessibility.cloud rejects urllib's default User-Agent.
     req = urllib.request.Request(url, headers={"User-Agent": "Hissi-seed-generator", **(headers or {})})
-    with urllib.request.urlopen(req, timeout=120) as resp:
-        return json.load(resp)
+    try:
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            return json.load(resp)
+    except urllib.error.HTTPError as error:
+        # A rejected token is the usual failure (expired, or pasted with
+        # quotes) — name it instead of a stack trace. Host only: the legacy
+        # URL carries the token in its query.
+        if error.code in (401, 403) and credential:
+            host = urllib.parse.urlsplit(url).netloc
+            sys.exit(f"error: {host} rejected {credential} (HTTP {error.code}) — "
+                     f"the token is invalid or expired")
+        raise
 
 
 def region(place_info_id: str | None, station_name: str) -> str:
@@ -114,7 +126,7 @@ def region(place_info_id: str | None, station_name: str) -> str:
 def fetch_legacy_catalog(token: str) -> list[dict]:
     url = (f"{LEGACY_HOST}/equipment-infos.json"
            f"?appToken={token}&includeSourceIds={LEGACY_SOURCE_IDS}&limit=10000")
-    data = fetch_json(url)
+    data = fetch_json(url, credential="ACCESSIBILITY_CLOUD_LEGACY_TOKEN")
     records = []
     for feature in data["features"]:
         p = feature["properties"]
@@ -154,7 +166,8 @@ def fetch_transit_pages(token: str, resource: str, select: str) -> list[dict]:
     while True:
         url = (f"{TRANSIT_HOST}/api/{resource}"
                f"?depth=0&draft=false&trash=false&limit={TRANSIT_PAGE_SIZE}&page={page}&{select}")
-        data = fetch_json(url, {"Authorization": f"Bearer {token}"})
+        data = fetch_json(url, {"Authorization": f"Bearer {token}"},
+                          credential="ACCESSIBILITY_CLOUD_APP_TOKEN")
         docs.extend(data.get("docs", []))
         if not data.get("hasNextPage"):
             return docs
@@ -245,7 +258,10 @@ def gtfs_stops_zip() -> Path:
     if cache.exists() and time.time() - cache.stat().st_mtime < VBB_GTFS_CACHE_SECONDS:
         return cache
     print(f"  downloading {VBB_GTFS_URL}")
-    with urllib.request.urlopen(VBB_GTFS_URL, timeout=600) as response:
+    # vbb.de sits behind Cloudflare, which answers urllib's default
+    # User-Agent with 403 — same workaround as fetch_json.
+    req = urllib.request.Request(VBB_GTFS_URL, headers={"User-Agent": "Hissi-seed-generator"})
+    with urllib.request.urlopen(req, timeout=600) as response:
         cache.write_bytes(response.read())
     return cache
 
@@ -386,9 +402,13 @@ def main() -> None:
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     stations_only = "--stations-only" in sys.argv[1:]
     output = Path(args[0]) if args else DEFAULT_OUTPUT
-    transit_token = os.environ.get("ACCESSIBILITY_CLOUD_APP_TOKEN") \
-        or secrets().get("accessibilityCloudAppToken", "")
-    legacy_token = os.environ.get("ACCESSIBILITY_CLOUD_LEGACY_TOKEN", "")
+    # Stripped: a secret pasted with a trailing newline or space is the
+    # same token, and the API would reject it as a different one.
+    transit_token = (os.environ.get("ACCESSIBILITY_CLOUD_APP_TOKEN")
+                     or secrets().get("accessibilityCloudAppToken", "")).strip()
+    legacy_token = os.environ.get("ACCESSIBILITY_CLOUD_LEGACY_TOKEN", "").strip()
+    if not transit_token.startswith("trtok_"):
+        sys.exit("ACCESSIBILITY_CLOUD_APP_TOKEN is not a transit token (expected trtok_…)")
     if not legacy_token and not stations_only:
         sys.exit("ACCESSIBILITY_CLOUD_LEGACY_TOKEN is not set (legacy www.accessibility.cloud app token)")
 
