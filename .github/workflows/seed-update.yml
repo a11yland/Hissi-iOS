@@ -10,6 +10,15 @@ on:
   schedule:
     - cron: "0 5 * * 1" # Mondays 05:00 UTC
   workflow_dispatch:
+  # A change to the generator or the diff shows its effect right away
+  # instead of on the next Monday (in October a broken run went unnoticed
+  # for weeks). On drift such a run opens the seed PR as well.
+  push:
+    branches: [main]
+    paths:
+      - "scripts/generate-seed-catalog.py"
+      - "scripts/diff-seed-catalog.py"
+      - ".github/workflows/seed-update.yml"
 
 permissions:
   contents: write
