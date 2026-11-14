@@ -236,6 +236,16 @@
         }
       }
     },
+    "Auf iPad, Mac und dem aufgeklappten iPhone Duo stehen deine Aufzüge und ihre Details nebeneinander." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "On iPad, Mac and an unfolded iPhone Duo, your elevators and their details sit side by side."
+          }
+        }
+      }
+    },
     "Aufgeräumte Oberfläche" : {
       "localizations" : {
         "en" : {
@@ -764,6 +774,16 @@
         }
       }
     },
+    "In der Nähe in der Symbolleiste" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nearby in the toolbar"
+          }
+        }
+      }
+    },
     "In Karten öffnen" : {
       "localizations" : {
         "en" : {
@@ -783,6 +803,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Map of %@"
+          }
+        }
+      }
+    },
+    "Kein Aufzug ausgewählt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No elevator selected"
           }
         }
       }
@@ -863,6 +893,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Elevators nearby"
+          }
+        }
+      }
+    },
+    "Liste und Details nebeneinander" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "List and details side by side"
           }
         }
       }
@@ -1027,6 +1067,26 @@
         }
       }
     },
+    "Stationen in der Nähe öffnest du jetzt über das Standortsymbol neben der Glocke." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open nearby stations with the location symbol next to the bell."
+          }
+        }
+      }
+    },
+    "Suche nach einer Station, um Aufzüge zu finden und hinzuzufügen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search for a station to find and add elevators."
+          }
+        }
+      }
+    },
     "Widgets und Live-Status listen nur Aufzüge, die nicht in Betrieb sind. Läuft alles, zeigen sie das Hissi-Zeichen." : {
       "localizations" : {
         "en" : {
@@ -1043,6 +1103,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Widgets show only what's not working"
+          }
+        }
+      }
+    },
+    "Wähle einen Aufzug aus der Liste, um seinen Status und seine Lage zu sehen." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pick an elevator from the list to see its status and location."
           }
         }
       }
@@ -1366,16 +1436,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Searching"
-          }
-        }
-      }
-    },
-    "Tippe unten ins Suchfeld, um Aufzüge zu finden und hinzuzufügen." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tap the search field below to find and add elevators."
           }
         }
       }

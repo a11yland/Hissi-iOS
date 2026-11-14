@@ -23,6 +23,7 @@ The **Accessibility Nutrition Labels** declared in App Store Connect claim Voice
 ## Supported environments
 
 - iPhone and iPad with iOS/iPadOS 18 or later, portrait and landscape
+- iPhone Duo (iOS 27.1 SDK): outer and inner display in every pose; list and detail side by side wherever the width is regular (inner display, iPad, Mac), toolbars along the side where the system puts them
 - Mac via Mac Catalyst (shares the iOS code; no Live Activity, no watch)
 - Apple Watch with watchOS 10 or later, including complications and the Smart Stack
 - Home Screen and Lock Screen widgets, StandBy, Live Activity and Dynamic Island
@@ -44,6 +45,7 @@ Found in a code review and not yet covered by #3:
 - **Target size (AAA)** ([#8](https://github.com/a11yland/Hissi-iOS/issues/8)). A few controls stay below 44 points: the "Meinen Standort anzeigen" pill on the map, the "Einstellungen öffnen" link when location access is denied, and the "Fertig" button in the live status sheet.
 - **Headings** ([#9](https://github.com/a11yland/Hissi-iOS/issues/9)). The "In der Nähe" and "Letzte Suchen" section titles on the search screen are not marked as headers, so the VoiceOver rotor skips them.
 - **Contrast** ([#10](https://github.com/a11yland/Hissi-iOS/issues/10)). The refresh error on the favorites list is drawn over the rows without a background, so its contrast depends on what is underneath. The watch colour constants are not covered by `PaletteTests`.
+- **iPhone Duo, unverified**. Pose changes can't be scripted in the simulator, so the inner display (portrait and landscape) and the partially folded poses have only been checked by hand in Device Hub, never with VoiceOver; the outer display runs through the screenshot test. Not yet tracked as an issue.
 - **Feedback** ([#11](https://github.com/a11yland/Hissi-iOS/issues/11)). The app itself offers no way to report an accessibility problem.
 
 ## Contributor expectations

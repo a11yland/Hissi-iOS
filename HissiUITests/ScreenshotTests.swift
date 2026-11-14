@@ -48,7 +48,7 @@ final class ScreenshotTests: XCTestCase {
         cancelSearch()
 
         // Favorites list, light and dark.
-        require(app.buttons["Stationen in der Nähe anzeigen"].firstMatch, "favorites list")
+        require(app.staticTexts["Favoriten"], "favorites list")
         sleep(2)
         snap("04-favorites")
         toggleAppearance()
@@ -57,7 +57,7 @@ final class ScreenshotTests: XCTestCase {
 
         // Nearby: opens the search with the nearby block; the location prompt
         // comes from SpringBoard.
-        app.buttons["Stationen in der Nähe anzeigen"].firstMatch.tap()
+        toolbarAction("Stationen in der Nähe anzeigen").tap()
         allowLocation()
         let nearbyHeader = app.staticTexts.containing(NSPredicate(format: "label CONTAINS %@", "zu Fuß")).firstMatch
         require(nearbyHeader, "nearby stations", timeout: 30)
@@ -105,6 +105,12 @@ final class ScreenshotTests: XCTestCase {
 
     private func search(_ term: String) {
         let field = app.searchFields.firstMatch
+        // iPhone Duo's outer display collapses the field into a search
+        // button in the side bar; the field appears once it is tapped.
+        if !field.waitForExistence(timeout: 5) {
+            let button = app.buttons.matching(NSPredicate(format: "label IN %@", ["Suchen", "Station finden"])).firstMatch
+            if button.exists { button.tap() }
+        }
         XCTAssertTrue(field.waitForExistence(timeout: 10))
         field.tap()
         let clear = field.buttons["Text löschen"]
@@ -160,9 +166,13 @@ final class ScreenshotTests: XCTestCase {
         sleep(5)
     }
 
+    // Only where the detail was pushed: on a regular width (iPad, iPhone
+    // Duo's inner display) it opens beside the list, with nothing to go back
+    // from — and the bar's first button would be the sidebar toggle.
     private func goBack() {
         let back = app.navigationBars.buttons["BackButton"]
-        (back.exists ? back : app.navigationBars.buttons.firstMatch).tap()
+        guard back.exists else { return }
+        back.tap()
         sleep(1)
     }
 
@@ -184,10 +194,24 @@ final class ScreenshotTests: XCTestCase {
     }
 
     private func toggleAppearance() {
-        let toDark = app.buttons["Zu dunklem Erscheinungsbild wechseln"]
-        let toLight = app.buttons["Zu hellem Erscheinungsbild wechseln"]
-        (toDark.exists ? toDark : toLight).tap()
+        toolbarAction(["Zu dunklem Erscheinungsbild wechseln", "Zu hellem Erscheinungsbild wechseln"]).tap()
         sleep(1)
+    }
+
+    // A toolbar action (the first of `labels` present) — or, where a narrow
+    // bar (the iPad's sidebar) moved it into the overflow menu, the same
+    // action from there.
+    private func toolbarAction(_ labels: String...) -> XCUIElement { toolbarAction(labels) }
+
+    private func toolbarAction(_ labels: [String]) -> XCUIElement {
+        let matching = app.buttons.matching(NSPredicate(format: "label IN %@", labels))
+        if let direct = matching.allElementsBoundByIndex.first(where: { $0.isHittable }) { return direct }
+        let overflow = app.buttons["TopOverflowBarButtonItem"]
+        if overflow.exists {
+            overflow.tap()
+            sleep(1)
+        }
+        return matching.firstMatch
     }
 
     private func allowLocation() {

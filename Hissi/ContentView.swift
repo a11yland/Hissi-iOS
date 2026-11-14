@@ -24,11 +24,28 @@ struct ContentView: View {
     @FocusState private var isSearchFocused: Bool
     // Welcome on first launch, "Was ist neu" once per curated release.
     @State private var onboarding: WelcomeGate.Sheet?
+    // The elevator in the detail column. Side by side wherever the width is
+    // regular (iPhone Duo's inner display, iPad, Mac); collapsed into a push
+    // on a compact width, where clearing it is the back navigation.
+    @State private var selection: DetailSelection?
+    // Both columns from the start: the list is the app's home. The system's
+    // sidebar toggle stays — removing it also took the search field off the
+    // iPad's bar.
+    @State private var columnVisibility: NavigationSplitViewVisibility = .all
+    // Mirrored from the sidebar, which alone can read `isSearching`: whether
+    // the list shows the favorites, the mode the favorites actions belong to.
+    @State private var listShowsFavorites = true
+    @State private var showsLiveStatus = false
+    // Side by side in landscape: the actions leave the narrow sidebar's bar
+    // for the detail column's, at the far trailing edge. Decided by the
+    // window's own size and size class, never by device or orientation.
+    @State private var actionsInDetail = false
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     private var isDark: Bool { (appearance.colorScheme ?? colorScheme) == .dark }
 
     var body: some View {
-        NavigationStack {
+        NavigationSplitView(columnVisibility: $columnVisibility) {
             // The search field itself is provided by the system: on iOS 26 iPhone
             // `.searchable` renders as a bottom-aligned Liquid Glass bar. `isSearching`
             // (read inside SearchableContent) drives the favorites/recents/results mode.
@@ -37,13 +54,30 @@ struct ContentView: View {
                 search: search,
                 recents: recents,
                 location: location,
-                liveStatus: liveStatus,
                 query: $query,
-                isSearchPresented: $isSearchPresented,
                 isSearchFocused: $isSearchFocused,
-                appearance: $appearance,
-                isDark: isDark
+                selection: $selection,
+                listShowsFavorites: $listShowsFavorites
             )
+            .toolbar {
+                if !actionsInDetail { listActions }
+            }
+        } detail: {
+            detailColumn
+        }
+        // Even columns: on iPhone Duo the system lines their boundary up
+        // with the fold, so neither pane loses content to it.
+        .navigationSplitViewStyle(.balanced)
+        .onGeometryChange(for: Bool.self) { proxy in
+            proxy.size.width > proxy.size.height
+        } action: { isWide in
+            actionsInDetail = isWide && horizontalSizeClass == .regular
+        }
+        .onChange(of: horizontalSizeClass) { _, sizeClass in
+            if sizeClass != .regular { actionsInDetail = false }
+        }
+        .sheet(isPresented: $showsLiveStatus) {
+            LiveStatusSheet(service: service, liveStatus: liveStatus)
         }
         .searchable(text: $query, isPresented: $isSearchPresented, prompt: "Station finden")
         .searchFocused($isSearchFocused)
@@ -115,12 +149,60 @@ struct ContentView: View {
                 AccessibilityNotification.Announcement(announcement.message).post()
             }
         }
-        // The nearby widget's tap: same as the empty state's button.
+        // The nearby widget's tap: same as the nearby button.
         .onOpenURL { url in
             guard AppDeepLink(url) == .nearby else { return }
-            location.locate()
-            isSearchPresented = true
+            showNearby()
         }
+    }
+
+    @ViewBuilder
+    private var detailColumn: some View {
+        if let selection {
+            ElevatorDetailView(
+                elevator: selection.elevator,
+                service: service,
+                location: location,
+                onRefreshed: selection.fromSearch
+                    ? { search.apply($0, replacing: selection.elevator.id) }
+                    : nil,
+                listActions: actionsInDetail ? listActions : nil
+            )
+            // A fresh view per elevator: the map camera and the
+            // street-level scene are state seeded from the elevator.
+            .id(selection)
+        } else {
+            ContentUnavailableView {
+                Label("Kein Aufzug ausgewählt", systemImage: "hand.tap")
+            } description: {
+                Text("Wähle einen Aufzug aus der Liste, um seinen Status und seine Lage zu sehen.")
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.hissiBackground.ignoresSafeArea())
+            .toolbar {
+                if actionsInDetail { listActions }
+            }
+        }
+    }
+
+    private var listActions: ListActions {
+        ListActions(
+            service: service,
+            liveStatus: liveStatus,
+            showsFavoritesActions: listShowsFavorites,
+            appearance: $appearance,
+            isDark: isDark,
+            showsLiveStatus: $showsLiveStatus,
+            showNearby: showNearby
+        )
+    }
+
+    // Nearby lives on the recents screen, i.e. behind the search field:
+    // locate first (prompting if needed), then present the search so the
+    // block is on screen when the fix lands.
+    private func showNearby() {
+        location.locate()
+        isSearchPresented = true
     }
 }
 
@@ -131,16 +213,13 @@ private struct SearchableContent: View {
     @ObservedObject var search: SearchService
     @ObservedObject var recents: RecentSearchesStore
     @ObservedObject var location: LocationProvider
-    @ObservedObject var liveStatus: LiveActivityController
     @Binding var query: String
-    @Binding var isSearchPresented: Bool
     var isSearchFocused: FocusState<Bool>.Binding
-    @Binding var appearance: AppAppearance
-    let isDark: Bool
+    @Binding var selection: DetailSelection?
+    @Binding var listShowsFavorites: Bool
 
     @Environment(\.isSearching) private var isSearching
     @State private var showsAbout = false
-    @State private var showsLiveStatus = false
 
     private enum Mode { case favorites, recents, results }
     private var mode: Mode {
@@ -169,30 +248,30 @@ private struct SearchableContent: View {
                 .padding(.bottom, 8)
             content
         }
-            // One action per mode, pinned right above the search field so a
-            // long list never hides it: the nearby entry on the favorites
-            // (while the search is up, nearby is already in view), the bulk
-            // delete on the recents.
+            // The recents' bulk delete, pinned right above the search field
+            // so a long list never hides it.
             .safeAreaInset(edge: .bottom) { bottomAction }
+            .onChange(of: mode == .favorites, initial: true) { _, isFavorites in
+                listShowsFavorites = isFavorites
+            }
             .background(Color.hissiBackground.ignoresSafeArea())
             // The title stays set for the detail's back button ("Favoriten"
-            // rather than "Zurück"); the empty principal item keeps it out
-            // of the bar itself — the headline above is the visible one.
+            // rather than "Zurück") but is removed from the bar itself — the
+            // headline above is the visible one.
             .navigationTitle(title)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar(removing: .title)
             .sheet(isPresented: $showsAbout) { AboutSheet() }
-            .sheet(isPresented: $showsLiveStatus) {
-                LiveStatusSheet(service: service, liveStatus: liveStatus)
-            }
+            // The logo stays with the list in every layout; the actions
+            // (ListActions) are placed by ContentView.
             .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Color.clear.frame(width: 0, height: 0)
-                        .accessibilityHidden(true)
-                }
                 ToolbarItem(placement: .topBarLeading) {
                     // The app icon doubles as the way to "Über Hissi"; the
                     // "Logo" imageset mirrors the AppIcon assets (icon sets
-                    // aren't reliably loadable at runtime).
+                    // aren't reliably loadable at runtime). An image with an
+                    // accessibility label, not a Label: a Label with a custom
+                    // image folds the whole bar into its overflow menu on
+                    // iOS 27 (see ListActions).
                     Button {
                         showsAbout = true
                     } label: {
@@ -203,50 +282,6 @@ private struct SearchableContent: View {
                             .clipShape(RoundedRectangle(cornerRadius: 6))
                     }
                     .accessibilityLabel("Über Hissi")
-                }
-                if mode == .favorites, service.elevators.count > 1 {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        sortMenu
-                    }
-                }
-                if mode == .favorites, !service.elevators.isEmpty {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        if service.isLoading {
-                            ProgressView()
-                                .accessibilityLabel("Wird aktualisiert")
-                        } else {
-                            Button {
-                                Task { await service.refreshRequestedByUser() }
-                            } label: {
-                                Image(systemName: "arrow.clockwise")
-                            }
-                            .accessibilityLabel("Aktualisieren")
-                        }
-                    }
-                }
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        appearance = isDark ? .light : .dark
-                    } label: {
-                        Image(systemName: isDark ? "sun.max.fill" : "moon.stars.fill")
-                    }
-                    .accessibilityLabel(isDark ? "Zu hellem Erscheinungsbild wechseln" : "Zu dunklem Erscheinungsbild wechseln")
-                }
-                // The live status covers the whole favorites set, so it is
-                // an action of this screen — the bell, filled while it runs.
-                // Only with favorites (nothing to report on otherwise), and
-                // not at all while Live Activities are switched off for Hissi:
-                // the user turned them off on purpose.
-                if mode == .favorites, !service.elevators.isEmpty,
-                   liveStatus.areActivitiesEnabled || liveStatus.isRunning {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            showsLiveStatus = true
-                        } label: {
-                            Image(systemName: liveStatus.isRunning ? "bell.badge.fill" : "bell.badge")
-                        }
-                        .accessibilityLabel(liveStatus.isRunning ? "Live-Status läuft" : "Live-Status")
-                    }
                 }
             }
     }
@@ -287,15 +322,8 @@ private struct SearchableContent: View {
 
     @ViewBuilder
     private var bottomAction: some View {
-        switch mode {
-        case .favorites:
-            pinnedAction("Stationen in der Nähe anzeigen", systemImage: "location") { showNearby() }
-        case .recents:
-            if !recents.searches.isEmpty {
-                pinnedAction("Letzte Suchen löschen", systemImage: "trash") { recents.clear() }
-            }
-        case .results:
-            EmptyView()
+        if mode == .recents, !recents.searches.isEmpty {
+            pinnedAction("Letzte Suchen löschen", systemImage: "trash") { recents.clear() }
         }
     }
 
@@ -311,30 +339,6 @@ private struct SearchableContent: View {
         .padding(.vertical, 8)
         .frame(maxWidth: .infinity)
         .background(Color.hissiBackground)
-    }
-
-    // Sorting sits on the top level, not behind an overflow menu: it belongs
-    // to the list below it. The menu is a state display — which order the
-    // list is in, and the way back to the default. Nothing in here has to be
-    // set before dragging a row; a drag moves the list into "Eigene
-    // Reihenfolge" by itself.
-    private var sortMenu: some View {
-        Menu {
-            Section("Sortieren") {
-                Picker("Sortieren", selection: Binding(
-                    get: { service.order },
-                    set: { service.setOrder($0) }
-                )) {
-                    ForEach(FavoritesOrder.allCases, id: \.self) { order in
-                        Text(order.label).tag(order)
-                    }
-                }
-                .pickerStyle(.inline)
-            }
-        } label: {
-            Image(systemName: "arrow.up.arrow.down")
-        }
-        .accessibilityLabel("Sortieren")
     }
 
     // Move-by-one, offered to assistive technologies in place of the drag.
@@ -374,7 +378,7 @@ private struct SearchableContent: View {
         switch mode {
         case .favorites: favoritesContent
         case .recents:   recentsContent
-        case .results:   SearchResultsList(search: search, service: service, location: location, query: query)
+        case .results:   SearchResultsList(search: search, service: service, selection: $selection, query: query)
         }
     }
 
@@ -410,11 +414,11 @@ private struct SearchableContent: View {
                 ContentUnavailableView {
                     Label("Keine Favoriten", systemImage: "star")
                 } description: {
-                    Text("Tippe unten ins Suchfeld, um Aufzüge zu finden und hinzuzufügen.")
+                    Text("Suche nach einer Station, um Aufzüge zu finden und hinzuzufügen.")
                 }
             }
         } else {
-            List {
+            List(selection: $selection) {
                 if service.showsLegacyRemovalNotice {
                     Section {
                         legacyRemovalNotice
@@ -422,9 +426,8 @@ private struct SearchableContent: View {
                     .hissiRows()
                 }
                 ForEach(service.elevators) { elevator in
-                    NavigationLink {
-                        ElevatorDetailView(elevator: elevator, service: service, location: location)
-                    } label: {
+                    let row = DetailSelection(elevator: elevator, fromSearch: false)
+                    NavigationLink(value: row) {
                         ElevatorRowView(
                             elevator: elevator,
                             showsReorderHandle: service.elevators.count > 1
@@ -442,6 +445,7 @@ private struct SearchableContent: View {
                     // users don't have — the same move as an action each.
                     .accessibilityActions { moveActions(for: elevator) }
                     .hissiRows()
+                    .selectedRowMarker(selection == row)
                 }
                 // Long-press and drag reorders right here — no edit mode, no
                 // setting to pick first. The drag itself is what moves the
@@ -468,14 +472,6 @@ private struct SearchableContent: View {
         }
     }
 
-    // Nearby lives on the recents screen, i.e. behind the search field:
-    // locate first (prompting if needed), then present the search so the
-    // block is on screen when the fix lands.
-    private func showNearby() {
-        location.locate()
-        isSearchPresented = true
-    }
-
     // MARK: - Recent searches & nearby
 
     private var recentsContent: some View {
@@ -496,6 +492,58 @@ private struct SearchableContent: View {
         }
     }
 }
+
+// The split view's selection: the elevator the detail column shows, and
+// whether it was opened from the search — that one's refreshed copy goes back
+// to the results row. Equal by id and origin only: a refresh rewrites the
+// row's elevator, and the list must still recognise it as the selected one.
+struct DetailSelection: Hashable {
+    let elevator: MonitoredElevator
+    let fromSearch: Bool
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.elevator.id == rhs.elevator.id && lhs.fromSearch == rhs.fromSearch
+    }
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(elevator.id)
+        hasher.combine(fromSearch)
+    }
+}
+
+extension View {
+    // Rows paint their own surface (hissiRows), which hides the List's
+    // selection highlight — with list and detail side by side, the row the
+    // detail belongs to gets a tint bar along its leading edge instead. A
+    // shape, not a fill: the row's text keeps the contrast it was tested on,
+    // and the tint is well above the 3:1 non-text minimum on the surface.
+    // Must come after hissiRows(), which it overrides for the selected row.
+    func selectedRowMarker(_ isSelected: Bool) -> some View {
+        listRowBackground(
+            Color.hissiSurface.overlay(alignment: .leading) {
+                if isSelected {
+                    Rectangle().fill(.tint).frame(width: 4)
+                }
+            }
+        )
+    }
+}
+
+extension ToolbarContent {
+    // Which items a side bar on iPhone Duo keeps longest before moving them
+    // into the overflow menu. The API is iOS 27; earlier systems have no
+    // overflow to order.
+    @ToolbarContentBuilder
+    func hissiVisibilityPriority(_ priority: HissiToolbarPriority) -> some ToolbarContent {
+        if #available(iOS 27.0, *) {
+            visibilityPriority(priority == .high ? .high : .low)
+        } else {
+            self
+        }
+    }
+}
+
+enum HissiToolbarPriority { case high, low }
 
 #Preview {
     ContentView()

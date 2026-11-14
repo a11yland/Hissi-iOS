@@ -13,17 +13,22 @@ struct ElevatorDetailView: View {
     // search list folds it into the row behind (SearchService.apply). Nil
     // from the favorites list, which refreshes on its own.
     private let onRefreshed: ((MonitoredElevator) -> Void)?
+    // The list's actions, when list and detail stand side by side in
+    // landscape: they go after the star, at the bar's far trailing edge.
+    private let listActions: ListActions?
 
     init(
         elevator: MonitoredElevator,
         service: ElevatorMonitorService,
         location: LocationProvider,
-        onRefreshed: ((MonitoredElevator) -> Void)? = nil
+        onRefreshed: ((MonitoredElevator) -> Void)? = nil,
+        listActions: ListActions? = nil
     ) {
         self.initial = elevator
         self.service = service
         self.location = location
         self.onRefreshed = onRefreshed
+        self.listActions = listActions
         // Framed on the station from the first frame — `.automatic` would
         // render one auto-fitted frame and then snap.
         let position: MapCameraPosition = if let coordinate = elevator.coordinate {
@@ -96,17 +101,13 @@ struct ElevatorDetailView: View {
                         // column instead, on its solid background. It shares
                         // the back button's row, so its leading inset clears
                         // the button plus the same protective gap the column
-                        // keeps to the top edge.
+                        // keeps to the top edge — unless the bars sit on the
+                        // side (iPhone Duo), where the row has nothing to clear.
                         Section {
                             Text(elevator.stationName)
                                 .font(.title2.bold())
                                 .listRowBackground(Color.clear)
-                                .listRowInsets(EdgeInsets(
-                                    top: 0,
-                                    leading: Self.barButtonSize + Self.columnGap,
-                                    bottom: 0,
-                                    trailing: 0
-                                ))
+                                .modifier(TitleRowInsets(barButtonClearance: Self.barButtonSize + Self.columnGap))
                                 .listRowSeparator(.hidden)
                         }
                         fieldsSection
@@ -144,26 +145,29 @@ struct ElevatorDetailView: View {
                     if let scene = lookAroundScene {
                         lookAroundRow(scene)
                     }
-                    favoriteSection
                 }
                 .hissiList()
                 .navigationTitle(elevator.stationName)
                 .navigationBarTitleDisplayMode(.inline)
             }
         }
-        // The star rides the bar in both orientations — in landscape it is
-        // the only favorite action (the column has no room for a row), in
-        // portrait it is the one that stays reachable while the fields, the
-        // map and the street-level view scroll past the list's own row.
+        // The star in the bar is the view's one favorite action, in both
+        // orientations — it stays reachable while the fields, the map and
+        // the street-level view scroll.
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 let isFav = service.isFavorite(elevator.id)
                 Button {
                     service.toggleFavorite(elevator)
                 } label: {
-                    Image(systemName: isFav ? "star.fill" : "star")
+                    Label(
+                        isFav ? "Aus Favoriten entfernen" : "Zu Favoriten hinzufügen",
+                        systemImage: isFav ? "star.fill" : "star"
+                    )
                 }
-                .accessibilityLabel(isFav ? "Aus Favoriten entfernen" : "Zu Favoriten hinzufügen")
+            }
+            if let listActions {
+                listActions
             }
         }
         // A fix (or a later one) can bring the device into the frame.
@@ -257,22 +261,6 @@ struct ElevatorDetailView: View {
         .opacity(reachedBottom ? 0 : 1)
         .animation(.easeInOut(duration: 0.2), value: reachedBottom)
         .accessibilityHidden(true)
-    }
-
-    @ViewBuilder
-    private var favoriteSection: some View {
-        Section {
-            Button {
-                service.toggleFavorite(elevator)
-            } label: {
-                let isFav = service.isFavorite(elevator.id)
-                Label(
-                    isFav ? "Aus Favoriten entfernen" : "Zu Favoriten hinzufügen",
-                    systemImage: isFav ? "star.slash" : "star"
-                )
-            }
-        }
-        .hissiRows()
     }
 
     // Portrait: a fixed-height snippet as its own list row.
@@ -459,6 +447,35 @@ struct ElevatorDetailView: View {
         let mapItem = MKMapItem(placemark: MKPlacemark(coordinate: coordinate))
         mapItem.name = elevator.stationName
         mapItem.openInMaps()
+    }
+}
+
+// The landscape title's row insets: clear of the back button while the bar
+// runs along the top, flush once iPhone Duo moves the bar to the side — the
+// safe area already keeps the row out from under it there.
+private struct TitleRowInsets: ViewModifier {
+    let barButtonClearance: CGFloat
+
+    func body(content: Content) -> some View {
+        if #available(iOS 27.1, *) {
+            content.modifier(VerticalBarAwareInsets(barButtonClearance: barButtonClearance))
+        } else {
+            content.listRowInsets(Self.insets(leading: barButtonClearance))
+        }
+    }
+
+    static func insets(leading: CGFloat) -> EdgeInsets {
+        EdgeInsets(top: 0, leading: leading, bottom: 0, trailing: 0)
+    }
+}
+
+@available(iOS 27.1, *)
+private struct VerticalBarAwareInsets: ViewModifier {
+    let barButtonClearance: CGFloat
+    @Environment(\.toolbarVerticalEdge) private var verticalEdge
+
+    func body(content: Content) -> some View {
+        content.listRowInsets(TitleRowInsets.insets(leading: verticalEdge == nil ? barButtonClearance : 0))
     }
 }
 

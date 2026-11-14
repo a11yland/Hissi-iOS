@@ -7,8 +7,9 @@ import SwiftUI
 struct SearchResultsList: View {
     @ObservedObject var search: SearchService
     @ObservedObject var service: ElevatorMonitorService
-    // Passed through to the detail view's map, nothing else here uses it.
-    @ObservedObject var location: LocationProvider
+    // The detail column's elevator (ContentView): a tapped result opens
+    // beside the list where there is room, pushed where there isn't.
+    @Binding var selection: DetailSelection?
     let query: String
 
     var body: some View {
@@ -21,7 +22,7 @@ struct SearchResultsList: View {
         } else if search.regions.isEmpty {
             ContentUnavailableView.search(text: query)
         } else {
-            List {
+            List(selection: $selection) {
                 // Results are visible but phase 2 (live statuses) is still on
                 // its way — without this, a stale snapshot would look final.
                 if search.isLoading {
@@ -43,12 +44,8 @@ struct SearchResultsList: View {
                                     NetworkSubheader(network: section.network)
                                 }
                                 ForEach(section.elevators) { elevator in
-                                    NavigationLink {
-                                        ElevatorDetailView(
-                                            elevator: elevator, service: service, location: location,
-                                            onRefreshed: { search.apply($0, replacing: elevator.id) }
-                                        )
-                                    } label: {
+                                    let row = DetailSelection(elevator: elevator, fromSearch: true)
+                                    NavigationLink(value: row) {
                                         HStack(spacing: 8) {
                                             ElevatorRowView(elevator: elevator)
                                             FavoriteStar(isFavorite: service.isFavorite(elevator.id)) {
@@ -56,6 +53,7 @@ struct SearchResultsList: View {
                                             }
                                         }
                                     }
+                                    .selectedRowMarker(selection == row)
                                 }
                             }
                         } header: {

@@ -23,9 +23,13 @@ struct ElevatorRowView: View {
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: 3) {
+                // Spelled out rather than the inherited primary style: a
+                // selected row (list beside detail) would otherwise turn it
+                // white on the row's light surface.
                 Text(elevator.stationName)
                     .font(.body)
                     .fontWeight(.semibold)
+                    .foregroundStyle(Color(uiColor: .label))
 
                 if !elevator.elevatorDescription.isEmpty {
                     Text(elevator.elevatorDescription)
@@ -54,7 +58,7 @@ struct ElevatorRowView: View {
             if showsReorderHandle {
                 Image(systemName: "line.3.horizontal")
                     .font(.footnote)
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(Color(uiColor: .tertiaryLabel))
                     // Centered against a top-aligned row.
                     .frame(maxHeight: .infinity)
                     .accessibilityHidden(true)

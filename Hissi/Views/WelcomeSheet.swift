@@ -134,6 +134,17 @@ struct WhatsNewSheet: View {
                 title: "Rückmeldung für VoiceOver",
                 detail: "Nach dem Aktualisieren sagt VoiceOver an, ob sich etwas geändert hat. Fällt ein Aufzug aus oder geht er wieder, hörst du es, solange Hissi offen ist."
             )
+        case "1.3.0":
+            FeatureRow(
+                symbol: "rectangle.split.2x1",
+                title: "Liste und Details nebeneinander",
+                detail: "Auf iPad, Mac und dem aufgeklappten iPhone Duo stehen deine Aufzüge und ihre Details nebeneinander."
+            )
+            FeatureRow(
+                symbol: "location",
+                title: "In der Nähe in der Symbolleiste",
+                detail: "Stationen in der Nähe öffnest du jetzt über das Standortsymbol neben der Glocke."
+            )
         default:
             EmptyView()
         }
