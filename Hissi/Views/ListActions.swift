@@ -84,6 +84,7 @@ struct ListActions: ToolbarContent {
                 Button(action: showNearby) {
                     Label("Stationen in der Nähe anzeigen", systemImage: "location")
                 }
+                .accessibilityIdentifier("nearbyButton")
             }
         }
     }

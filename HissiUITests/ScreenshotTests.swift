@@ -29,6 +29,7 @@ final class ScreenshotTests: XCTestCase {
     func test01Favorites() {
         launch()
         waitForFavorites()
+        fillDetailColumn()
         snap("01-favorites")
     }
 
@@ -65,11 +66,21 @@ final class ScreenshotTests: XCTestCase {
     }
 
     func test04Nearby() {
-        launch(["-HissiDemoOpen", "nearby"])
+        if hasDetailColumn {
+            // Through the toolbar, so the broken favorite stays open beside it.
+            launch()
+            waitForFavorites()
+            fillDetailColumn()
+            toolbarButton("nearbyButton").tap()
+        } else {
+            launch(["-HissiDemoOpen", "nearby"])
+        }
         allowLocation()
         require(app.descendants(matching: .any)["nearbyHeader"], "nearby stations", timeout: 30)
         require(app.buttons.matching(identifier: "nearbyStation.broken").firstMatch, "nearby rows")
-        dismissKeyboard()
+        // On the iPad the drag that dismisses the keyboard closes the whole
+        // search; its keyboard has a key of its own for that.
+        if hasDetailColumn { hideIPadKeyboard() } else { dismissKeyboard() }
         snap("05-nearby")
     }
 
@@ -92,6 +103,7 @@ final class ScreenshotTests: XCTestCase {
     func test06Search() {
         launch()
         waitForFavorites()
+        fillDetailColumn()
         search("Alexanderplatz")
         let banner = app.descendants(matching: .any)["statusRefreshBanner"]
         let gone = XCTNSPredicateExpectation(predicate: NSPredicate(format: "exists == false"), object: banner)
@@ -103,6 +115,7 @@ final class ScreenshotTests: XCTestCase {
     func test07LargeText() {
         launch(["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityL"])
         waitForFavorites()
+        fillDetailColumn()
         snap("07-large-text")
     }
 
@@ -114,6 +127,25 @@ final class ScreenshotTests: XCTestCase {
         #else
         UIDevice.current.userInterfaceIdiom == .phone
         #endif
+    }
+
+    // List and detail side by side (the landscape iPad, the Mac) — an empty
+    // detail column would fill half the shot with "Kein Aufzug ausgewählt".
+    private var hasDetailColumn: Bool {
+        #if targetEnvironment(macCatalyst)
+        true
+        #else
+        UIDevice.current.userInterfaceIdiom == .pad
+        #endif
+    }
+
+    // Opens the broken favorite beside the list, where there is room for it.
+    private func fillDetailColumn() {
+        guard hasDetailColumn else { return }
+        tap(app.buttons["elevatorRow.broken"], "broken favorite")
+        require(app.buttons["detailMap"], "detail map", timeout: 20)
+        // Map tiles and the Look Around preview need a moment.
+        sleep(4)
     }
 
     // A classic phone screen (width/height ~0.46) — not iPhone Duo's wide
@@ -150,6 +182,13 @@ final class ScreenshotTests: XCTestCase {
 
     private func launch(_ arguments: [String] = []) {
         app.launchArguments = ["-HissiDemoData", "YES", "-HissiDemoFavorites", "YES"] + arguments
+        #if !targetEnvironment(macCatalyst)
+        // The iPad set is landscape: list and detail side by side, the
+        // toolbar actions in the detail's bar.
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            XCUIDevice.shared.orientation = .landscapeLeft
+        }
+        #endif
         app.launch()
     }
 
@@ -198,6 +237,19 @@ final class ScreenshotTests: XCTestCase {
             let scroll = app.collectionViews.count > 0 ? app.collectionViews.firstMatch : app.scrollViews.firstMatch
             if scroll.exists { scroll.swipeDown(); sleep(1) }
         }
+    }
+
+    // The iPad keyboard's "hide" key (bottom right) — lowers the keyboard
+    // and keeps the search open.
+    private func hideIPadKeyboard() {
+        let keyboard = app.keyboards.firstMatch
+        guard keyboard.waitForExistence(timeout: 2) else { return }
+        let hide = keyboard.buttons.matching(NSPredicate(
+            format: "label IN %@ OR identifier == %@",
+            ["Tastatur ausblenden", "Hide keyboard"], "dismissKey"
+        )).firstMatch
+        if hide.exists { hide.tap() } else { keyboard.buttons.element(boundBy: keyboard.buttons.count - 1).tap() }
+        sleep(1)
     }
 
     // The location prompt comes from SpringBoard (absent once granted).
@@ -342,6 +394,17 @@ final class ScreenshotTests: XCTestCase {
         add(attachment)
         guard let outputDirectory else { return }
         try? FileManager.default.createDirectory(at: outputDirectory, withIntermediateDirectories: true)
-        try? screenshot.pngRepresentation.write(to: outputDirectory.appendingPathComponent("\(name).png"))
+        try? upright(screenshot.image).write(to: outputDirectory.appendingPathComponent("\(name).png"))
+    }
+
+    // A landscape screenshot comes as portrait pixels plus an EXIF rotation,
+    // which App Store Connect ignores — it checks the raw dimensions. Redrawn,
+    // the pixels themselves are landscape.
+    private func upright(_ image: UIImage) -> Data {
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = image.scale
+        return UIGraphicsImageRenderer(size: image.size, format: format).pngData { _ in
+            image.draw(at: .zero)
+        }
     }
 }
