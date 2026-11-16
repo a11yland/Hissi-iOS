@@ -37,6 +37,7 @@ struct WatchNearbyView: View {
                 } label: {
                     Label("Standort verwenden", systemImage: "location")
                 }
+                .accessibilityIdentifier("useLocation")
 
             case .locating:
                 ProgressView("Standort wird ermittelt …")
@@ -59,6 +60,7 @@ struct WatchNearbyView: View {
                         NavigationLink(value: station) {
                             WatchNearbyStationRow(station: station)
                         }
+                        .accessibilityIdentifier("nearbyStation.\(station.status)")
                         .watchCard()
                     }
                     VStack(spacing: 2) {

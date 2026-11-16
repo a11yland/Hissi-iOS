@@ -10,7 +10,7 @@ final class WatchSync: NSObject, ObservableObject {
 
     override init() {
         super.init()
-        guard WCSession.isSupported() else { return }
+        guard WCSession.isSupported(), !DemoMode.isActive else { return }
         let session = WCSession.default
         session.delegate = self
         session.activate()

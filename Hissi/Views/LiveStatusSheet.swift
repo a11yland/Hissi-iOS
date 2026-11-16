@@ -32,6 +32,7 @@ struct LiveStatusSheet: View {
                     .accessibilityAddTraits(.isHeader)
                 Spacer()
                 Button("Fertig") { dismiss() }
+                    .accessibilityIdentifier("doneButton")
                     .font(.body.weight(.semibold))
             }
             VStack(alignment: .leading, spacing: 8) {
@@ -96,6 +97,7 @@ struct LiveStatusSheet: View {
                 .prominentButtonLabel()
         }
         .buttonStyle(.borderedProminent)
+        .accessibilityIdentifier("liveStatusStartTrip")
         if hasBroken {
             Button("Bis alles wieder läuft") {
                 liveStatus.start(.untilRepaired, with: service.elevators)
@@ -111,6 +113,7 @@ struct LiveStatusSheet: View {
             VStack(alignment: .leading, spacing: 2) {
                 Label("Live-Status läuft", systemImage: "bell.badge.fill")
                     .font(.subheadline.weight(.semibold))
+                    .accessibilityIdentifier("liveStatusRunning")
                 Text(endLabel(mode))
                     .font(.footnote)
                     .foregroundStyle(Color.hissiTextSecondary)
@@ -121,6 +124,7 @@ struct LiveStatusSheet: View {
             }
             .buttonStyle(.bordered)
             .controlSize(.large)
+            .accessibilityIdentifier("liveStatusEnd")
         }
     }
 

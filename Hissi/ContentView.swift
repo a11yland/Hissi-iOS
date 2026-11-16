@@ -84,7 +84,17 @@ struct ContentView: View {
         .autocorrectionDisabled()
         .onSubmit(of: .search) { recents.add(query) }
         .preferredColorScheme(appearance.colorScheme)
-        .onAppear { onboarding = OnboardingState.pendingSheet() }
+        .onAppear {
+            onboarding = OnboardingState.pendingSheet()
+            if DemoMode.launchLink == .nearby {
+                showNearby()
+                // Screenshot runs: the keyboard would cover half the shot.
+                Task {
+                    try? await Task.sleep(for: .seconds(1))
+                    isSearchFocused = false
+                }
+            }
+        }
         .sheet(item: $onboarding) { sheet in
             switch sheet {
             case .welcome:                 WelcomeSheet()
@@ -433,6 +443,7 @@ private struct SearchableContent: View {
                             showsReorderHandle: service.elevators.count > 1
                         )
                     }
+                    .accessibilityIdentifier("elevatorRow.\(ElevatorStatus(isWorking: elevator.isWorking))")
                     .listRowInsets(EdgeInsets(top: 6, leading: 16, bottom: 6, trailing: 16))
                     .swipeActions(edge: .trailing) {
                         Button(role: .destructive) {

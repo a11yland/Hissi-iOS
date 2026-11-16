@@ -48,6 +48,7 @@ struct NearbyStationsSection: View {
                 }
             }
             .accessibilityElement(children: .combine)
+            .accessibilityIdentifier(isRefreshingStatus ? "nearbyHeader.refreshing" : "nearbyHeader")
 
             switch location.state {
             case .idle:
@@ -95,6 +96,7 @@ struct NearbyStationsSection: View {
                         }
                         .buttonStyle(.plain)
                         .accessibilityElement(children: .combine)
+                        .accessibilityIdentifier("nearbyStation.\(station.status)")
                         if station.id != stations.last?.id {
                             Divider().overlay(Color.hissiSeparator)
                         }

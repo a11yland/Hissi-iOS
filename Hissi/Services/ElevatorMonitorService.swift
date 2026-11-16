@@ -29,6 +29,11 @@ class ElevatorMonitorService: ObservableObject {
         FavoritesStore.migrateIfNeeded()
         FavoritesStore.removeLegacyFavoritesIfNeeded()
         FavoritesStore.backfillAddedAtIfNeeded()
+        #if DEBUG
+        if DemoMode.seedsFavorites {
+            FavoritesStore.replace(with: DemoFixtures.favorites(from: DemoFixtures.catalog()), order: .recentlyAdded)
+        }
+        #endif
         // After the one-time migrations, so iCloud never receives a list they
         // are about to clean up, and before the first read, so the cloud copy
         // already on the device (a reinstall) is what the list starts with.

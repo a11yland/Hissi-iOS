@@ -72,6 +72,7 @@ struct ListActions: ToolbarContent {
                         systemImage: liveStatus.isRunning ? "bell.badge.fill" : "bell.badge"
                     )
                 }
+                .accessibilityIdentifier("liveStatusButton")
             }
             .hissiVisibilityPriority(.high)
         }
