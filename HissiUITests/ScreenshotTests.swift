@@ -116,14 +116,22 @@ final class ScreenshotTests: XCTestCase {
         #endif
     }
 
+    // A classic phone screen (width/height ~0.46) — not iPhone Duo's wide
+    // outer display (~0.69), whose simulator ignores the lock button and
+    // has no editable home screen.
+    private var hasPhoneScreen: Bool {
+        let size = XCUIScreen.main.screenshot().image.size
+        return isPhone && min(size.width, size.height) / max(size.width, size.height) < 0.6
+    }
+
     // The Lock Screen and the widget gallery are scripted on the iPhone
     // only: the Mac has neither, the iPad's Lock Screen comes out black.
     private func requireLiveActivities() throws {
-        guard isPhone else { throw XCTSkip("Lock Screen shot is iPhone-only") }
+        guard hasPhoneScreen else { throw XCTSkip("Lock Screen shot is iPhone-only (not iPhone Duo)") }
     }
 
     private func requireHomeScreen() throws {
-        guard isPhone else { throw XCTSkip("home screen shot is iPhone-only") }
+        guard hasPhoneScreen else { throw XCTSkip("home screen shot is iPhone-only (not iPhone Duo)") }
     }
 
     // MARK: - System UI labels (de/en)
@@ -213,11 +221,7 @@ final class ScreenshotTests: XCTestCase {
             if !editButton.waitForExistence(timeout: 2) {
                 springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.75)).press(forDuration: 1.5)
             }
-            // iPhone Duo's simulator offers no editable home screen.
-            guard editButton.waitForExistence(timeout: 10) else {
-                throw XCTSkip("the home screen can't be edited on this simulator")
-            }
-            editButton.tap()
+            tap(editButton, "home screen edit")
             tap(springboard.buttons.matching(NSPredicate(format: "label IN %@", System.addWidget)).firstMatch, "add widget menu")
             let searchField = springboard.searchFields.firstMatch
             tap(searchField, "widget search")
@@ -285,10 +289,7 @@ final class ScreenshotTests: XCTestCase {
         let activity = springboard.descendants(matching: .any)
             .matching(NSPredicate(format: "label BEGINSWITH %@", "Hissi:")).firstMatch
         // The activity can take a while to land on the Lock Screen.
-        if !activity.waitForExistence(timeout: 30) {
-            if app.buttons["liveStatusEnd"].isHittable { return false }
-            require(activity, "Live Activity on the Lock Screen")
-        }
+        require(activity, "Live Activity on the Lock Screen", timeout: 30)
         // The first Live Activity of an app asks for permission below it;
         // the display dims meanwhile. A second home press would unlock, so
         // lock again and wake once more.

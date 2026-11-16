@@ -7,11 +7,12 @@
 #
 #   scripts/screenshots.sh [--lang de,en] [device…]
 #   scripts/screenshots.sh                                  # every device, de + en
-#   scripts/screenshots.sh "iPhone 18 Pro Max" --lang de    # one set
+#   scripts/screenshots.sh "iPhone 18 Pro" --lang de        # one set
 #   scripts/screenshots.sh Mac                              # Mac Catalyst on this Mac
 #
 # Devices: simulator names, `Mac`, or `all` (the default): iPhone 18 Pro
-# Max, iPad Pro 13-inch (M5), iPhone Duo, Apple Watch Series 12 (46mm) —
+# (6.3", 1206 x 2622 — the size App Store Connect's iPhone slot takes),
+# iPad Pro 13-inch (M5), iPhone Duo, Apple Watch Series 12 (46mm) —
 # not yet the Mac, whose unsigned test runner doesn't connect (CLAUDE.md).
 # iPhone/iPad/Duo run HissiUITests/ScreenshotTests (scheme HissiScreenshots),
 # the watch HissiWatchUITests/WatchScreenshotTests (HissiWatchScreenshots) —
@@ -38,7 +39,7 @@ $1"; shift ;;
 done
 DEVICES="$(printf '%s\n' "$DEVICES" | sed '/^$/d')"
 if [ -z "$DEVICES" ] || [ "$DEVICES" = all ]; then
-  DEVICES="iPhone 18 Pro Max
+  DEVICES="iPhone 18 Pro
 iPad Pro 13-inch (M5)
 iPhone Duo
 Apple Watch Series 12 (46mm)"
