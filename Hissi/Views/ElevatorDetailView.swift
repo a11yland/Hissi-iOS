@@ -72,6 +72,7 @@ struct ElevatorDetailView: View {
     // without losing the station's surroundings (see cameraRegion).
     @State private var camera: MapCameraPosition
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
 
     // Roughly 600 m across — enough to recognise the street the elevator is
     // on. Widening beyond `maxFitMeters` would trade that context for a dot.
@@ -88,6 +89,12 @@ struct ElevatorDetailView: View {
             // Landscape iPhone: fields and map side by side. Portrait (and no
             // coordinate at all): stacked in a single list, as before.
             if geometry.size.width > geometry.size.height, let coordinate = elevator.coordinate {
+                // The title shares the bar's row only while nothing can run
+                // into it: with the list's actions in this bar (iPad, iPhone
+                // Duo's inner display) the trailing group reaches over the
+                // column, and at accessibility sizes the name outgrows the
+                // row — then the column starts below the bar instead.
+                let titleClearsBar = listActions != nil || dynamicTypeSize.isAccessibilitySize
                 HStack(spacing: 0) {
                     // Landscape height is scarce (~400 pt): the station name
                     // stays in the (otherwise empty) inline bar, the sections
@@ -107,7 +114,9 @@ struct ElevatorDetailView: View {
                             Text(elevator.stationName)
                                 .font(.title2.bold())
                                 .listRowBackground(Color.clear)
-                                .modifier(TitleRowInsets(barButtonClearance: Self.barButtonSize + Self.columnGap))
+                                .modifier(TitleRowInsets(
+                                    barButtonClearance: titleClearsBar ? 0 : Self.barButtonSize + Self.columnGap
+                                ))
                                 .listRowSeparator(.hidden)
                         }
                         fieldsSection
@@ -123,7 +132,7 @@ struct ElevatorDetailView: View {
                     // the map side has none, so the left column hiding it is
                     // what makes the bar read as one transparent surface.
                     .scrollContentBackground(.hidden)
-                    .contentMargins(.top, Self.columnGap)
+                    .contentMargins(.top, titleClearsBar ? geometry.safeAreaInsets.top + Self.columnGap : Self.columnGap)
                     .withoutTopScrollEdgeEffect()
                     .overlay(alignment: .bottom) { overflowFade }
                     .frame(width: geometry.size.width / 2)
