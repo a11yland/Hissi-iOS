@@ -12,7 +12,9 @@ enum OnboardingState {
     }
 
     static func pendingSheet() -> WelcomeGate.Sheet? {
-        WelcomeGate.sheet(
+        // Screenshot runs start on the list, not on a sheet.
+        guard !DemoMode.isActive else { return nil }
+        return WelcomeGate.sheet(
             hasSeenWelcome: UserDefaults.standard.bool(forKey: welcomeKey),
             shownWhatsNewVersion: UserDefaults.standard.string(forKey: whatsNewKey),
             currentVersion: currentVersion

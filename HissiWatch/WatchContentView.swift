@@ -71,12 +71,14 @@ struct WatchContentView: View {
                         .font(.caption)
                         .fontWeight(.semibold)
                 }
+                .accessibilityIdentifier("nearbyEntry")
                 .watchCard()
 
                 ForEach(elevators) { elevator in
                     NavigationLink(value: elevator.id) {
                         WatchElevatorRow(elevator: elevator)
                     }
+                    .accessibilityIdentifier("elevatorRow.\(ElevatorStatus(isWorking: elevator.isWorking))")
                     .watchCard()
                 }
 

@@ -283,6 +283,7 @@ struct ElevatorDetailView: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel("Kartenausschnitt \(elevator.stationName)")
+        .accessibilityIdentifier("detailMap")
         .accessibilityHint("In Karten öffnen")
         // Voice Control: what is visible on the snippet is the pill's text,
         // so saying it has to hit this button.

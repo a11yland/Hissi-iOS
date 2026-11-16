@@ -53,6 +53,7 @@ struct SearchResultsList: View {
                                             }
                                         }
                                     }
+                                    .accessibilityIdentifier("elevatorRow.\(ElevatorStatus(isWorking: elevator.isWorking))")
                                     .selectedRowMarker(selection == row)
                                 }
                             }
@@ -80,6 +81,7 @@ private struct RefreshingNotice: View {
                 .foregroundStyle(Color.hissiTextSecondary)
                 .announceOnAppear("Status wird aktualisiert …")
         }
+        .accessibilityIdentifier("statusRefreshBanner")
         .frame(maxWidth: .infinity, alignment: .center)
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)

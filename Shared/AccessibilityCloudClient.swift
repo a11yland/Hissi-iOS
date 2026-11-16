@@ -141,6 +141,9 @@ nonisolated enum AccessibilityCloudClient {
     // selected, a limit=1000 page is ~23 s and ~330 KB (2026-08-04) — still
     // slow enough that the pages need the catalog session's long timeout.
     static func fetchCatalog() async -> [Equipment]? {
+        #if DEBUG
+        if DemoMode.isActive { return DemoFixtures.catalog() }
+        #endif
         let nowISO = ISO8601DateFormatter().string(from: Date())
         async let elevators = fetchAllPages(
             TransitAPI.elevators,
@@ -214,6 +217,12 @@ nonisolated enum AccessibilityCloudClient {
     // are simply absent from the result.
     static func fetchEquipment(ids: [String]) async -> [Equipment]? {
         guard !ids.isEmpty else { return [] }
+        #if DEBUG
+        if DemoMode.isActive {
+            let wanted = Set(ids)
+            return DemoFixtures.catalog().filter { wanted.contains($0.id) }
+        }
+        #endif
         let query = select(
             ["function", "short_visual"],
             ["location", "centroid"], ["location", "stopPlaceCentroid"],

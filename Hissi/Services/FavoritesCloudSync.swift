@@ -42,7 +42,9 @@ final class FavoritesCloudSync {
     // Merges whatever the cloud already holds into the local store before the
     // caller reads it, then keeps listening.
     func start() {
-        guard !started else { return }
+        // Demo data never reaches iCloud — on the Mac that would be the
+        // user's real account.
+        guard !started, !DemoMode.isActive else { return }
         started = true
         NotificationCenter.default.addObserver(
             forName: NSUbiquitousKeyValueStore.didChangeExternallyNotification,
@@ -70,6 +72,7 @@ final class FavoritesCloudSync {
     // Skipped when the cloud copy already says the same, so status-only
     // refreshes never write.
     func upload() {
+        guard !DemoMode.isActive else { return }
         let snapshot = FavoritesCloudSnapshot(favorites: FavoritesStore.load(), order: FavoritesStore.order)
         syncedOnce = true
         guard snapshot != cloudSnapshot(), let data = snapshot.encoded() else { return }
