@@ -199,6 +199,19 @@ import Foundation
         #expect(hamburg.status == .unknown)
     }
 
+    // One retry on 429, after the server's Retry-After — never longer than
+    // a background refresh can afford, never negative, 2 s when unsaid.
+    @Test func retryDelayFollowsRetryAfterWithinTheCap() {
+        #expect(AufzugsstatusClient.retryDelay(retryAfterHeader: nil) == 2)
+        #expect(AufzugsstatusClient.retryDelay(retryAfterHeader: "1") == 1)
+        #expect(AufzugsstatusClient.retryDelay(retryAfterHeader: " 3 ") == 3)
+        #expect(AufzugsstatusClient.retryDelay(retryAfterHeader: "60") == 5)
+        #expect(AufzugsstatusClient.retryDelay(retryAfterHeader: "0") == 0)
+        #expect(AufzugsstatusClient.retryDelay(retryAfterHeader: "-4") == 0)
+        // An HTTP-date Retry-After is not parsed: the default applies.
+        #expect(AufzugsstatusClient.retryDelay(retryAfterHeader: "Wed, 21 Oct 2026 07:28:00 GMT") == 2)
+    }
+
     @Test func coarsensTheCoordinateToAKilometreCell() {
         #expect(AufzugsstatusClient.coarsened(53.55318) == 53.55)
         #expect(AufzugsstatusClient.coarsened(10.00616) == 10.01)

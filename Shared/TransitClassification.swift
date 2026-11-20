@@ -90,6 +90,10 @@ nonisolated enum TransitNetwork: Int, Codable, CaseIterable, Comparable {
         if sourceName.contains("DB Regio") { return .regional }   // VBB-Anlagen (DB Regio)
         if sourceName == "DB FaSta" {
             if stationName.hasPrefix("S ") || stationModes == [.sBahn] { return .sBahn }
+            // DB marks its S-Bahn platform lifts in the description ("zu
+            // Gleis 1/2 (S-Bahn)") — at Hamburg Hbf as at Berlin Ostkreuz,
+            // where the station carries both networks and no "S " prefix.
+            if description.range(of: #"S-Bahn"#, options: .regularExpression) != nil { return .sBahn }
             return .regional
         }
         // BVG / brokenlifts.

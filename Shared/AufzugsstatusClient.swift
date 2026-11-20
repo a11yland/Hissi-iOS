@@ -267,7 +267,19 @@ nonisolated enum AufzugsstatusClient {
         return "Hissi/\(version) (hissi.app)"
     }()
 
-    private static func fetch(_ path: String, query: [URLQueryItem] = []) async -> Data? {
+    // The soft rate limit is 60 requests/min per IP — and carrier NAT puts
+    // many phones behind one IP. A 429 is retried once after the server's
+    // Retry-After (capped: a background refresh has ~30 s in total), then
+    // given up like any other failure. Pure, unit-tested.
+    static let retryAfterCapSeconds: TimeInterval = 5
+    static let defaultRetryAfterSeconds: TimeInterval = 2
+
+    static func retryDelay(retryAfterHeader: String?) -> TimeInterval {
+        let requested = retryAfterHeader.flatMap { TimeInterval($0.trimmingCharacters(in: .whitespaces)) }
+        return min(max(requested ?? defaultRetryAfterSeconds, 0), retryAfterCapSeconds)
+    }
+
+    private static func fetch(_ path: String, query: [URLQueryItem] = [], retrying: Bool = true) async -> Data? {
         guard var components = URLComponents(string: "\(API.host)/\(path)") else { return nil }
         if !query.isEmpty { components.queryItems = query }
         guard let url = components.url else { return nil }
@@ -275,8 +287,14 @@ nonisolated enum AufzugsstatusClient {
         request.setValue(userAgent, forHTTPHeaderField: "User-Agent")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         guard let (data, response) = try? await session.data(for: request),
-              (response as? HTTPURLResponse)?.statusCode == 200
+              let http = response as? HTTPURLResponse
         else { return nil }
+        if http.statusCode == 429, retrying {
+            let delay = retryDelay(retryAfterHeader: http.value(forHTTPHeaderField: "Retry-After"))
+            guard (try? await Task.sleep(for: .seconds(delay))) != nil else { return nil }
+            return await fetch(path, query: query, retrying: false)
+        }
+        guard http.statusCode == 200 else { return nil }
         return data
     }
 
