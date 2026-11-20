@@ -109,10 +109,14 @@ unknown status until then.
 transit.accessibility.cloud is the status source **for Berlin and
 Brandenburg**: the platform ingests the operator feeds (incl. DB FaSta,
 ~every 2 min) itself, which is what the former FaSta override and
-brokenlifts.org scraping compensated for. Everything beyond the VBB comes
-from the **Aufzugsstatus API** (`Shared/AufzugsstatusClient.swift`,
-aufzuege.ploetzlich-querschnitt.de: DB InfraGO FaSta nationwide plus HVV,
-KVB, MVG, VAG; no key, CC BY 4.0). Its ids are the favorite ids verbatim
+brokenlifts.org scraping compensated for. The DB stations across Germany are
+the platform's own nameless DB records, named by the bundled **national
+station list** (`Shared/NationalStations.swift`, `national-stations.json`,
+`EquipmentCatalog.nationalNamed`), so they search offline and refresh in the
+same batch under numeric ids. The city operators — and DB stations the list
+doesn't know yet — come from the **Aufzugsstatus API**
+(`Shared/AufzugsstatusClient.swift`, aufzuege.ploetzlich-querschnitt.de: DB
+InfraGO FaSta nationwide plus HVV, KVB, MVG, VAG; no key, CC BY 4.0). Its ids are the favorite ids verbatim
 (`fasta:10804989`, `hvv:Master:11950-E`), and `StatusSources.resolve` routes
 every status lookup by id namespace: numeric ids into the one catalog batch,
 `source:…` ids into one `GET /lifts/{id}` each (the API has no batch
@@ -121,9 +125,10 @@ also carries (`bvg`, `brokenlifts`) are dropped, DB records a searchable
 local record already covers too (matched on the FaSta equipment number), and
 ACTIVE counts as working only while the feed was seen within 15 minutes.
 The search runs the national lookup side by side with phase 2 (third
-region "Deutschlandweit"); nearby asks the API only when the local catalog
-has no station in walking distance, with the coordinate coarsened to about
-a kilometre. On failure an elevator keeps its previous values and its id is
+region "Deutschlandweit"); nearby asks the API only when no VBB station is in
+walking distance (`needsNationalLookup`), with the coordinate coarsened to
+about a kilometre, and sorts its remainder together with the catalog
+(`nearbyCatalog`). On failure an elevator keeps its previous values and its id is
 reported back. Favorites from before the migration (old `_id`, `fasta-…`,
 `brokenlifts-…`) are deleted once with a dismissible DE/EN notice
 (`FavoritesStore.removeLegacyFavoritesIfNeeded`, iOS app only — it owns the

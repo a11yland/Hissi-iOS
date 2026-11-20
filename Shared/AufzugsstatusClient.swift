@@ -344,10 +344,47 @@ nonisolated enum AufzugsstatusClient {
         }
     }
 
-    // Stations within walking distance according to the national API, as
-    // the nearby list's rows — live statuses included, so no second phase
-    // is needed. nil = the lookup failed; [] = nothing within reach. See
-    // nearbyEquipment for what leaves the device and when.
+    // Whether a position needs the national API for its nearby list: only
+    // when no VBB station (a record from accessibility.cloud's Berlin/
+    // Brandenburg catalog — region berlin, brandenburg or unknown) lies
+    // within walking distance. The catalog also holds the DB stations across
+    // Germany now (NationalStations), so "nothing local in reach" is no
+    // longer the test: in Hamburg the DB station is local, the HVV stations
+    // next to it are not. Pure, unit-tested.
+    static func needsNationalLookup(
+        latitude: Double,
+        longitude: Double,
+        in catalog: [AccessibilityCloudClient.Equipment],
+        withinMeters radius: Double = NearbyStations.walkingRadiusMeters
+    ) -> Bool {
+        NearbyStations.nearest(
+            toLatitude: latitude, longitude: longitude,
+            in: catalog.filter { $0.region != .national }, limit: 1, withinMeters: radius
+        ).isEmpty
+    }
+
+    // The catalog to sort the nearby list from: the local one as it is while
+    // a VBB station is in reach, otherwise the local one plus whatever the
+    // national API adds — the city operators' stations and DB stations the
+    // bundled list doesn't know yet (records the catalog already shows are
+    // dropped, `excludingKnown`). The API's records carry live statuses; the
+    // caller's status refresh answers numeric ids only and leaves them as
+    // they are. A failed lookup returns the local catalog unchanged — nearby
+    // is a suggestion, not a core flow.
+    static func nearbyCatalog(
+        latitude: Double,
+        longitude: Double,
+        catalog: [AccessibilityCloudClient.Equipment]
+    ) async -> [AccessibilityCloudClient.Equipment] {
+        guard needsNationalLookup(latitude: latitude, longitude: longitude, in: catalog) else { return catalog }
+        guard let national = await nearbyEquipment(latitude: latitude, longitude: longitude) else { return catalog }
+        return catalog + excludingKnown(national, knownInventoryNumbers: knownInventoryNumbers(in: catalog))
+    }
+
+    // Stations within walking distance according to the national API alone,
+    // as the nearby list's rows — live statuses included. nil = the lookup
+    // failed; [] = nothing within reach. See nearbyEquipment for what leaves
+    // the device and when; UIs go through nearbyCatalog.
     static func nearbyStations(
         latitude: Double,
         longitude: Double,
@@ -368,9 +405,9 @@ nonisolated enum AufzugsstatusClient {
     // from them. Only the coarsened coordinate leaves the device; the
     // walking-distance cut happens in the caller's sort, over the true one.
     // nil = the lookup failed; [] = no station around. Callers ask only
-    // when the local catalog found nothing in reach (NearbyStationsSection,
-    // NearbyWidget, WatchNearbyView), so a Berlin position never reaches
-    // this server at all.
+    // when no VBB station is in reach (needsNationalLookup, via
+    // nearbyCatalog — NearbyStationsSection, NearbyWidget, WatchNearbyView),
+    // so a Berlin position never reaches this server at all.
     static func nearbyEquipment(latitude: Double, longitude: Double) async -> [AccessibilityCloudClient.Equipment]? {
         #if DEBUG
         if DemoMode.isActive { return [] }

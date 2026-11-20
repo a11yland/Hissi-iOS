@@ -99,20 +99,14 @@ struct WatchNearbyView: View {
     private func load(latitude: Double, longitude: Double) async {
         hasLoaded = false
         let snapshot = await EquipmentCatalog.shared.snapshot()
-        let catalog = snapshot ?? EquipmentCatalog.overlaid(live: [], seed: SeedCatalog.records)
+        let local = snapshot ?? EquipmentCatalog.overlaid(live: [], seed: SeedCatalog.records)
+        // Beyond the VBB the Aufzugsstatus API adds the stations the catalog
+        // lacks (city operators, live statuses and records included), asked
+        // only when no VBB station is in reach and only with a coordinate
+        // coarsened to about a kilometre, like the phone's nearby block.
+        let catalog = await AufzugsstatusClient.nearbyCatalog(latitude: latitude, longitude: longitude, catalog: local)
         guard !Task.isCancelled else { return }
         let nearby = NearbyStations.nearest(toLatitude: latitude, longitude: longitude, in: catalog)
-        // Beyond the VBB the catalog knows no station: the Aufzugsstatus API
-        // answers instead — only then, and only with a coordinate coarsened
-        // to about a kilometre, like the phone's nearby block. Its rows come
-        // with live statuses and their records, so nothing below is needed.
-        if nearby.isEmpty, let national = await AufzugsstatusClient.nearbyEquipment(latitude: latitude, longitude: longitude) {
-            guard !Task.isCancelled else { return }
-            stations = NearbyStations.nearest(toLatitude: latitude, longitude: longitude, in: national)
-            records = Self.index(national)
-            hasLoaded = true
-            return
-        }
         stations = nearby
         records = Self.index(catalog)
         hasLoaded = true
@@ -132,10 +126,12 @@ struct WatchNearbyView: View {
             // First use: the seed can't be re-stated (its ids have no live
             // counterpart yet), so the rows are re-derived from the built
             // catalog. Distances come from the seed either way, so the order
-            // holds — only statuses and elevator counts change.
+            // holds — only statuses and elevator counts change. The national
+            // API's records (city operators) stay as fetched above.
             guard !Task.isCancelled else { return }
-            stations = NearbyStations.nearest(toLatitude: latitude, longitude: longitude, in: built)
-            records = Self.index(built)
+            let rebuilt = built + catalog.filter { AufzugsstatusClient.isNationalId($0.id) }
+            stations = NearbyStations.nearest(toLatitude: latitude, longitude: longitude, in: rebuilt)
+            records = Self.index(rebuilt)
         }
     }
 

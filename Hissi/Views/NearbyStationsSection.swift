@@ -10,9 +10,9 @@ import SwiftUI
 // instantly and may be stale or status-less (first launch previews from the
 // seed), then one targeted request over exactly the shown stations' elevators
 // re-states the rows. A failed refresh keeps what is on screen — nearby is a
-// suggestion, not a core flow. Where the local (VBB) catalog has nothing in
-// walking distance, the Aufzugsstatus API supplies the stations instead
-// (live statuses included) — see load().
+// suggestion, not a core flow. Where no VBB station is in walking distance,
+// the Aufzugsstatus API adds the stations the catalog lacks (city operators,
+// live statuses included) — see load().
 struct NearbyStationsSection: View {
     @ObservedObject var location: LocationProvider
     let onSelect: (String) -> Void
@@ -121,26 +121,20 @@ struct NearbyStationsSection: View {
         // snapshot carries. On the very first launch there is no snapshot yet
         // and the seed previews the names, all statuses unknown.
         hasLoaded = false
-        let catalog = await EquipmentCatalog.shared.snapshot()
+        let local = await EquipmentCatalog.shared.snapshot()
             ?? EquipmentCatalog.overlaid(live: [], seed: SeedCatalog.records)
+        // Beyond the VBB — no Berlin/Brandenburg station in reach — the
+        // Aufzugsstatus API adds the city operators' stations and DB
+        // stations the bundled list doesn't know yet: asked only then, so a
+        // Berlin position never reaches that server, and only with a
+        // coordinate coarsened to about a kilometre
+        // (AufzugsstatusClient.nearbyCatalog). Its records come with live
+        // statuses; phase 2 below refreshes the catalog's.
+        let catalog = await AufzugsstatusClient.nearbyCatalog(latitude: latitude, longitude: longitude, catalog: local)
         guard !Task.isCancelled else { return }
         let nearby = NearbyStations.nearest(
             toLatitude: latitude, longitude: longitude, in: catalog
         )
-        // Beyond the VBB the local catalog knows no station: ask the
-        // Aufzugsstatus API — only then, so a Berlin position never reaches
-        // that server, and only with a coordinate coarsened to about a
-        // kilometre (AufzugsstatusClient.nearbyStations). Its rows arrive
-        // with live statuses, so phase 2 below has nothing left to do.
-        if nearby.isEmpty {
-            let national = await AufzugsstatusClient.nearbyStations(latitude: latitude, longitude: longitude)
-            guard !Task.isCancelled else { return }
-            withAnimation {
-                stations = national ?? []
-                hasLoaded = true
-            }
-            return
-        }
         withAnimation {
             stations = nearby
             hasLoaded = true

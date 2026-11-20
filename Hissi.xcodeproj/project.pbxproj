@@ -110,6 +110,7 @@
 		SH000001BB000003CC000003 /* Exceptions for "Shared" folder in "HissiWatchWidget" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				"Resources/national-stations.json",
 				"Resources/seed-catalog.json",
 			);
 			target = WW000001BB000009CC000009 /* HissiWatchWidget */;
