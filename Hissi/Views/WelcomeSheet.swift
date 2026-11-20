@@ -54,7 +54,7 @@ struct AppFeature: Identifiable {
     static let search = AppFeature(
         symbol: "magnifyingglass",
         title: "Stationen finden",
-        detail: "Alle Aufzüge einer Station mit Live-Status."
+        detail: "Alle Aufzüge einer Station mit Live-Status – in Berlin, Brandenburg und an Bahnhöfen deutschlandweit."
     )
     static let nearby = AppFeature(
         symbol: "location.fill",

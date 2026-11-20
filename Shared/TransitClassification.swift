@@ -7,14 +7,17 @@ import Foundation
 // Berlin vs Brandenburg. accessibility.cloud's originalPlaceInfoId carries the
 // AGS ("de:11000:…" = Berlin, "de:12xxx:…" = a Brandenburg district); records
 // without one (BVG puts the station name there) fall back to the seed's
-// region, then to the name heuristic.
+// region, then to the name heuristic. `national` is everything beyond the
+// VBB — the records the Aufzugsstatus API supplies (AufzugsstatusClient),
+// always stamped explicitly, never inferred. Declared in display order.
 nonisolated enum TransitRegion: String, Codable, CaseIterable {
-    case berlin, brandenburg
+    case berlin, brandenburg, national
 
     var label: String {
         switch self {
         case .berlin:      "Berlin"
         case .brandenburg: "Brandenburg"
+        case .national:    String(localized: "Deutschlandweit")
         }
     }
 

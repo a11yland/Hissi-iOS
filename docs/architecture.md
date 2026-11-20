@@ -51,11 +51,17 @@ flowchart TB
     wcache -.->|"reloadAllTimelines"| comps
 
     acloud["🌐 transit.accessibility.cloud<br/>Elevators / StatusSpans / StopPlaces"]
+    national["🌐 Aufzugsstatus API<br/>/lifts · /lifts/{id} · /stations/near"]
     search <--> acloud
     favs <--> acloud
     iwidget <--> acloud
     wapp <--> acloud
     comps <--> acloud
+    search <-->|"beyond the VBB"| national
+    favs <-->|"national favorites"| national
+    iwidget <--> national
+    wapp <--> national
+    comps <--> national
 ```
 
 The **`WatchSync.push()` edge is the only place data crosses devices.** It carries
@@ -100,14 +106,28 @@ soon as any cached catalog knows them (`EquipmentCatalog.bridgedLiveIds`) —
 the favorite then adopts the live id (`StatusMerge`, persisted via
 `FavoritesStore.migrateIds`) — and resolve from the bundled seed with
 unknown status until then.
-transit.accessibility.cloud is the **only** status source: the platform
-ingests the operator feeds (incl. DB FaSta, ~every 2 min) itself, which is
-what the former FaSta override and brokenlifts.org scraping compensated for.
-On failure an elevator keeps its previous values and its id is reported
-back. Favorites carry the API's numeric ids; favorites from before the
-migration (old `_id`, `fasta-…`, `brokenlifts-…`) are deleted once with a
-dismissible DE/EN notice (`FavoritesStore.removeLegacyFavoritesIfNeeded`,
-iOS app only — it owns the favorites).
+transit.accessibility.cloud is the status source **for Berlin and
+Brandenburg**: the platform ingests the operator feeds (incl. DB FaSta,
+~every 2 min) itself, which is what the former FaSta override and
+brokenlifts.org scraping compensated for. Everything beyond the VBB comes
+from the **Aufzugsstatus API** (`Shared/AufzugsstatusClient.swift`,
+aufzuege.ploetzlich-querschnitt.de: DB InfraGO FaSta nationwide plus HVV,
+KVB, MVG, VAG; no key, CC BY 4.0). Its ids are the favorite ids verbatim
+(`fasta:10804989`, `hvv:Master:11950-E`), and `StatusSources.resolve` routes
+every status lookup by id namespace: numeric ids into the one catalog batch,
+`source:…` ids into one `GET /lifts/{id}` each (the API has no batch
+endpoint; only ever the handful of national favorites). The VBB feeds it
+also carries (`bvg`, `brokenlifts`) are dropped, DB records a searchable
+local record already covers too (matched on the FaSta equipment number), and
+ACTIVE counts as working only while the feed was seen within 15 minutes.
+The search runs the national lookup side by side with phase 2 (third
+region "Deutschlandweit"); nearby asks the API only when the local catalog
+has no station in walking distance, with the coordinate coarsened to about
+a kilometre. On failure an elevator keeps its previous values and its id is
+reported back. Favorites from before the migration (old `_id`, `fasta-…`,
+`brokenlifts-…`) are deleted once with a dismissible DE/EN notice
+(`FavoritesStore.removeLegacyFavoritesIfNeeded`, iOS app only — it owns the
+favorites).
 
 For the **search-only** catalog build, `AccessibilityCloudClient` fetches
 the three flat collections paginated (`depth=0`, `select[]` on the needed

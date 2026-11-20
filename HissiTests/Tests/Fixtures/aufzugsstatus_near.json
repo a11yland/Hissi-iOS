@@ -1,0 +1,56 @@
+[
+  {
+    "name": "Hamburg Hbf",
+    "station_number": 2514,
+    "lifts": 8,
+    "defekt": 0,
+    "distance_km": 0.4,
+    "lat": 53.5531587,
+    "lon": 10.007055000000001
+  },
+  {
+    "name": "Bahnhof 2514",
+    "station_number": 2514,
+    "lifts": 1,
+    "defekt": 1,
+    "distance_km": 0.44,
+    "lat": 53.553095,
+    "lon": 10.005949
+  },
+  {
+    "name": "Hammerbrook",
+    "station_number": 2533,
+    "lifts": 1,
+    "defekt": 0,
+    "distance_km": 1.06,
+    "lat": 53.545774,
+    "lon": 10.024308
+  },
+  {
+    "name": "Stadthausbrücke",
+    "station_number": 5955,
+    "lifts": 1,
+    "defekt": 0,
+    "distance_km": 1.72,
+    "lat": 53.5494215,
+    "lon": 9.9839864
+  },
+  {
+    "name": "Hamburg Dammtor",
+    "station_number": 2513,
+    "lifts": 2,
+    "defekt": 0,
+    "distance_km": 1.77,
+    "lat": 53.560551700000005,
+    "lon": 9.98997065
+  },
+  {
+    "name": "Elbbrücken",
+    "station_number": 8314,
+    "lifts": 2,
+    "defekt": 0,
+    "distance_km": 1.93,
+    "lat": 53.535047500000005,
+    "lon": 10.0249445
+  }
+]

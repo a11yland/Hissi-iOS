@@ -1,6 +1,6 @@
 # Accessibility
 
-Hissi tells people whether the elevators at Berlin and Brandenburg stations work. It is built for wheelchair users, parents with strollers and everyone travelling with luggage, so accessibility is the core of the product, not an add-on.
+Hissi tells people whether the elevators at Berlin and Brandenburg stations work, and at DB and city-operator stations across Germany. It is built for wheelchair users, parents with strollers and everyone travelling with luggage, so accessibility is the core of the product, not an add-on.
 
 ## Accessibility priorities
 

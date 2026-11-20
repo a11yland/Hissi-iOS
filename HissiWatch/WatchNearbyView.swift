@@ -102,6 +102,17 @@ struct WatchNearbyView: View {
         let catalog = snapshot ?? EquipmentCatalog.overlaid(live: [], seed: SeedCatalog.records)
         guard !Task.isCancelled else { return }
         let nearby = NearbyStations.nearest(toLatitude: latitude, longitude: longitude, in: catalog)
+        // Beyond the VBB the catalog knows no station: the Aufzugsstatus API
+        // answers instead — only then, and only with a coordinate coarsened
+        // to about a kilometre, like the phone's nearby block. Its rows come
+        // with live statuses and their records, so nothing below is needed.
+        if nearby.isEmpty, let national = await AufzugsstatusClient.nearbyEquipment(latitude: latitude, longitude: longitude) {
+            guard !Task.isCancelled else { return }
+            stations = NearbyStations.nearest(toLatitude: latitude, longitude: longitude, in: national)
+            records = Self.index(national)
+            hasLoaded = true
+            return
+        }
         stations = nearby
         records = Self.index(catalog)
         hasLoaded = true

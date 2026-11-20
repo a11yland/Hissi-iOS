@@ -1,10 +1,10 @@
 # Hissi
 
-A minimal iOS app that monitors the status of user-selected elevators in the Berlin public transit network, using the [transit.accessibility.cloud](https://transit.accessibility.cloud) API.
+A minimal iOS app that monitors the status of user-selected elevators in the Berlin public transit network, using the [transit.accessibility.cloud](https://transit.accessibility.cloud) API, and at DB and city-operator stations across Germany via the [Aufzugsstatus API](https://aufzuege.ploetzlich-querschnitt.de/api/).
 
 ## Features
 
-- Search Berlin/VBB stations and star the elevators you want to watch — favorites start empty and are managed on the iPhone
+- Search Berlin/VBB stations — and stations across Germany — and star the elevators you want to watch — favorites start empty and are managed on the iPhone
 - Three-state status per elevator (in service / out of service / unknown), shown with a distinct **shape and** colour so it stays legible for colour-blind users and in monochrome contexts
 - Distinguishes when the app last polled ("Geprüft …") from how fresh the source data is ("Stand …")
 - Detail view shows the source, operating organization, disruption reason (while broken) and a map snippet of the station — tap it to open in Apple Maps; on iPhone in landscape the fields and map render as two columns
@@ -40,4 +40,4 @@ swift test --package-path HissiTests
 
 ## Data source
 
-Elevator status is provided by the [transit.accessibility.cloud](https://transit.accessibility.cloud) API (flat Elevators/StatusSpans/StopPlaces lists, joined locally by id). accessibility.cloud and [brokenlifts.org](https://brokenlifts.org) are projects by [Sozialhelden e.V.](https://sozialhelden.de)
+Elevator status for Berlin and Brandenburg is provided by the [transit.accessibility.cloud](https://transit.accessibility.cloud) API (flat Elevators/StatusSpans/StopPlaces lists, joined locally by id). accessibility.cloud and [brokenlifts.org](https://brokenlifts.org) are projects by [Sozialhelden e.V.](https://sozialhelden.de) Stations beyond the VBB come from the [Aufzugsstatus API](https://aufzuege.ploetzlich-querschnitt.de/api/) by plötzlich querschnitt (DB InfraGO FaSta nationwide plus HVV, KVB, MVG, VAG and others; aggregation licensed CC BY 4.0, no API key).

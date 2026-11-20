@@ -10,7 +10,9 @@ import SwiftUI
 // instantly and may be stale or status-less (first launch previews from the
 // seed), then one targeted request over exactly the shown stations' elevators
 // re-states the rows. A failed refresh keeps what is on screen — nearby is a
-// suggestion, not a core flow.
+// suggestion, not a core flow. Where the local (VBB) catalog has nothing in
+// walking distance, the Aufzugsstatus API supplies the stations instead
+// (live statuses included) — see load().
 struct NearbyStationsSection: View {
     @ObservedObject var location: LocationProvider
     let onSelect: (String) -> Void
@@ -125,11 +127,24 @@ struct NearbyStationsSection: View {
         let nearby = NearbyStations.nearest(
             toLatitude: latitude, longitude: longitude, in: catalog
         )
+        // Beyond the VBB the local catalog knows no station: ask the
+        // Aufzugsstatus API — only then, so a Berlin position never reaches
+        // that server, and only with a coordinate coarsened to about a
+        // kilometre (AufzugsstatusClient.nearbyStations). Its rows arrive
+        // with live statuses, so phase 2 below has nothing left to do.
+        if nearby.isEmpty {
+            let national = await AufzugsstatusClient.nearbyStations(latitude: latitude, longitude: longitude)
+            guard !Task.isCancelled else { return }
+            withAnimation {
+                stations = national ?? []
+                hasLoaded = true
+            }
+            return
+        }
         withAnimation {
             stations = nearby
             hasLoaded = true
         }
-        guard !nearby.isEmpty else { return }
 
         // Phase 2, fresh: one targeted request covers every elevator of the
         // handful of shown stations (a still-fresh catalog cache answers it

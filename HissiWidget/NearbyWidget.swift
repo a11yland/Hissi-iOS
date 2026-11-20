@@ -119,6 +119,17 @@ struct NearbyWidgetProvider: TimelineProvider {
             toLatitude: fix.coordinate.latitude, longitude: fix.coordinate.longitude,
             in: catalog, limit: stationLimit
         )
+        // Beyond the VBB the catalog knows no station: the Aufzugsstatus API
+        // answers instead (live statuses included), asked only then and only
+        // with a coordinate coarsened to about a kilometre — the app's
+        // nearby block does the same. Timeline refreshes only: the snapshot
+        // path must stay offline-fast.
+        if stations.isEmpty, refreshStatus,
+           let national = await AufzugsstatusClient.nearbyStations(
+               latitude: fix.coordinate.latitude, longitude: fix.coordinate.longitude, limit: stationLimit
+           ) {
+            return .stations(national)
+        }
         if refreshStatus, !stations.isEmpty {
             let fresh = await EquipmentCatalog.shared.equipment(for: NearbyStations.elevatorIds(of: stations))
             stations = NearbyStations.restated(stations, with: fresh)

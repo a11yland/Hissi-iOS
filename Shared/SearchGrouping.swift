@@ -29,8 +29,9 @@ struct StationGroup: Identifiable, Equatable {
     var networks: [TransitNetwork] { sections.map(\.network) }
 }
 
-// Top level of the results: Berlin before Brandenburg. The header is only
-// rendered when the results span both regions.
+// Top level of the results: Berlin, Brandenburg, then the stations beyond
+// the VBB ("Deutschlandweit", from the Aufzugsstatus API). The header is only
+// rendered when the results span more than one region.
 struct RegionGroup: Identifiable, Equatable {
     let region: TransitRegion
     var stations: [StationGroup]

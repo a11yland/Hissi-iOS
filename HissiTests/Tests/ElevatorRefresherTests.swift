@@ -2,10 +2,13 @@ import Testing
 import Foundation
 @testable import HissiCore
 
-// Records which ids the refresher resolved against the catalog.
+// Records which ids the refresher resolved against the catalog and against
+// the national API.
 private actor CallLog {
     var equipmentRequests: [Set<String>] = []
+    var nationalRequests: [Set<String>] = []
     func equipment(_ ids: Set<String>) { equipmentRequests.append(ids) }
+    func national(_ ids: Set<String>) { nationalRequests.append(ids) }
 }
 
 @Suite struct ElevatorRefresherTests {
@@ -20,11 +23,13 @@ private actor CallLog {
     }
 
     private func sources(
-        equipment: [String: AccessibilityCloudClient.Equipment] = [:]
+        equipment: [String: AccessibilityCloudClient.Equipment] = [:],
+        national: [String: AccessibilityCloudClient.Equipment] = [:]
     ) -> StatusSources {
         let log = log
         return StatusSources(
-            equipment: { ids in await log.equipment(ids); return equipment }
+            equipment: { ids in await log.equipment(ids); return equipment },
+            national: { ids in await log.national(ids); return national }
         )
     }
 
@@ -47,6 +52,41 @@ private actor CallLog {
         #expect(failed.isEmpty)
         // One batch covering both ids — never one request per favorite.
         #expect(await log.equipmentRequests == [["101", "102"]])
+        // Nothing beyond the VBB to ask for: the national API is not called.
+        #expect(await log.nationalRequests.isEmpty)
+    }
+
+    // Favorites split by id namespace: numeric ids go to the catalog batch,
+    // "source:…" ids to the Aufzugsstatus API — each source asked once, and
+    // the answers land on the right favorites in the original order.
+    @Test func routesNationalIdsToTheNationalSource() async {
+        let (updated, failed) = await ElevatorRefresher.refreshAll(
+            [favorite(id: "101"), favorite(id: "fasta:10804843"), favorite(id: "hvv:Master:11950-E")],
+            sources: sources(
+                equipment: ["101": equipment(id: "101", isWorking: true)],
+                national: [
+                    "fasta:10804843": equipment(id: "fasta:10804843", isWorking: false),
+                    "hvv:Master:11950-E": equipment(id: "hvv:Master:11950-E", isWorking: nil),
+                ]
+            )
+        )
+        #expect(updated.map(\.id) == ["101", "fasta:10804843", "hvv:Master:11950-E"])
+        #expect(updated.map(\.isWorking) == [true, false, nil])
+        #expect(failed.isEmpty)
+        #expect(await log.equipmentRequests == [["101"]])
+        #expect(await log.nationalRequests == [["fasta:10804843", "hvv:Master:11950-E"]])
+    }
+
+    @Test func nationalOnlyFavoritesSkipTheCatalog() async {
+        let (updated, failed) = await ElevatorRefresher.refreshAll(
+            [favorite(id: "kvb:034-01")],
+            sources: sources()
+        )
+        // Unanswered: previous values survive, the id is reported.
+        #expect(updated.map(\.isWorking) == [true])
+        #expect(failed == ["kvb:034-01"])
+        #expect(await log.equipmentRequests.isEmpty)
+        #expect(await log.nationalRequests == [["kvb:034-01"]])
     }
 
     @Test func totalFailureKeepsValuesAndReportsIds() async throws {
@@ -107,11 +147,12 @@ private actor CallLog {
     @Test func removesOldPatternIdsOnceAndFlagsTheNotice() {
         reset()
         defer { reset() }
-        for id in ["z87ZFWJs5aB2seuYf", "fasta-10466003", "brokenlifts-900009103-0", "6225"] {
+        for id in ["z87ZFWJs5aB2seuYf", "fasta-10466003", "brokenlifts-900009103-0", "6225", "fasta:10804843"] {
             FavoritesStore.add(favorite(id: id))
         }
         FavoritesStore.removeLegacyFavoritesIfNeeded()
-        #expect(FavoritesStore.load().map(\.id) == ["6225"])
+        // Newest first; the Aufzugsstatus API's namespaced id is a live id.
+        #expect(FavoritesStore.load().map(\.id) == ["fasta:10804843", "6225"])
         #expect(FavoritesStore.removalNoticePending)
 
         FavoritesStore.dismissRemovalNotice()
@@ -122,7 +163,7 @@ private actor CallLog {
         FavoritesStore.add(favorite(id: "brokenlifts-900320006-0"))
         FavoritesStore.removeLegacyFavoritesIfNeeded()
         // Newest first — the fresh favorite sits at the top.
-        #expect(FavoritesStore.load().map(\.id) == ["brokenlifts-900320006-0", "6225"])
+        #expect(FavoritesStore.load().map(\.id) == ["brokenlifts-900320006-0", "fasta:10804843", "6225"])
         #expect(!FavoritesStore.removalNoticePending)
     }
 
