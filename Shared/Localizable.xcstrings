@@ -369,6 +369,16 @@
         }
       }
     },
+    "Bahnhöfe in ganz Deutschland" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stations across Germany"
+          }
+        }
+      }
+    },
     "Beenden" : {
       "localizations" : {
         "en" : {
@@ -797,6 +807,16 @@
         }
       }
     },
+    "In der Nähe, überall" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nearby, everywhere"
+          }
+        }
+      }
+    },
     "In Karten öffnen" : {
       "localizations" : {
         "en" : {
@@ -1078,12 +1098,32 @@
         }
       }
     },
+    "Stationen in der Nähe findet Hissi auch unterwegs im Rest des Landes – nur dann fragt die App den bundesweiten Dienst, mit einer auf etwa einen Kilometer vergröberten Position." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hissi finds nearby stations on the road in the rest of the country too – only then does the app ask the nationwide service, with a position rounded to about one kilometre."
+          }
+        }
+      }
+    },
     "Stationen in der Nähe öffnest du jetzt über das Standortsymbol neben der Glocke." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open nearby stations with the location symbol next to the bell."
+          }
+        }
+      }
+    },
+    "Suche jetzt auch Bahnhöfe außerhalb von Berlin und Brandenburg: DB-Bahnhöfe bundesweit sowie Hamburg, Köln, München und Nürnberg, mit Live-Status und als Favoriten." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search stations outside Berlin and Brandenburg too: DB stations nationwide plus Hamburg, Cologne, Munich and Nuremberg, with live status and as favorites."
           }
         }
       }
