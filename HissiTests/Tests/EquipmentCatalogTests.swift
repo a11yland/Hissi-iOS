@@ -200,83 +200,39 @@ private func tempCacheURL() -> URL {
     }
 }
 
-// Seed-id favorites (created from a seed preview or the offline seed
-// fallback) bridge to their live records via the operator inventory number
-// and stay resolvable from the bundled seed until a catalog exists.
+// Favorites created from a format-1 seed preview carry its non-numeric ids;
+// SeedCatalog.legacyIds maps them onto live ids. Favorites created from the
+// current seed carry live ids already.
 @Suite struct SeedFavoriteBridgeTests {
-    private func seedRecord(
-        id: String,
-        number: Int?,
-        source: String = "fasta"
-    ) -> SeedCatalog.Record {
+    private func seedRecord(id: String) -> SeedCatalog.Record {
         SeedCatalog.Record(
-            id: id, source: source, acId: nil, fastaEquipmentNumber: number,
-            stationNumber: nil, brokenliftsStationId: nil, brokenliftsIndex: nil,
-            stationName: "S Teststadt", description: "Straße ⟷ Bahnsteig",
-            latitude: nil, longitude: nil, sourceName: "DB FaSta",
-            organizationName: "DB", region: "berlin"
+            id: id, stationId: "900000001", stationName: "Teststadt",
+            region: "berlin", description: "Straße ↔ Bahnsteig",
+            sourceName: "DB FaSta", organizationName: "DB InfraGO"
         )
     }
 
-    private func liveEquipment(
-        id: String,
-        inventoryId: String? = nil,
-        number: Int? = nil
-    ) -> AccessibilityCloudClient.Equipment {
+    private func liveEquipment(id: String) -> AccessibilityCloudClient.Equipment {
         AccessibilityCloudClient.Equipment(
-            id: id, inventoryId: inventoryId, stationId: "900000001",
-            stationName: "S Teststadt", description: "Straße ⟷ Bahnsteig",
-            isWorking: true, lastUpdate: nil, fastaEquipmentNumber: number
+            id: id, stationId: "900000001", stationName: "Teststadt",
+            description: "Straße ↔ Bahnsteig", isWorking: true, lastUpdate: nil
         )
     }
 
-    @Test func bridgesSeedIdToLiveIdViaInventoryNumber() {
+    @Test func bridgesLegacyIdsOnly() {
         let map = EquipmentCatalog.bridgedLiveIds(
-            for: ["fasta-42", "7"],
-            seed: [seedRecord(id: "fasta-42", number: 42)],
-            in: [liveEquipment(id: "456", inventoryId: "42")]
+            for: ["fasta-42", "z87ZFWJs5aB2seuYf", "brokenlifts-900009103-0", "7"],
+            legacyIds: ["fasta-42": "456", "z87ZFWJs5aB2seuYf": "457", "7": "8"]
         )
-        #expect(map == ["fasta-42": "456"])
+        #expect(map == ["fasta-42": "456", "z87ZFWJs5aB2seuYf": "457"])
     }
 
-    // overlaid() gives matched live records the seed's number even when the
-    // operator inventory id is a non-numeric string — the bridge must accept
-    // both spellings.
-    @Test func matchedOverlayRecordBridgesViaItsSeedNumber() {
-        let map = EquipmentCatalog.bridgedLiveIds(
-            for: ["z87ZFWJs5aB2seuYf"],
-            seed: [seedRecord(id: "z87ZFWJs5aB2seuYf", number: 10_315_432)],
-            in: [liveEquipment(id: "456", number: 10_315_432)]
-        )
-        #expect(map == ["z87ZFWJs5aB2seuYf": "456"])
-    }
-
-    // An appended seed record carries the number under its seed id — it must
-    // not bridge to itself.
-    @Test func appendedSeedRecordIsNoBridgeTarget() {
-        let map = EquipmentCatalog.bridgedLiveIds(
-            for: ["fasta-42"],
-            seed: [seedRecord(id: "fasta-42", number: 42)],
-            in: [liveEquipment(id: "fasta-42", number: 42)]
-        )
-        #expect(map.isEmpty)
-    }
-
-    @Test func unknownIdsAndMissingNumbersDoNotBridge() {
-        let map = EquipmentCatalog.bridgedLiveIds(
-            for: ["fasta-42", "brokenlifts-900009103-0"],
-            seed: [seedRecord(id: "fasta-42", number: nil)],
-            in: [liveEquipment(id: "456", inventoryId: "42")]
-        )
-        #expect(map.isEmpty)
-    }
-
-    @Test func seedFavoriteResolvesToItsLiveRecordOnceACatalogExists() async throws {
-        let url = tempCacheURL()
-        let stub = BuildStub([[liveEquipment(id: "456", inventoryId: "42")]])
+    @Test func legacyFavoriteResolvesToItsLiveRecordOnceACatalogExists() async throws {
+        let stub = BuildStub([[liveEquipment(id: "456")]])
         let catalog = EquipmentCatalog(
-            cacheFileURL: url,
-            seed: [seedRecord(id: "fasta-42", number: 42)]
+            cacheFileURL: tempCacheURL(),
+            seed: [seedRecord(id: "456")],
+            legacyIds: ["fasta-42": "456"]
         ) { await stub.next() }
 
         _ = await catalog.all()
@@ -285,32 +241,18 @@ private func tempCacheURL() -> URL {
         #expect(resolved["fasta-42"]?.isWorking == true)
     }
 
-    @Test func seedFavoriteWithoutAnyCatalogResolvesFromTheSeedUnknown() async {
-        let url = tempCacheURL()
+    // Created from a seed preview on first launch, before any catalog: the
+    // id is live already; the seed answers until the targeted fetch does.
+    @Test func seedFavoriteWithoutAnyNetworkResolvesFromTheSeedUnknown() async {
         let catalog = EquipmentCatalog(
-            cacheFileURL: url,
-            seed: [seedRecord(id: "fasta-42", number: 42)]
+            cacheFileURL: tempCacheURL(),
+            seed: [seedRecord(id: "456")],
+            legacyIds: ["fasta-42": "456"]
         ) { nil }
 
-        let resolved = await catalog.equipment(for: ["fasta-42"])
-        #expect(resolved["fasta-42"]?.id == "fasta-42")
-        #expect(resolved["fasta-42"]?.isWorking == nil)
-    }
-
-    // An accessibilityCloud-source seed record next to live data is neither
-    // appended by the overlay nor bridged (numbers differ) — the favorite
-    // must still answer from the seed instead of failing every refresh.
-    @Test func unbridgedSeedFavoriteNextToLiveDataFallsBackToTheSeed() async {
-        let url = tempCacheURL()
-        let stub = BuildStub([[liveEquipment(id: "456", inventoryId: "99")]])
-        let catalog = EquipmentCatalog(
-            cacheFileURL: url,
-            seed: [seedRecord(id: "z87ZFWJs5aB2seuYf", number: 42, source: "accessibilityCloud")]
-        ) { await stub.next() }
-
-        _ = await catalog.all()
-        let resolved = await catalog.equipment(for: ["z87ZFWJs5aB2seuYf"])
-        #expect(resolved["z87ZFWJs5aB2seuYf"]?.id == "z87ZFWJs5aB2seuYf")
-        #expect(resolved["z87ZFWJs5aB2seuYf"]?.isWorking == nil)
+        let resolved = await catalog.equipment(for: ["fasta-42", "456"])
+        #expect(resolved["456"]?.isWorking == nil)
+        #expect(resolved["456"]?.stationName == "Teststadt")
+        #expect(resolved["fasta-42"]?.id == "456")
     }
 }

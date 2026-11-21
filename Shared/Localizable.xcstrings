@@ -316,12 +316,12 @@
         }
       }
     },
-    "Aufzugstatus für Berlin und Brandenburg" : {
+    "Aufzugstatus für Berlin, Brandenburg und Bahnhöfe der Deutschen Bahn" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Elevator status for Berlin and Brandenburg"
+            "value" : "Elevator status for Berlin, Brandenburg and Deutsche Bahn stations"
           }
         }
       }
@@ -332,6 +332,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Check elevator status"
+          }
+        }
+      }
+    },
+    "DB-Aufzüge in ganz Deutschland" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deutsche Bahn elevators across Germany"
           }
         }
       }
@@ -362,6 +372,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Out of service"
+          }
+        }
+      }
+    },
+    "Bayern" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bavaria"
           }
         }
       }
@@ -707,6 +727,19 @@
         }
       }
     },
+    "gtfs.de" : {
+      "shouldTranslate" : false
+    },
+    "Hessen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hesse"
+          }
+        }
+      }
+    },
     "Hissi" : {
       "shouldTranslate" : false
     },
@@ -716,6 +749,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Hissi needs no account and collects no data. Favorites stay on your device and in your iCloud; your location never leaves the device."
+          }
+        }
+      }
+    },
+    "Hissi kennt jetzt auch die Aufzüge der Deutschen Bahn an Bahnhöfen außerhalb von Berlin und Brandenburg. Suchergebnisse sind nach Bundesland sortiert." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hissi now also knows the Deutsche Bahn elevators at stations outside Berlin and Brandenburg. Search results are sorted by federal state."
           }
         }
       }
@@ -967,6 +1010,16 @@
         }
       }
     },
+    "Lizenz CC BY 4.0" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "License CC BY 4.0"
+          }
+        }
+      }
+    },
     "Los geht's" : {
       "localizations" : {
         "en" : {
@@ -983,6 +1036,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Delete"
+          }
+        }
+      }
+    },
+    "Mecklenburg-Vorpommern" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mecklenburg-Western Pomerania"
           }
         }
       }
@@ -1057,12 +1120,62 @@
         }
       }
     },
+    "Niedersachsen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lower Saxony"
+          }
+        }
+      }
+    },
     "Noch nie geprüft" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Never checked"
+          }
+        }
+      }
+    },
+    "Nordrhein-Westfalen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "North Rhine-Westphalia"
+          }
+        }
+      }
+    },
+    "Rheinland-Pfalz" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rhineland-Palatinate"
+          }
+        }
+      }
+    },
+    "Sachsen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saxony"
+          }
+        }
+      }
+    },
+    "Sachsen-Anhalt" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saxony-Anhalt"
           }
         }
       }
@@ -1077,6 +1190,16 @@
         }
       }
     },
+    "Stationsnamen und -orte stammen von DELFI e.V. über gtfs.de (CC BY 4.0) und von der VBB Verkehrsverbund Berlin-Brandenburg GmbH (CC BY)." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Station names and locations come from DELFI e.V. via gtfs.de (CC BY 4.0) and VBB Verkehrsverbund Berlin-Brandenburg GmbH (CC BY)."
+          }
+        }
+      }
+    },
     "Suche nach einer Station, um Aufzüge zu finden und hinzuzufügen." : {
       "localizations" : {
         "en" : {
@@ -1086,6 +1209,19 @@
           }
         }
       }
+    },
+    "Thüringen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Thuringia"
+          }
+        }
+      }
+    },
+    "VBB" : {
+      "shouldTranslate" : false
     },
     "Widgets und Live-Status listen nur Aufzüge, die nicht in Betrieb sind. Läuft alles, zeigen sie das Hissi-Zeichen." : {
       "localizations" : {

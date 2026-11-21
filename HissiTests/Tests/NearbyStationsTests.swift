@@ -91,21 +91,18 @@ import Testing
     }
 
     // The watch's first use re-derives the rows from the built catalog instead
-    // of re-stating the seed rows (seed ids have no live counterpart to ask
-    // for). Coordinates come from the seed either way, so the order must hold
-    // — only statuses and elevator counts may change.
+    // of re-stating the seed rows. Coordinates come from the seed either way,
+    // so the order must hold — only statuses and elevator counts may change.
     @Test func rederivingFromTheBuiltCatalogKeepsTheOrder() {
-        func seed(_ id: String, _ station: String, number: Int, latitude: Double) -> SeedCatalog.Record {
+        func seed(_ id: String, _ station: String, latitude: Double) -> SeedCatalog.Record {
             SeedCatalog.Record(
-                id: id, source: "fasta", acId: nil, fastaEquipmentNumber: number,
-                stationNumber: nil, brokenliftsStationId: nil, brokenliftsIndex: nil,
-                stationName: station, description: "Aufzug", latitude: latitude, longitude: 13.41,
-                sourceName: "", organizationName: "", region: "berlin"
+                id: id, stationId: station, stationName: station, region: "berlin",
+                description: "Aufzug", latitude: latitude, longitude: 13.41
             )
         }
         let seedRecords = [
-            seed("fasta-1", "S Nah", number: 1, latitude: 52.5245),
-            seed("fasta-2", "S Weiter", number: 2, latitude: 52.5272),
+            seed("101", "S Nah", latitude: 52.5245),
+            seed("102", "S Weiter", latitude: 52.5272),
         ]
         let before = NearbyStations.nearest(
             toLatitude: 52.52, longitude: 13.41,
@@ -114,8 +111,8 @@ import Testing
         #expect(before.map(\.name) == ["S Nah", "S Weiter"])
         #expect(before.allSatisfy { $0.status == .unknown })
 
-        // The build knows both by inventory number, plus a lift the seed
-        // never had at the nearer station.
+        // The build knows both (without coordinates of their own), plus a
+        // lift the seed never had at the nearer station.
         let live = [
             AccessibilityCloudClient.Equipment(
                 id: "101", inventoryId: "1", stationId: "1", stationName: "S Nah",

@@ -4,26 +4,67 @@ import Foundation
 // string classifiers, nonisolated (the targets default to MainActor
 // isolation); unit-tested in HissiCore.
 
-// Berlin vs Brandenburg. accessibility.cloud's originalPlaceInfoId carries the
-// AGS ("de:11000:…" = Berlin, "de:12xxx:…" = a Brandenburg district); records
-// without one (BVG puts the station name there) fall back to the seed's
-// region, then to the name heuristic.
+// The federal state a station lies in — the top level of the grouped search
+// results. A stop place's DHID carries the AGS ("de:11000:…" = Berlin,
+// "de:09…" = Bayern); the generator stamps every seed record with its
+// station's state (from the DHID, or from the coordinate for the stations it
+// assigned), and records without either fall back to the name heuristic.
+// Declared in display order: the home network first, then alphabetical. The
+// raw values are the seed's `region` values — never rename them, the
+// persisted catalog encodes them too.
 nonisolated enum TransitRegion: String, Codable, CaseIterable {
-    case berlin, brandenburg
+    case berlin
+    case brandenburg
+    case badenWuerttemberg = "baden-wuerttemberg"
+    case bayern
+    case bremen
+    case hamburg
+    case hessen
+    case mecklenburgVorpommern = "mecklenburg-vorpommern"
+    case niedersachsen
+    case nordrheinWestfalen = "nordrhein-westfalen"
+    case rheinlandPfalz = "rheinland-pfalz"
+    case saarland
+    case sachsen
+    case sachsenAnhalt = "sachsen-anhalt"
+    case schleswigHolstein = "schleswig-holstein"
+    case thueringen
 
     var label: String {
         switch self {
-        case .berlin:      "Berlin"
-        case .brandenburg: "Brandenburg"
+        case .berlin:                "Berlin"
+        case .brandenburg:           "Brandenburg"
+        case .badenWuerttemberg:     "Baden-Württemberg"
+        case .bayern:                String(localized: "Bayern")
+        case .bremen:                "Bremen"
+        case .hamburg:               "Hamburg"
+        case .hessen:                String(localized: "Hessen")
+        case .mecklenburgVorpommern: String(localized: "Mecklenburg-Vorpommern")
+        case .niedersachsen:         String(localized: "Niedersachsen")
+        case .nordrheinWestfalen:    String(localized: "Nordrhein-Westfalen")
+        case .rheinlandPfalz:        String(localized: "Rheinland-Pfalz")
+        case .saarland:              "Saarland"
+        case .sachsen:               String(localized: "Sachsen")
+        case .sachsenAnhalt:         String(localized: "Sachsen-Anhalt")
+        case .schleswigHolstein:     "Schleswig-Holstein"
+        case .thueringen:            String(localized: "Thüringen")
         }
     }
 
+    // The AGS state key ("de:11…") of a DHID.
     static func from(originalPlaceInfoId id: String?) -> TransitRegion? {
-        guard let id else { return nil }
-        if id.hasPrefix("de:11") { return .berlin }
-        if id.hasPrefix("de:12") { return .brandenburg }
-        return nil
+        guard let id, id.hasPrefix("de:"), id.count >= 5 else { return nil }
+        let key = id.dropFirst(3).prefix(2)
+        return byStateKey[String(key)]
     }
+
+    private static let byStateKey: [String: TransitRegion] = [
+        "01": .schleswigHolstein, "02": .hamburg, "03": .niedersachsen, "04": .bremen,
+        "05": .nordrheinWestfalen, "06": .hessen, "07": .rheinlandPfalz,
+        "08": .badenWuerttemberg, "09": .bayern, "10": .saarland, "11": .berlin,
+        "12": .brandenburg, "13": .mecklenburgVorpommern, "14": .sachsen,
+        "15": .sachsenAnhalt, "16": .thueringen,
+    ]
 
     // U-Bahn exists only in Berlin; VBB suffixes Berlin stations with
     // "(Berlin)", DB prefixes them with "Berlin".
@@ -81,12 +122,21 @@ nonisolated enum TransitNetwork: Int, Codable, CaseIterable, Comparable {
         description: String,
         stationName: String,
         sourceName: String,
+        organizationName: String = "",
         stationModes: Set<TransitNetwork> = []
     ) -> TransitNetwork {
         if sourceName.contains("S-Bahn") { return .sBahn }        // VBB Anlagen (S-Bahn)
         if sourceName.contains("DB Regio") { return .regional }   // VBB-Anlagen (DB Regio)
-        if sourceName == "DB FaSta" {
-            if stationName.hasPrefix("S ") || stationModes == [.sBahn] { return .sBahn }
+        // DB elevators: the FaSta feed, or — for the ~300 the platform
+        // carries without a feed — the operator.
+        if sourceName == "DB FaSta" || organizationName == "DB InfraGO" {
+            // DB marks S-Bahn platforms in the text ("Gl. 3/4 (S-Bahn)",
+            // "S-Bahnsteig Gl. 22", "Westliches Bahnsteig.ende S-Bahn") — the only hint at stations that serve
+            // both, and at the assigned stations, which carry no modes.
+            if stationName.hasPrefix("S ") || stationModes == [.sBahn]
+                || description.range(of: #"S-?\s?Bahnsteig|\bS-Bahn\b"#, options: .regularExpression) != nil {
+                return .sBahn
+            }
             return .regional
         }
         // BVG / brokenlifts.
