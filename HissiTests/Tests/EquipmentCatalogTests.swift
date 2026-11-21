@@ -70,6 +70,63 @@ private func tempCacheURL() -> URL {
     }
 }
 
+// "Hbf" and "Hauptbahnhof" find each other — DB names abbreviate, the stop
+// places spell out.
+@Suite struct StationAliasTests {
+    private func station(_ id: String, _ name: String) -> AccessibilityCloudClient.Equipment {
+        AccessibilityCloudClient.Equipment(
+            id: id, stationId: id, stationName: name, description: "", isWorking: nil, lastUpdate: nil
+        )
+    }
+
+    private var catalog: [AccessibilityCloudClient.Equipment] {
+        [
+            station("1", "München Hbf"),
+            station("2", "Berlin Hauptbahnhof"),
+            station("3", "Zoologischer Garten Bahnhof (Berlin)"),
+            station("4", "Hbfx"),
+        ]
+    }
+
+    private func ids(_ query: String) -> [String] {
+        AccessibilityCloudClient.matchStations(query, in: catalog).map(\.id)
+    }
+
+    @Test func fullWordFindsTheAbbreviation() {
+        #expect(ids("Hauptbahnhof") == ["1", "2"])
+        #expect(ids("münchen hauptbahnhof") == ["1"])
+        // "Hauptbahnhof" contains "Bahnhof" — spelled out or abbreviated.
+        #expect(ids("Bahnhof") == ["1", "2", "3"])
+    }
+
+    @Test func abbreviationFindsTheFullWord() {
+        // "Hbfx" contains the input as typed — that match stays.
+        #expect(ids("hbf") == ["1", "2", "4"])
+        #expect(ids("Berlin Hbf") == ["2"])
+    }
+
+    // Typing on keeps every partial match; whole words only — "Hbfx" is no
+    // "Hbf".
+    @Test func partialInputAndWordBoundaries() {
+        #expect(ids("hb") == ["1", "4"])
+        #expect(ids("haupt") == ["1", "2"])
+        #expect(StationAliases.expanded("hbfx") == "hbfx")
+        #expect(StationAliases.expanded("stolberg(rheinl)hbf") == "stolberg(rheinl)hauptbahnhof")
+    }
+
+    @Test func highlightBoldsTheOtherSpelling() {
+        let abbreviated = AccessibilityCloudClient.highlightedStationName("München Hbf", matching: "Hauptbahnhof")
+        #expect(abbreviated.runs.contains { run in
+            run.inlinePresentationIntent == .stronglyEmphasized && String(abbreviated[run.range].characters) == "Hbf"
+        })
+        let spelledOut = AccessibilityCloudClient.highlightedStationName("Berlin Hauptbahnhof", matching: "hbf")
+        #expect(spelledOut.runs.contains { run in
+            run.inlinePresentationIntent == .stronglyEmphasized
+                && String(spelledOut[run.range].characters) == "Hauptbahnhof"
+        })
+    }
+}
+
 // The match-highlighting behind search result headers: bold exactly the
 // matched substring, plain when nothing matches contiguously.
 @Suite struct HighlightedStationNameTests {

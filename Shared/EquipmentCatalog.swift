@@ -386,28 +386,80 @@ extension AccessibilityCloudClient {
     }
 
     // The pure name filter, shared by both search phases (instant snapshot,
-    // fresh catalog).
+    // fresh catalog). A name matches when it contains the query as typed or
+    // once station abbreviations are spelled out on both sides
+    // (`StationAliases`: "Hauptbahnhof" finds "München Hbf", "Hbf" finds
+    // "Berlin Hauptbahnhof") — the first keeps every partial match while
+    // typing ("hb…"), the second bridges the spellings.
     static func matchStations(_ query: String, in catalog: [Equipment]) -> [Equipment] {
         let needle = normalize(query)
         guard !needle.isEmpty else { return [] }
-        return catalog.filter { normalize($0.stationName).contains(needle) }
+        let expandedNeedle = StationAliases.expanded(needle)
+        return catalog.filter {
+            let name = normalize($0.stationName)
+            return name.contains(needle) || StationAliases.expanded(name).contains(expandedNeedle)
+        }
     }
 
     // The station name with the query match emphasized (bold) — the "why is
     // this a result" cue in the list. Matching mirrors matchStations'
     // normalization (case- and diacritic-insensitive: "schonhauser" bolds
-    // "Schönhauser"); when no contiguous match exists the name renders plain.
+    // "Schönhauser"), aliases included ("Hauptbahnhof" bolds the "Hbf");
+    // when no contiguous match exists the name renders plain.
     static func highlightedStationName(_ name: String, matching query: String) -> AttributedString {
         var attributed = AttributedString(name)
         let trimmed = query.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty,
-              let range = attributed.range(of: trimmed, options: [.caseInsensitive, .diacriticInsensitive])
-        else { return attributed }
-        attributed[range].inlinePresentationIntent = .stronglyEmphasized
+        guard !trimmed.isEmpty else { return attributed }
+        for candidate in [trimmed] + StationAliases.variants(of: trimmed) {
+            if let range = attributed.range(of: candidate, options: [.caseInsensitive, .diacriticInsensitive]) {
+                attributed[range].inlinePresentationIntent = .stronglyEmphasized
+                break
+            }
+        }
         return attributed
     }
 
     private static func normalize(_ string: String) -> String {
         string.folding(options: .diacriticInsensitive, locale: .current).lowercased()
+    }
+}
+
+// Abbreviations station names use interchangeably with the full word — DB's
+// "München Hbf" next to the stop places' "Berlin Hauptbahnhof". Applied to
+// already folded (lowercased) text, whole words only, so "Hbf" expands but
+// "Hbfx" doesn't. A table so further pairs stay one line. Pure, unit-tested; Hissi-Android mirrors it.
+nonisolated enum StationAliases {
+    static let pairs: [(short: String, full: String)] = [
+        ("hbf", "hauptbahnhof"),
+    ]
+
+    // Every abbreviation spelled out ("münchen hbf" → "münchen hauptbahnhof").
+    static func expanded(_ folded: String) -> String {
+        pairs.reduce(folded) { text, pair in
+            text.replacingOccurrences(
+                of: "\\b\(pair.short)\\b\\.?", with: pair.full, options: .regularExpression
+            )
+        }
+    }
+
+    // The query's other spellings, for the highlight: each full word as its
+    // abbreviations and each abbreviation spelled out ("Hauptbahnhof" →
+    // "hbf"). Case is folded; the highlight matches case-insensitively.
+    static func variants(of query: String) -> [String] {
+        let folded = query.lowercased()
+        var variants: [String] = []
+        for pair in pairs {
+            if folded.range(of: "\\b\(pair.full)\\b", options: .regularExpression) != nil {
+                variants.append(folded.replacingOccurrences(
+                    of: "\\b\(pair.full)\\b", with: pair.short, options: .regularExpression
+                ))
+            }
+            if folded.range(of: "\\b\(pair.short)\\b", options: .regularExpression) != nil {
+                variants.append(folded.replacingOccurrences(
+                    of: "\\b\(pair.short)\\b\\.?", with: pair.full, options: .regularExpression
+                ))
+            }
+        }
+        return variants
     }
 }
