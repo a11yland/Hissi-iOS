@@ -7,14 +7,17 @@ import Foundation
 // Berlin vs Brandenburg. accessibility.cloud's originalPlaceInfoId carries the
 // AGS ("de:11000:…" = Berlin, "de:12xxx:…" = a Brandenburg district); records
 // without one (BVG puts the station name there) fall back to the seed's
-// region, then to the name heuristic.
+// region, then to the name heuristic. `national` is everything beyond the
+// VBB — the records the Aufzugsstatus API supplies (AufzugsstatusClient),
+// always stamped explicitly, never inferred. Declared in display order.
 nonisolated enum TransitRegion: String, Codable, CaseIterable {
-    case berlin, brandenburg
+    case berlin, brandenburg, national
 
     var label: String {
         switch self {
         case .berlin:      "Berlin"
         case .brandenburg: "Brandenburg"
+        case .national:    String(localized: "Deutschlandweit")
         }
     }
 
@@ -87,6 +90,10 @@ nonisolated enum TransitNetwork: Int, Codable, CaseIterable, Comparable {
         if sourceName.contains("DB Regio") { return .regional }   // VBB-Anlagen (DB Regio)
         if sourceName == "DB FaSta" {
             if stationName.hasPrefix("S ") || stationModes == [.sBahn] { return .sBahn }
+            // DB marks its S-Bahn platform lifts in the description ("zu
+            // Gleis 1/2 (S-Bahn)") — at Hamburg Hbf as at Berlin Ostkreuz,
+            // where the station carries both networks and no "S " prefix.
+            if description.range(of: #"S-Bahn"#, options: .regularExpression) != nil { return .sBahn }
             return .regional
         }
         // BVG / brokenlifts.

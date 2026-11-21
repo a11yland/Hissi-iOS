@@ -54,7 +54,7 @@ struct AppFeature: Identifiable {
     static let search = AppFeature(
         symbol: "magnifyingglass",
         title: "Stationen finden",
-        detail: "Alle Aufzüge einer Station mit Live-Status."
+        detail: "Alle Aufzüge einer Station mit Live-Status – in Berlin, Brandenburg und an Bahnhöfen deutschlandweit."
     )
     static let nearby = AppFeature(
         symbol: "location.fill",
@@ -144,6 +144,17 @@ struct WhatsNewSheet: View {
                 symbol: "location",
                 title: "In der Nähe in der Symbolleiste",
                 detail: "Stationen in der Nähe öffnest du jetzt über das Standortsymbol neben der Glocke."
+            )
+        case "1.4.0":
+            FeatureRow(
+                symbol: "map",
+                title: "Bahnhöfe in ganz Deutschland",
+                detail: "Suche jetzt auch Bahnhöfe außerhalb von Berlin und Brandenburg: DB-Bahnhöfe bundesweit sowie Hamburg, Köln, München und Nürnberg, mit Live-Status und als Favoriten."
+            )
+            FeatureRow(
+                symbol: "location",
+                title: "In der Nähe, überall",
+                detail: "Stationen in der Nähe findet Hissi auch unterwegs im Rest des Landes – nur dann fragt die App den bundesweiten Dienst, mit einer auf etwa einen Kilometer vergröberten Position."
             )
         default:
             EmptyView()

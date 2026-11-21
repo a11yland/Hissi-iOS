@@ -32,11 +32,14 @@ enum FavoritesStore {
     // "brokenlifts-…") don't exist in the new API — its ids are numeric.
     // Deliberately deleted instead of mapped; the app shows a one-time
     // notice (removalNoticePending) so users know to re-add via search.
+    // Favorites beyond the VBB carry the Aufzugsstatus API's namespaced ids
+    // ("fasta:…") and are kept — the flag normally runs before any exist,
+    // but a reinstall's iCloud copy may already hold them.
     static func removeLegacyFavoritesIfNeeded() {
         guard !defaults.bool(forKey: transitCleanupKey) else { return }
         defaults.set(true, forKey: transitCleanupKey)
         let current = load()
-        let kept = current.filter { Int($0.id) != nil }
+        let kept = current.filter { Int($0.id) != nil || AufzugsstatusClient.isNationalId($0.id) }
         guard kept.count != current.count else { return }
         persist(kept)
         defaults.set(true, forKey: removalNoticeKey)

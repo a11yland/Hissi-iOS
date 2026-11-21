@@ -32,6 +32,9 @@ actor EquipmentCatalog {
     // resource, so the default is empty there).
     private let seed: [SeedCatalog.Record]
     private let stations: [SeedCatalog.Station]
+    // The DB stations across Germany, naming the nameless DB records
+    // (NationalStations); injectable for tests like the seed.
+    private let national: [NationalStations.Station]
     // The live fetch, injectable for tests. Returns the joined live catalog
     // WITHOUT the seed overlay — the overlay is applied on every load so a
     // release with a newer bundled seed reworks persisted data.
@@ -53,6 +56,7 @@ actor EquipmentCatalog {
         cacheFileURL: URL? = defaultCacheFileURL,
         seed: [SeedCatalog.Record] = SeedCatalog.records,
         stations: [SeedCatalog.Station] = SeedCatalog.stations,
+        national: [NationalStations.Station] = NationalStations.stations,
         buildLive: @escaping @Sendable () async -> [AccessibilityCloudClient.Equipment]? = {
             await AccessibilityCloudClient.fetchCatalog()
         }
@@ -61,6 +65,7 @@ actor EquipmentCatalog {
         self.cacheFileURL = cacheFileURL
         self.seed = seed
         self.stations = stations
+        self.national = national
         self.buildLive = buildLive
     }
 
@@ -91,7 +96,7 @@ actor EquipmentCatalog {
         }
         if let built = await startBuild().value { return built }
         if !cached.isEmpty { return cached }
-        let seedOnly = Self.overlaid(live: [], seed: seed, stations: stations)
+        let seedOnly = Self.overlaid(live: [], seed: seed, stations: stations, national: national)
         return seedOnly.isEmpty ? nil : seedOnly
     }
 
@@ -108,7 +113,7 @@ actor EquipmentCatalog {
     private func finishBuild(live: [AccessibilityCloudClient.Equipment]?) -> [AccessibilityCloudClient.Equipment]? {
         inFlight = nil
         guard let live else { return nil }
-        cached = Self.overlaid(live: live, seed: seed, stations: stations)
+        cached = Self.overlaid(live: live, seed: seed, stations: stations, national: national)
         fetchedAt = Date()
         persist(live: live)
         return cached
@@ -134,7 +139,7 @@ actor EquipmentCatalog {
               let persisted = try? JSONDecoder().decode(PersistedCatalog.self, from: data),
               !persisted.live.isEmpty
         else { return }
-        cached = Self.overlaid(live: persisted.live, seed: seed, stations: stations)
+        cached = Self.overlaid(live: persisted.live, seed: seed, stations: stations, national: national)
         fetchedAt = persisted.fetchedAt
     }
 
@@ -176,7 +181,7 @@ actor EquipmentCatalog {
             // A failed fetch degrades to the seed overlay: numeric favorites
             // stay unresolved (previous values survive), seed-id favorites
             // still answer — status unknown, never a false "working".
-            resolved = Self.overlaid(live: live ?? [], seed: seed, stations: stations)
+            resolved = Self.overlaid(live: live ?? [], seed: seed, stations: stations, national: national)
         }
         let byId = Dictionary(resolved.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         var result: [String: AccessibilityCloudClient.Equipment] = [:]
@@ -190,7 +195,7 @@ actor EquipmentCatalog {
         // spurious failure report.
         let missingSeedIds = ids.filter { result[$0] == nil && Int($0) == nil }
         if !missingSeedIds.isEmpty {
-            for record in Self.overlaid(live: [], seed: seed.filter { missingSeedIds.contains($0.id) }, stations: stations) {
+            for record in Self.overlaid(live: [], seed: seed.filter { missingSeedIds.contains($0.id) }, stations: stations, national: national) {
                 result[record.id] = record
             }
         }
@@ -241,15 +246,20 @@ actor EquipmentCatalog {
     // Whatever still has no coordinate after all that takes the station's
     // from the seed's `stations` list (keyed by the station number) — the
     // last resort for a station whose records carry no centroid upstream.
+    // Live records that still have no station name after all that are the
+    // nationwide DB elevators the platform carries without one: the bundled
+    // national station list names them by FaSta number (nationalNamed).
     nonisolated static func overlaid(
         live: [AccessibilityCloudClient.Equipment],
         seed: [SeedCatalog.Record],
-        stations: [SeedCatalog.Station] = SeedCatalog.stations
+        stations: [SeedCatalog.Station] = SeedCatalog.stations,
+        national: [NationalStations.Station] = NationalStations.stations
     ) -> [AccessibilityCloudClient.Equipment] {
         let stationsById = Dictionary(
             stations.map { ($0.stationId, $0) },
             uniquingKeysWith: { first, _ in first }
         )
+        let nationalByLift = NationalStations.byLift(national)
         let seedByInventory = Dictionary(
             seed.compactMap { record in
                 record.fastaEquipmentNumber.map { (String($0), record) }
@@ -268,7 +278,7 @@ actor EquipmentCatalog {
         var matchedSeedIds = Set<String>()
         let merged = live.map { equipment -> AccessibilityCloudClient.Equipment in
             guard let record = equipment.inventoryId.flatMap({ seedByInventory[$0] }) else {
-                return stationBackfilled(equipment, from: seedByStation)
+                return nationalNamed(stationBackfilled(equipment, from: seedByStation), from: nationalByLift)
             }
             matchedSeedIds.insert(record.id)
             // Backfilled again on the way out: a matched seed record can
@@ -325,6 +335,42 @@ actor EquipmentCatalog {
             ))
         }
         return appended.map { stationCoordinated($0, from: stationsById) }
+    }
+
+    // Names a live record that has no station — a nationwide DB elevator the
+    // platform carries by inventory number only — from the bundled national
+    // station list: station name and number, the station's coordinate where
+    // the record has none, "DB FaSta"/"DB InfraGO" as source and operator
+    // (the API serves only feed ids), region `.national`. Records that
+    // already carry a name (every VBB record, stop-place linked) and numbers
+    // the list doesn't know are left as they are — such a record stays
+    // invisible rather than guessed. Pure, unit-tested.
+    nonisolated static func nationalNamed(
+        _ equipment: AccessibilityCloudClient.Equipment,
+        from nationalByLift: [String: NationalStations.Station]
+    ) -> AccessibilityCloudClient.Equipment {
+        guard equipment.stationName.isEmpty,
+              let number = equipment.inventoryId ?? equipment.fastaEquipmentNumber.map(String.init),
+              let station = nationalByLift[number]
+        else { return equipment }
+        return AccessibilityCloudClient.Equipment(
+            id: equipment.id,
+            inventoryId: equipment.inventoryId,
+            stationId: equipment.stationId.isEmpty ? String(station.stationNumber) : equipment.stationId,
+            stationName: station.name,
+            stationNetworks: equipment.stationNetworks,
+            description: equipment.description,
+            isWorking: equipment.isWorking,
+            lastUpdate: equipment.lastUpdate,
+            sourceName: equipment.sourceName.isEmpty ? "DB FaSta" : equipment.sourceName,
+            organizationName: equipment.organizationName.isEmpty ? "DB InfraGO" : equipment.organizationName,
+            stateExplanation: equipment.stateExplanation,
+            latitude: equipment.latitude ?? station.latitude,
+            longitude: equipment.longitude ?? station.longitude,
+            fastaEquipmentNumber: equipment.fastaEquipmentNumber ?? Int(number),
+            brokenliftsIndex: equipment.brokenliftsIndex,
+            region: equipment.region ?? .national
+        )
     }
 
     // The station's own coordinate for a record that has none — after the

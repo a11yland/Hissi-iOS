@@ -65,6 +65,16 @@ import Foundation
             description: "zu Gleis 2", stationName: "Königs Wusterhausen",
             sourceName: "DB FaSta", stationModes: [.sBahn, .regional]
         ) == .regional)
+        // … unless DB marks the lift as an S-Bahn one itself — the national
+        // records (Hamburg Hbf) carry no station modes at all.
+        #expect(TransitNetwork.classify(
+            description: "zu Gleis 1/2 (S-Bahn)", stationName: "Hamburg Hbf",
+            sourceName: "DB FaSta"
+        ) == .sBahn)
+        #expect(TransitNetwork.classify(
+            description: "zu Gleis 11/12 Abschnitt E", stationName: "Hamburg Hbf",
+            sourceName: "DB FaSta"
+        ) == .regional)
         // Unmarked elevator, no source: the station's single network wins.
         #expect(TransitNetwork.classify(
             description: "zu Gleis 1/1a", stationName: "Wittenberge, Bahnhof",

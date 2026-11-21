@@ -113,8 +113,18 @@ struct NearbyWidgetProvider: TimelineProvider {
         // Read-only snapshot: a stale catalog is fine for names and
         // coordinates, and a rebuild is the app's job (30 s, megabytes —
         // not for a widget's budget).
-        let catalog = await EquipmentCatalog.shared.snapshot(rebuildingIfStale: false)
+        let local = await EquipmentCatalog.shared.snapshot(rebuildingIfStale: false)
             ?? EquipmentCatalog.overlaid(live: [], seed: SeedCatalog.records)
+        // Beyond the VBB the Aufzugsstatus API adds the stations the catalog
+        // lacks (city operators, live statuses included), asked only when no
+        // VBB station is in reach and only with a coordinate coarsened to
+        // about a kilometre — the app's nearby block does the same. Timeline
+        // refreshes only: the snapshot path must stay offline-fast.
+        let catalog = refreshStatus
+            ? await AufzugsstatusClient.nearbyCatalog(
+                latitude: fix.coordinate.latitude, longitude: fix.coordinate.longitude, catalog: local
+            )
+            : local
         var stations = NearbyStations.nearest(
             toLatitude: fix.coordinate.latitude, longitude: fix.coordinate.longitude,
             in: catalog, limit: stationLimit

@@ -194,12 +194,14 @@ struct ElevatorDetailView: View {
             await loadLookAroundScene(at: coordinate)
         }
         // Live status before favoriting (FR3): one targeted request — the
-        // same path a favorites refresh takes, free while the catalog cache
-        // is fresh — instead of waiting for the search's full rebuild, which
-        // this view would not even see (it holds a pushed snapshot).
+        // same path a favorites refresh takes (StatusSources.resolve: the
+        // catalog for VBB ids, free while its cache is fresh; the
+        // Aufzugsstatus API for national ones) — instead of waiting for the
+        // search's full rebuild, which this view would not even see (it
+        // holds a pushed snapshot).
         .task(id: initial.id) {
             guard !service.isFavorite(initial.id) else { return }
-            let records = await EquipmentCatalog.shared.equipment(for: [initial.id])
+            let records = await StatusSources.live.resolve([initial.id])
             guard !Task.isCancelled, let record = records[initial.id] else { return }
             let merged = StatusMerge.apply(record, to: initial)
             refreshed = merged

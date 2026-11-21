@@ -1,7 +1,7 @@
 import SwiftUI
 
-// Grouped search results: Berlin/Brandenburg sections (only when both are
-// present), one card per station, network subheaders inside stations that
+// Grouped search results: region sections — Berlin, Brandenburg,
+// Deutschlandweit — (only when more than one is present), one card per station, network subheaders inside stations that
 // span several networks (S+U), and an inline favorite toggle per elevator.
 // Driven by the shared SearchService; the search field lives in ContentView.
 struct SearchResultsList: View {

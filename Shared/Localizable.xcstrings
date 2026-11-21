@@ -166,12 +166,12 @@
         }
       }
     },
-    "Alle Aufzüge einer Station mit Live-Status." : {
+    "Alle Aufzüge einer Station mit Live-Status – in Berlin, Brandenburg und an Bahnhöfen deutschlandweit." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "All elevators of a station, with live status."
+            "value" : "All elevators of a station, with live status – in Berlin, Brandenburg and at stations across Germany."
           }
         }
       }
@@ -306,6 +306,9 @@
         }
       }
     },
+    "Aufzugsstatus-API" : {
+      "shouldTranslate" : false
+    },
     "Aufzugstatus" : {
       "localizations" : {
         "en" : {
@@ -316,12 +319,12 @@
         }
       }
     },
-    "Aufzugstatus für Berlin und Brandenburg" : {
+    "Aufzugstatus für Berlin, Brandenburg und Bahnhöfe deutschlandweit" : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Elevator status for Berlin and Brandenburg"
+            "value" : "Elevator status for Berlin, Brandenburg and stations across Germany"
           }
         }
       }
@@ -362,6 +365,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Out of service"
+          }
+        }
+      }
+    },
+    "Bahnhöfe in ganz Deutschland" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stations across Germany"
           }
         }
       }
@@ -506,6 +519,16 @@
         }
       }
     },
+    "Deutschlandweit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nationwide"
+          }
+        }
+      }
+    },
     "Die App nutzt jetzt eine neue Datenquelle. Deine bisherigen Favoriten ließen sich nicht übernehmen und wurden entfernt – bitte füge deine Aufzüge über die Suche neu hinzu." : {
       "localizations" : {
         "en" : {
@@ -516,12 +539,12 @@
         }
       }
     },
-    "Die Aufzugsdaten stammen von accessibility.cloud, einem Projekt des gemeinnützigen Sozialhelden e.V." : {
+    "Die Aufzugsdaten für Berlin und Brandenburg stammen von accessibility.cloud, einem Projekt des gemeinnützigen Sozialhelden e.V. Bahnhöfe im übrigen Deutschland liefert die Aufzugsstatus-API von plötzlich querschnitt (DB InfraGO und weitere Betreiber, CC BY 4.0)." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Elevator data comes from accessibility.cloud, a project by the non-profit Sozialhelden e.V."
+            "value" : "Elevator data for Berlin and Brandenburg comes from accessibility.cloud, a project by the non-profit Sozialhelden e.V. Stations in the rest of Germany come from the Aufzugsstatus API by plötzlich querschnitt (DB InfraGO and other operators, CC BY 4.0)."
           }
         }
       }
@@ -710,12 +733,12 @@
     "Hissi" : {
       "shouldTranslate" : false
     },
-    "Hissi braucht kein Konto und sammelt keine Daten. Favoriten liegen auf deinem Gerät und in deiner iCloud, dein Standort verlässt das Gerät nicht." : {
+    "Hissi braucht kein Konto und sammelt keine Daten. Favoriten liegen auf deinem Gerät und in deiner iCloud. Dein genauer Standort verlässt das Gerät nicht; nur wenn in Fußweite keine VBB-Station liegt, fragt die App den bundesweiten Dienst mit einer auf etwa einen Kilometer vergröberten Position." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Hissi needs no account and collects no data. Favorites stay on your device and in your iCloud; your location never leaves the device."
+            "value" : "Hissi needs no account and collects no data. Favorites stay on your device and in your iCloud. Your exact location never leaves the device; only when no VBB station is within walking distance does the app ask the nationwide service, with a position rounded to about one kilometre."
           }
         }
       }
@@ -784,6 +807,16 @@
         }
       }
     },
+    "In der Nähe, überall" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nearby, everywhere"
+          }
+        }
+      }
+    },
     "In Karten öffnen" : {
       "localizations" : {
         "en" : {
@@ -794,9 +827,7 @@
         }
       }
     },
-    "Karte" : {
-
-    },
+    "Karte" : {},
     "Kartenausschnitt %@" : {
       "localizations" : {
         "en" : {
@@ -1067,12 +1098,32 @@
         }
       }
     },
+    "Stationen in der Nähe findet Hissi auch unterwegs im Rest des Landes – nur dann fragt die App den bundesweiten Dienst, mit einer auf etwa einen Kilometer vergröberten Position." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hissi finds nearby stations on the road in the rest of the country too – only then does the app ask the nationwide service, with a position rounded to about one kilometre."
+          }
+        }
+      }
+    },
     "Stationen in der Nähe öffnest du jetzt über das Standortsymbol neben der Glocke." : {
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open nearby stations with the location symbol next to the bell."
+          }
+        }
+      }
+    },
+    "Suche jetzt auch Bahnhöfe außerhalb von Berlin und Brandenburg: DB-Bahnhöfe bundesweit sowie Hamburg, Köln, München und Nürnberg, mit Live-Status und als Favoriten." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Search stations outside Berlin and Brandenburg too: DB stations nationwide plus Hamburg, Cologne, Munich and Nuremberg, with live status and as favorites."
           }
         }
       }
