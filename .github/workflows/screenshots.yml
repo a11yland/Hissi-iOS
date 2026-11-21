@@ -1,0 +1,241 @@
+name: Screenshots
+
+# App Store screenshots on a GitHub macOS runner — the same
+# scripts/screenshots.sh that runs locally, one job per device in parallel
+# (the Xcode 27 image carries every simulator the script shoots: iPhone 18
+# Pro, iPad Pro 13-inch (M5), iPhone Duo, Apple Watch Series 12 (46mm)).
+# Demo mode needs no API token, no signing and no paired watch; the Secrets
+# stub is enough to build.
+#
+# Every run uploads the JPEGs per device as artifacts. A manual run with
+# `open_pr` (the default) then opens or rebuilds a PR from branch
+# `screenshots-update` (label `screenshots`) that replaces the shot devices'
+# sets in screenshots/<language>/<device>/ — commit made through the Git data
+# API so GitHub signs it, as in the Seed update workflow; needs "Allow GitHub
+# Actions to create and approve pull requests". Devices that failed keep their
+# current set, and the PR says which.
+#
+# Not here: the Mac set (its unsigned test runner doesn't connect, see
+# CLAUDE.md) and iPhone Duo's other poses (Device Hub only).
+
+on:
+  workflow_dispatch:
+    inputs:
+      devices:
+        description: "Simulator names, comma-separated, or all"
+        default: all
+        type: string
+      languages:
+        description: "Languages, comma-separated"
+        default: de,en
+        type: string
+      open_pr:
+        description: "Open or update the screenshots PR"
+        default: true
+        type: boolean
+  # A change to the script or this workflow shows its effect on the PR —
+  # artifacts only, never a screenshots PR.
+  pull_request:
+    paths:
+      - "scripts/screenshots.sh"
+      - ".github/workflows/screenshots.yml"
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write # the screenshots label
+
+concurrency:
+  group: screenshots-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      devices: ${{ steps.devices.outputs.list }}
+      languages: ${{ steps.devices.outputs.languages }}
+    steps:
+      - id: devices
+        env:
+          DEVICES: ${{ github.event.inputs.devices || 'all' }}
+          LANGUAGES: ${{ github.event.inputs.languages || 'de,en' }}
+        run: |
+          set -euo pipefail
+          if [ "$DEVICES" = all ]; then
+            DEVICES="iPhone 18 Pro,iPad Pro 13-inch (M5),iPhone Duo,Apple Watch Series 12 (46mm)"
+          fi
+          list=$(jq -cn --arg d "$DEVICES" '$d | split(",") | map(gsub("^\\s+|\\s+$"; "")) | map(select(. != ""))')
+          echo "list=$list" >> "$GITHUB_OUTPUT"
+          echo "languages=$(printf '%s' "$LANGUAGES" | tr -d ' ')" >> "$GITHUB_OUTPUT"
+          echo "Devices: $list, languages: $LANGUAGES"
+
+  shoot:
+    needs: plan
+    # Xcode 27 image (preview): Xcode 27.0–27.2 with iOS 27.2 and watchOS 27.2
+    # simulators.
+    runs-on: xcode-27
+    # One device, two languages: build ~10 min, then three UI test retries at
+    # most per language.
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        device: ${{ fromJSON(needs.plan.outputs.devices) }}
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Provide Secrets stub
+        run: cp Secrets.example.swift Shared/Secrets.swift
+
+      - name: Xcode and simulators
+        run: |
+          xcodebuild -version
+          xcrun simctl list devices available | grep -F "${{ matrix.device }} (" || {
+            echo "::error::No simulator named '${{ matrix.device }}' on this image"
+            exit 1
+          }
+
+      - name: Shoot
+        env:
+          DEVICE: ${{ matrix.device }}
+          LANGUAGES: ${{ needs.plan.outputs.languages }}
+        run: scripts/screenshots.sh "$DEVICE" --lang "$LANGUAGES"
+
+      # The script names the directory the same way.
+      - id: slug
+        if: ${{ !cancelled() }}
+        env:
+          DEVICE: ${{ matrix.device }}
+        run: echo "slug=$(printf '%s' "$DEVICE" | tr -c 'A-Za-z0-9' '-' | sed -E 's/-+/-/g; s/^-|-$//g')" >> "$GITHUB_OUTPUT"
+
+      - name: Check the sets
+        env:
+          SLUG: ${{ steps.slug.outputs.slug }}
+          LANGUAGES: ${{ needs.plan.outputs.languages }}
+        run: |
+          set -euo pipefail
+          for language in $(printf '%s' "$LANGUAGES" | tr ',' ' '); do
+            count=$(ls "screenshots/$language/$SLUG"/*.jpg 2>/dev/null | wc -l | tr -d ' ')
+            echo "$language/$SLUG: $count shots"
+            [ "$count" -gt 0 ] || { echo "::error::No screenshots for $language/$SLUG"; exit 1; }
+          done
+
+      # The marker pins the artifact's root to screenshots/: the action
+      # strips the files' common ancestor, which for a single language would
+      # also swallow <language>/<device>/.
+      - name: Mark the artifact root
+        run: touch screenshots/.artifact-root
+      - name: Upload screenshots
+        uses: actions/upload-artifact@v7
+        with:
+          name: screenshots-${{ steps.slug.outputs.slug }}
+          path: |
+            screenshots/.artifact-root
+            screenshots/*/${{ steps.slug.outputs.slug }}/*.jpg
+          include-hidden-files: true
+          retention-days: 14
+
+      # Failure shots (failure-*.png) and the raw PNGs show what the test saw.
+      - name: Upload raw shots on failure
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: raw-${{ steps.slug.outputs.slug }}
+          path: screenshots/*/${{ steps.slug.outputs.slug }}/raw/
+          retention-days: 7
+
+  publish:
+    needs: [plan, shoot]
+    # Partial results still go into the PR; the shot devices are listed.
+    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && github.event.inputs.open_pr == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download screenshots
+        uses: actions/download-artifact@v7
+        with:
+          pattern: screenshots-*
+          path: fresh
+          merge-multiple: true
+
+      - name: Open or update screenshots PR
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SHOOT_RESULT: ${{ needs.shoot.result }}
+        run: |
+          set -euo pipefail
+          api="repos/$GITHUB_REPOSITORY"
+          branch=screenshots-update
+          [ -d fresh ] && [ -n "$(ls -A fresh)" ] || { echo "::error::No device produced screenshots"; exit 1; }
+
+          # Tree entries: every fresh JPEG, plus a deletion for every JPEG of a
+          # shot set that the fresh run no longer produces. Sets of devices
+          # that didn't produce anything stay untouched.
+          entries='[]'
+          sets=""
+          for dir in fresh/*/*/; do
+            set_path="screenshots/${dir#fresh/}"
+            set_path="${set_path%/}"
+            sets="$sets\n- \`$set_path\`"
+            for jpg in "$dir"*.jpg; do
+              path="$set_path/$(basename "$jpg")"
+              # --rawfile, not --arg: Linux caps a single argument at 128 KB.
+              base64 -w0 "$jpg" > "$RUNNER_TEMP/blob.b64"
+              sha=$(jq -n --rawfile content "$RUNNER_TEMP/blob.b64" '{content: $content, encoding: "base64"}' \
+                | gh api "$api/git/blobs" --input - --jq .sha)
+              entries=$(jq --arg path "$path" --arg sha "$sha" \
+                '. + [{path: $path, mode: "100644", type: "blob", sha: $sha}]' <<<"$entries")
+            done
+            for old in "$set_path"/*.jpg; do
+              [ -e "$old" ] || continue
+              [ -e "$dir$(basename "$old")" ] && continue
+              entries=$(jq --arg path "$old" '. + [{path: $path, mode: "100644", type: "blob", sha: null}]' <<<"$entries")
+            done
+          done
+
+          base=$(gh api "$api/git/ref/heads/main" --jq .object.sha)
+          base_tree=$(gh api "$api/git/commits/$base" --jq .tree.sha)
+          tree=$(jq -n --arg base "$base_tree" --argjson entries "$entries" '{base_tree: $base, tree: $entries}' \
+            | gh api "$api/git/trees" --input - --jq .sha)
+          # No author/committer: GitHub then signs the commit as github-actions[bot].
+          commit=$(jq -n --arg tree "$tree" --arg parent "$base" \
+            '{message: "chore(screenshots): regenerate the App Store screenshots", tree: $tree, parents: [$parent]}' \
+            | gh api "$api/git/commits" --input - --jq .sha)
+
+          if gh api "$api/git/ref/heads/$branch" >/dev/null 2>&1; then
+            gh api -X PATCH "$api/git/refs/heads/$branch" -f sha="$commit" -F force=true >/dev/null
+          else
+            gh api "$api/git/refs" -f ref="refs/heads/$branch" -f sha="$commit" >/dev/null
+          fi
+
+          {
+            echo "## Regenerated screenshots"
+            echo
+            echo "Sets replaced:"
+            printf '%b\n' "$sets"
+            echo
+            if [ "$SHOOT_RESULT" != success ]; then
+              echo "⚠️ Not every device succeeded — the missing sets keep their current shots. See the run for details."
+              echo
+            fi
+            echo "Shot in demo mode on a GitHub macOS runner (Xcode 27.2). Check them before uploading to App Store Connect — iPhone Duo is shot in the pose the simulator starts in, the watch status bar shows the real time."
+            echo
+            echo "---"
+            echo "Generated by the Screenshots workflow ([run]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID))."
+          } > "$RUNNER_TEMP/pr.md"
+
+          gh label create screenshots --repo "$GITHUB_REPOSITORY" \
+            --description "Regenerated App Store screenshots" --color 0E8A16 2>/dev/null || true
+          existing=$(gh pr list --repo "$GITHUB_REPOSITORY" --head "$branch" --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh pr edit "$existing" --repo "$GITHUB_REPOSITORY" --body-file "$RUNNER_TEMP/pr.md"
+          else
+            gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$branch" \
+              --title "chore(screenshots): regenerate the App Store screenshots" \
+              --label screenshots \
+              --body-file "$RUNNER_TEMP/pr.md"
+          fi
