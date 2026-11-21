@@ -145,6 +145,12 @@ struct WhatsNewSheet: View {
                 title: "In der Nähe in der Symbolleiste",
                 detail: "Stationen in der Nähe öffnest du jetzt über das Standortsymbol neben der Glocke."
             )
+        case "1.4.0":
+            FeatureRow(
+                symbol: "map",
+                title: "DB-Aufzüge in ganz Deutschland",
+                detail: "Hissi kennt jetzt auch die Aufzüge der Deutschen Bahn an Bahnhöfen außerhalb von Berlin und Brandenburg. Suchergebnisse sind nach Bundesland sortiert."
+            )
         default:
             EmptyView()
         }
