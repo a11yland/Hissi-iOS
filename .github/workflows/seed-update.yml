@@ -78,7 +78,11 @@ jobs:
 
           base=$(gh api "$api/git/ref/heads/main" --jq .object.sha)
           base_tree=$(gh api "$api/git/commits/$base" --jq .tree.sha)
-          blob=$(jq -n --arg content "$(base64 -w0 /tmp/fresh-seed.json)" \
+          # --rawfile, not --arg: Linux caps a single argument at 128 KB,
+          # and the base64 seed is larger (~340 KB today, ~1.5 MB once the
+          # nationwide seed lands).
+          base64 -w0 /tmp/fresh-seed.json > "$RUNNER_TEMP/seed.b64"
+          blob=$(jq -n --rawfile content "$RUNNER_TEMP/seed.b64" \
             '{content: $content, encoding: "base64"}' \
             | gh api "$api/git/blobs" --input - --jq .sha)
           tree=$(jq -n --arg base "$base_tree" --arg path "$file" --arg sha "$blob" \
