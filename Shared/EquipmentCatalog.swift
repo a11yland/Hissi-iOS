@@ -427,10 +427,12 @@ extension AccessibilityCloudClient {
 // Abbreviations station names use interchangeably with the full word — DB's
 // "München Hbf" next to the stop places' "Berlin Hauptbahnhof". Applied to
 // already folded (lowercased) text, whole words only, so "Hbf" expands but
-// "Hbfx" doesn't. A table so further pairs stay one line. Pure, unit-tested; Hissi-Android mirrors it.
+// "Abfahrt" stays. Pure, unit-tested; Hissi-Android mirrors it.
 nonisolated enum StationAliases {
     static let pairs: [(short: String, full: String)] = [
         ("hbf", "hauptbahnhof"),
+        ("bhf", "bahnhof"),
+        ("bf", "bahnhof"),
     ]
 
     // Every abbreviation spelled out ("münchen hbf" → "münchen hauptbahnhof").

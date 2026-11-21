@@ -70,8 +70,8 @@ private func tempCacheURL() -> URL {
     }
 }
 
-// "Hbf" and "Hauptbahnhof" find each other — DB names abbreviate, the stop
-// places spell out.
+// "Hbf" and "Hauptbahnhof" (and "Bhf"/"Bf" and "Bahnhof") find each other —
+// DB names abbreviate, the stop places spell out.
 @Suite struct StationAliasTests {
     private func station(_ id: String, _ name: String) -> AccessibilityCloudClient.Equipment {
         AccessibilityCloudClient.Equipment(
@@ -84,7 +84,8 @@ private func tempCacheURL() -> URL {
             station("1", "München Hbf"),
             station("2", "Berlin Hauptbahnhof"),
             station("3", "Zoologischer Garten Bahnhof (Berlin)"),
-            station("4", "Hbfx"),
+            station("4", "Kirchheim/Rohrbach, Bf"),
+            station("5", "Abfahrt"),
         ]
     }
 
@@ -96,21 +97,22 @@ private func tempCacheURL() -> URL {
         #expect(ids("Hauptbahnhof") == ["1", "2"])
         #expect(ids("münchen hauptbahnhof") == ["1"])
         // "Hauptbahnhof" contains "Bahnhof" — spelled out or abbreviated.
-        #expect(ids("Bahnhof") == ["1", "2", "3"])
+        #expect(ids("Bahnhof") == ["1", "2", "3", "4"])
     }
 
     @Test func abbreviationFindsTheFullWord() {
-        // "Hbfx" contains the input as typed — that match stays.
-        #expect(ids("hbf") == ["1", "2", "4"])
+        #expect(ids("hbf") == ["1", "2"])
         #expect(ids("Berlin Hbf") == ["2"])
+        #expect(ids("Zoologischer Garten Bhf") == ["3"])
+        #expect(ids("Kirchheim/Rohrbach, Bahnhof") == ["4"])
     }
 
-    // Typing on keeps every partial match; whole words only — "Hbfx" is no
-    // "Hbf".
+    // Typing on keeps every partial match; whole words only — "Abfahrt" is
+    // no "Bf".
     @Test func partialInputAndWordBoundaries() {
-        #expect(ids("hb") == ["1", "4"])
+        #expect(ids("hb") == ["1"])
         #expect(ids("haupt") == ["1", "2"])
-        #expect(StationAliases.expanded("hbfx") == "hbfx")
+        #expect(StationAliases.expanded("abfahrt") == "abfahrt")
         #expect(StationAliases.expanded("stolberg(rheinl)hbf") == "stolberg(rheinl)hauptbahnhof")
     }
 
