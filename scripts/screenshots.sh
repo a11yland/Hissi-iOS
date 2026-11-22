@@ -51,8 +51,19 @@ DERIVED="$REPO/build/screenshots"
 
 region_of() { case "$1" in en) echo US ;; *) echo DE ;; esac; }
 
-udid_of() {   # device name -> UDID of the first available simulator
-  xcrun simctl list devices available | grep -F "$1 (" | head -1 | sed -E 's/.*\(([0-9A-F-]{36})\).*/\1/'
+udid_of() {   # device name -> UDID of the available simulator on the newest runtime
+  # The newest, not the first listed: CI images carry the same device under
+  # several runtimes (iPhone 18 Pro on iOS 27.0 and 27.2), and the shots
+  # should show the current system.
+  xcrun simctl list devices available -j | python3 -c '
+import json, re, sys
+name = sys.argv[1]
+version = lambda runtime: [int(n) for n in re.findall(r"\d+", runtime.rsplit(".", 1)[-1])]
+hits = [(version(runtime), device["udid"])
+        for runtime, devices in json.load(sys.stdin)["devices"].items()
+        for device in devices if device["name"] == name]
+print(max(hits)[1] if hits else "")
+' "$1"
 }
 
 slug_of() { printf '%s' "$1" | tr -c 'A-Za-z0-9' '-' | sed -E 's/-+/-/g; s/^-|-$//g'; }
@@ -178,6 +189,7 @@ shoot_mac() {
 }
 
 # Not `| while read`: xcodebuild and simctl would eat the list from stdin.
+failed=""
 IFS='
 '
 for device in $DEVICES; do
@@ -188,7 +200,10 @@ for device in $DEVICES; do
     Mac) shoot_mac ;;
     *"Apple Watch"*) shoot_watch "$device" ;;
     *) shoot_simulator "$device" ;;
-  esac || echo "error: $device failed" >&2
+  esac || { echo "error: $device failed" >&2; failed="$failed $device"; }
 done
 
 echo "Screenshots in $REPO/screenshots"
+# A failed device doesn't stop the others, but the run reports it — the
+# Screenshots workflow relies on the exit status.
+[ -z "$failed" ] || { echo "error: failed:$failed" >&2; exit 1; }
