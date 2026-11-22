@@ -6,6 +6,18 @@ import Foundation
     @Test func agsPrefixDecidesRegion() {
         #expect(TransitRegion.from(originalPlaceInfoId: "de:11000:900100015") == .berlin)
         #expect(TransitRegion.from(originalPlaceInfoId: "de:12054:900230999") == .brandenburg)
+        #expect(TransitRegion.from(originalPlaceInfoId: "de:09162:6") == .bayern)
+        #expect(TransitRegion.from(originalPlaceInfoId: "de:05315:11201") == .nordrheinWestfalen)
+        #expect(TransitRegion.from(originalPlaceInfoId: "de:01002:1") == .schleswigHolstein)
+        #expect(TransitRegion.from(originalPlaceInfoId: "de:17000:1") == nil)
+    }
+
+    // The generator writes these raw values into the seed — they must match.
+    @Test func rawValuesAreTheSeedsRegionValues() {
+        #expect(TransitRegion.allCases.count == 16)
+        #expect(TransitRegion(rawValue: "baden-wuerttemberg") == .badenWuerttemberg)
+        #expect(TransitRegion(rawValue: "thueringen") == .thueringen)
+        #expect(TransitRegion.allCases.prefix(2) == [.berlin, .brandenburg])
     }
 
     @Test func nonAgsIdsYieldNil() {
@@ -38,6 +50,37 @@ import Foundation
             description: "Zugang Bahnsteig Gl. 11/12",
             stationName: "S+U Lichtenberg Bhf (Berlin)",
             sourceName: "VBB-Anlagen (DB Regio)"
+        ) == .regional)
+    }
+
+    // DB marks S-Bahn platforms in the description — the only hint at a
+    // station serving S-Bahn and regional trains, and at assigned stations
+    // without modes.
+    @Test func fastaDescriptionMarksSBahnPlatforms() {
+        #expect(TransitNetwork.classify(
+            description: "Gl. 3/4 (S-Bahn) ↔ Empfangsgebäude",
+            stationName: "Alexanderplatz Bahnhof (Berlin)", sourceName: "DB FaSta",
+            stationModes: [.sBahn, .uBahn, .regional]
+        ) == .sBahn)
+        #expect(TransitNetwork.classify(
+            description: "S-Bahnsteig Gl. 22 ↔ 1. UG", stationName: "Berlin Hauptbahnhof", sourceName: "DB FaSta"
+        ) == .sBahn)
+        #expect(TransitNetwork.classify(
+            description: "Gl. 1/2 ↔ Empfangsgebäude ↔ Passage",
+            stationName: "Alexanderplatz Bahnhof (Berlin)", sourceName: "DB FaSta",
+            stationModes: [.sBahn, .uBahn, .regional]
+        ) == .regional)
+    }
+
+    // ~300 DB elevators come without a feed — the operator marks them as DB.
+    @Test func dbOperatorWithoutFeedIsTreatedAsDB() {
+        #expect(TransitNetwork.classify(
+            description: "Haupthalle - ZG (→ . S-Bahn)", stationName: "München Hbf",
+            sourceName: "", organizationName: "DB InfraGO"
+        ) == .sBahn)
+        #expect(TransitNetwork.classify(
+            description: "UG → 3.OG", stationName: "München Hbf",
+            sourceName: "", organizationName: "DB InfraGO"
         ) == .regional)
     }
 

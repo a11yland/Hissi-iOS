@@ -16,7 +16,7 @@ struct DemoFixturesTests {
         DemoFixtures.catalog(seed: seed, now: now, language: "de")
     }
 
-    @Test func everySeedRecordGetsANumericId() {
+    @Test func everySeedRecordKeepsItsNumericId() {
         #expect(catalog.allSatisfy { Int($0.id) != nil })
         #expect(Set(catalog.map(\.id)).count == catalog.count)
     }
@@ -35,17 +35,11 @@ struct DemoFixturesTests {
         #expect(catalog.compactMap(\.lastUpdate).allSatisfy { now.timeIntervalSince($0) < 86_400 * 2 })
     }
 
-    // The overlay must answer every seed record with its demo counterpart,
-    // not append status-unknown duplicates next to it — only the records
-    // sharing an inventory number come back, once each.
+    // The overlay must answer every seed record with its demo counterpart
+    // (same id), not append status-unknown duplicates next to it.
     @Test func overlayAddsNoSeedDuplicates() {
         let overlaid = EquipmentCatalog.overlaid(live: catalog, seed: seed, stations: [])
-        let demoIds = Set(catalog.map(\.id))
-        let added = overlaid.filter { !demoIds.contains($0.id) }
-        let numbers = seed.compactMap(\.fastaEquipmentNumber)
-        let shared = Set(numbers.filter { number in numbers.filter { $0 == number }.count > 1 })
-        #expect(added.count == overlaid.count - catalog.count)
-        #expect(added.allSatisfy { $0.isWorking == nil && shared.contains($0.fastaEquipmentNumber ?? 0) })
+        #expect(overlaid.map(\.id) == catalog.map(\.id))
     }
 
     @Test func favoritesStartWithOneBrokenElevator() {

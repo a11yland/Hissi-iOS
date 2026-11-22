@@ -3,7 +3,7 @@
 Hissi answers one question for people who depend on elevators — wheelchair
 users, parents with strollers, travelers with luggage, anyone avoiding stairs:
 **"Will the elevators on my route work, right now?"** for public transit in
-Berlin and Brandenburg (VBB).
+Berlin and Brandenburg (VBB) and at Deutsche Bahn stations across Germany.
 
 How these requirements are implemented is described in
 [`architecture.md`](architecture.md).
@@ -20,7 +20,7 @@ How these requirements are implemented is described in
 
 **UC1 — Plan an accessible trip.** Search a station by name, see every elevator
 there with live status, position (which platform/exit) and location on a map —
-before leaving home. Stations are grouped by region (Berlin/Brandenburg) and,
+before leaving home. Stations are grouped by federal state and,
 at S+U stations, split by network (U-Bahn/S-Bahn/Regionalverkehr), because "the
 S-Bahn elevator works" and "the U-Bahn elevator works" are different answers.
 
@@ -92,9 +92,9 @@ clearly marked as possibly outdated, never silently fabricated.
 | # | Requirement |
 |---|-------------|
 | D1 | Single status source: transit.accessibility.cloud aggregates the operator feeds (incl. DB FaSta, BVG) itself. The former client-side multi-source merge (FaSta override, brokenlifts.org scraping) existed only to compensate the old API's gaps and is retired |
-| D2 | Stations the platform still lacks (currently S Fredersdorf) stay searchable with unknown status via the bundled seed and are reported upstream — coverage gaps are upstream's to fix, not the app's to patch |
+| D2 | transit.accessibility.cloud is the only data source, for the bundled seed too. Elevators the platform hasn't linked to a station are placed at the nearest rail station by the seed generator (public GTFS); elevators it can't place stay out and coverage gaps are reported upstream — upstream's to fix, not the app's to patch |
 | D3 | "Unknown" beats a wrong answer: a source with dead status data must surface as status-unknown, never as a false "working" |
-| D4 | Coverage is Berlin + Brandenburg; stations outside (Magdeburg, Leipzig, …) must not appear even when upstream feeds carry them |
+| D4 | Coverage is Berlin + Brandenburg (all networks) plus the Deutsche Bahn elevators everywhere else in Germany — whatever transit.accessibility.cloud serves (widened from Berlin/Brandenburg only on 2026-11-21) |
 
 ## Quality requirements
 

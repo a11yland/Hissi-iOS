@@ -34,11 +34,10 @@ jobs:
       - name: Generate fresh seed
         env:
           ACCESSIBILITY_CLOUD_APP_TOKEN: ${{ secrets.ACCESSIBILITY_CLOUD_APP_TOKEN }}
-          ACCESSIBILITY_CLOUD_LEGACY_TOKEN: ${{ secrets.ACCESSIBILITY_CLOUD_LEGACY_TOKEN }}
         run: python3 scripts/generate-seed-catalog.py /tmp/fresh-seed.json
 
       # The fresh seed is uploaded so a release regen can download it instead
-      # of needing the legacy token locally.
+      # of running the generator (and its ~100 MB of GTFS downloads) locally.
       - name: Upload fresh seed
         uses: actions/upload-artifact@v7
         with:
@@ -79,7 +78,11 @@ jobs:
 
           base=$(gh api "$api/git/ref/heads/main" --jq .object.sha)
           base_tree=$(gh api "$api/git/commits/$base" --jq .tree.sha)
-          blob=$(jq -n --arg content "$(base64 -w0 /tmp/fresh-seed.json)" \
+          # --rawfile, not --arg: Linux caps a single argument at 128 KB,
+          # and the base64 seed is larger (~340 KB today, ~1.5 MB once the
+          # nationwide seed lands).
+          base64 -w0 /tmp/fresh-seed.json > "$RUNNER_TEMP/seed.b64"
+          blob=$(jq -n --rawfile content "$RUNNER_TEMP/seed.b64" \
             '{content: $content, encoding: "base64"}' \
             | gh api "$api/git/blobs" --input - --jq .sha)
           tree=$(jq -n --arg base "$base_tree" --arg path "$file" --arg sha "$blob" \
