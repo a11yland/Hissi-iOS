@@ -291,7 +291,9 @@ final class ScreenshotTests: XCTestCase {
             sleep(1)
             allowSystemPrompt(timeout: 1)
         }
-        require(title, "widget \(names[0])")
+        // 20 s, not the default 10: the hosted runner draws the gallery slower
+        // than a Mac, and a miss here costs a three-minute retry.
+        require(title, "widget \(names[0])", timeout: 20)
         for _ in 0..<swipes {
             pager.press(forDuration: 0.05, thenDragTo: previous)
             sleep(1)

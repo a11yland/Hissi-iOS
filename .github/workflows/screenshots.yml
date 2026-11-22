@@ -1,14 +1,20 @@
 name: Screenshots
 
 # App Store screenshots on a GitHub macOS runner — the same
-# scripts/screenshots.sh that runs locally, one job per device in parallel
-# (the Xcode 27 image carries every simulator the script shoots: iPhone 18
-# Pro, iPad Pro 13-inch (M5), iPhone Duo, Apple Watch Series 12 (46mm)).
-# Demo mode needs no API token, no signing and no paired watch; the Secrets
-# stub is enough to build.
+# scripts/screenshots.sh that runs locally, one job per device in parallel.
+# Manual only (workflow_dispatch): a run costs four macOS jobs of 30–45 min
+# each, so nothing starts it on its own — no push, no pull request, no
+# schedule. Demo mode needs no API token, no signing and no paired watch; the
+# Secrets stub is enough to build.
 #
-# Every run uploads the JPEGs per device as artifacts. A manual run with
-# `open_pr` (the default) then opens or rebuilds a PR from branch
+# Runner: `xcode-27` is GitHub's hosted macOS 27 image (arm64, Xcode 27.0–27.2)
+# and the only one with the iOS 27 simulators the script shoots — iPhone 18
+# Pro, iPad Pro 13-inch (M5), iPhone Duo, Apple Watch Series 12 (46mm);
+# `macos-latest` carries Xcode 26 and none of them. The job picks the newest
+# installed Xcode 27 at run time, so an image update to 27.3 needs no edit.
+#
+# Every run uploads the JPEGs per device as artifacts. With `open_pr` (the
+# default) the run then opens or rebuilds a PR from branch
 # `screenshots-update` (label `screenshots`) that replaces the shot devices'
 # sets in screenshots/<language>/<device>/ — commit made through the Git data
 # API so GitHub signs it, as in the Seed update workflow; needs "Allow GitHub
@@ -33,12 +39,6 @@ on:
         description: "Open or update the screenshots PR"
         default: true
         type: boolean
-  # A change to the script or this workflow shows its effect on the PR —
-  # artifacts only, never a screenshots PR.
-  pull_request:
-    paths:
-      - "scripts/screenshots.sh"
-      - ".github/workflows/screenshots.yml"
 
 permissions:
   contents: write
@@ -58,8 +58,8 @@ jobs:
     steps:
       - id: devices
         env:
-          DEVICES: ${{ github.event.inputs.devices || 'all' }}
-          LANGUAGES: ${{ github.event.inputs.languages || 'de,en' }}
+          DEVICES: ${{ inputs.devices || 'all' }}
+          LANGUAGES: ${{ inputs.languages || 'de,en' }}
         run: |
           set -euo pipefail
           if [ "$DEVICES" = all ]; then
@@ -72,8 +72,8 @@ jobs:
 
   shoot:
     needs: plan
-    # Xcode 27 image (preview): Xcode 27.0–27.2 with iOS 27.2 and watchOS 27.2
-    # simulators.
+    # GitHub's Xcode 27 image (see the header): Xcode 27.0–27.2 with the iOS
+    # 27.2 and watchOS 27.2 simulators.
     runs-on: xcode-27
     # One device, two languages: build ~10 min, then three UI test retries at
     # most per language.
@@ -82,19 +82,29 @@ jobs:
       fail-fast: false
       matrix:
         device: ${{ fromJSON(needs.plan.outputs.devices) }}
-    env:
-      DEVELOPER_DIR: /Applications/Xcode_27.2.app/Contents/Developer
     steps:
       - uses: actions/checkout@v7
 
       - name: Provide Secrets stub
         run: cp Secrets.example.swift Shared/Secrets.swift
 
+      # The newest Xcode 27 on the image, not a fixed path: the image moves
+      # on (27.2 → 27.3) and a hard-coded Xcode_27.2.app would then be gone.
+      - name: Select the newest Xcode 27
+        run: |
+          set -euo pipefail
+          xcode=$(ls -d /Applications/Xcode_27*.app 2>/dev/null | sort -V | tail -1 || true)
+          [ -n "$xcode" ] || { echo "::error::No Xcode 27 on this image"; exit 1; }
+          echo "DEVELOPER_DIR=$xcode/Contents/Developer" >> "$GITHUB_ENV"
+          echo "Using $xcode"
+
       - name: Xcode and simulators
+        env:
+          DEVICE: ${{ matrix.device }}
         run: |
           xcodebuild -version
-          xcrun simctl list devices available | grep -F "${{ matrix.device }} (" || {
-            echo "::error::No simulator named '${{ matrix.device }}' on this image"
+          xcrun simctl list devices available | grep -F "$DEVICE (" || {
+            echo "::error::No simulator named '$DEVICE' on this image"
             exit 1
           }
 
@@ -150,10 +160,14 @@ jobs:
   publish:
     needs: [plan, shoot]
     # Partial results still go into the PR; the shot devices are listed.
-    if: ${{ !cancelled() && github.event_name == 'workflow_dispatch' && github.event.inputs.open_pr == 'true' }}
+    if: ${{ !cancelled() && inputs.open_pr }}
     runs-on: ubuntu-latest
     steps:
+      # main, whatever branch the run was started from: the commit below is
+      # built on main's tree, so the stale-JPEG scan has to look at main too.
       - uses: actions/checkout@v7
+        with:
+          ref: main
 
       - name: Download screenshots
         uses: actions/download-artifact@v7
