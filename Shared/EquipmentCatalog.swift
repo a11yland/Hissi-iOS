@@ -8,15 +8,15 @@ import Foundation
 // share one in-flight build instead of fetching twice.
 //
 // The live fetch is overlaid with the bundled seed catalog (SeedCatalog),
-// which backfills what the API doesn't serve — source/operator names (only
-// feed ids at depth=0), coordinates where a record carries no centroid
-// (~4 % of them, 2026-11-03), region; station names
-// only where a matched record has none, which today is never (every seed
-// match is stop-place linked) — keeps gap stations
-// searchable (e.g. S Fredersdorf, missing upstream) and carries the search
-// when there is no network. Favorites from before the migration are NOT
-// mapped: they are deleted once with a notice
-// (FavoritesStore.removeLegacyFavoritesIfNeeded).
+// keyed by the same live ids: it supplies what the depth=0 lists don't carry
+// — the station of elevators upstream hasn't linked to a stop place (every
+// DB elevator outside Berlin/Brandenburg, placed at the nearest rail station
+// by the generator), source/operator names (only feed/org ids live), region,
+// station transport modes, and the station's coordinate where an elevator
+// has no centroid — and carries the search when there is no network.
+// Favorites from before the migration are NOT mapped: they are deleted once
+// with a notice (FavoritesStore.removeLegacyFavoritesIfNeeded); favorites
+// created from a format-1 seed preview bridge via SeedCatalog.legacyIds.
 actor EquipmentCatalog {
     static let shared = EquipmentCatalog()
 
@@ -32,6 +32,7 @@ actor EquipmentCatalog {
     // resource, so the default is empty there).
     private let seed: [SeedCatalog.Record]
     private let stations: [SeedCatalog.Station]
+    private let legacyIds: [String: String]
     // The live fetch, injectable for tests. Returns the joined live catalog
     // WITHOUT the seed overlay — the overlay is applied on every load so a
     // release with a newer bundled seed reworks persisted data.
@@ -53,6 +54,7 @@ actor EquipmentCatalog {
         cacheFileURL: URL? = defaultCacheFileURL,
         seed: [SeedCatalog.Record] = SeedCatalog.records,
         stations: [SeedCatalog.Station] = SeedCatalog.stations,
+        legacyIds: [String: String] = SeedCatalog.legacyIds,
         buildLive: @escaping @Sendable () async -> [AccessibilityCloudClient.Equipment]? = {
             await AccessibilityCloudClient.fetchCatalog()
         }
@@ -61,6 +63,7 @@ actor EquipmentCatalog {
         self.cacheFileURL = cacheFileURL
         self.seed = seed
         self.stations = stations
+        self.legacyIds = legacyIds
         self.buildLive = buildLive
     }
 
@@ -69,9 +72,8 @@ actor EquipmentCatalog {
     // spinner as before). When the snapshot is stale — server latency makes a
     // build take 30–60 s — the shared rebuild is kicked off in the background;
     // callers show the stale names/statuses now and re-render off all() when
-    // the build lands. Deliberately never falls back to the seed: seed records
-    // carry pre-migration ids, and a favorite created from one would never
-    // resolve live (offline search via all() stays the only path to that).
+    // the build lands. Never falls back to the seed itself — the callers
+    // that want a preview (search, nearby) overlay the seed on their own.
     // `rebuildingIfStale: false` is the read-only form for processes that
     // must not build (the widget extension): whatever exists, no revalidation.
     func snapshot(rebuildingIfStale: Bool = true) -> [AccessibilityCloudClient.Equipment]? {
@@ -153,29 +155,23 @@ actor EquipmentCatalog {
     // still-fresh catalog cache answers for free; otherwise one targeted
     // request (where[id][in], current span inline) covers all numeric ids —
     // the full catalog build (10+ list requests, in every process) stays
-    // search-only. Non-numeric ids are seed-record favorites (created from a
-    // seed preview, the offline seed fallback, or a gap station): when any
-    // cached catalog knows their live counterpart they bridge to it via the
-    // operator inventory number — the caller sees the live record, adopts
-    // its id (StatusMerge) and the favorite refreshes directly from then on.
-    // Unbridged seed ids resolve from the bundled seed with unknown status,
-    // as the catalog overlay would. Ids missing from the result keep their
-    // previous values upstream.
+    // search-only. Non-numeric ids are favorites created from a format-1
+    // seed preview: they bridge to their live id via SeedCatalog.legacyIds —
+    // the caller sees the live record, adopts its id (StatusMerge) and the
+    // favorite refreshes directly from then on. Ids missing from the result
+    // keep their previous values upstream.
     func equipment(for ids: Set<String>) async -> [String: AccessibilityCloudClient.Equipment] {
         guard !ids.isEmpty else { return [:] }
         loadDiskIfNeeded()
-        // The id mapping is stable, so any cached catalog answers it — only
-        // the status has to be fresh, and that is fetched below.
-        let bridged = Self.bridgedLiveIds(for: ids, seed: seed, in: cached)
+        let bridged = Self.bridgedLiveIds(for: ids, legacyIds: legacyIds)
         let resolved: [AccessibilityCloudClient.Equipment]
         if !cached.isEmpty, let fetchedAt, Date().timeIntervalSince(fetchedAt) < ttl {
             resolved = cached
         } else {
             let numeric = Set(ids.filter { Int($0) != nil } + bridged.values).sorted()
             let live = numeric.isEmpty ? [] : await AccessibilityCloudClient.fetchEquipment(ids: numeric)
-            // A failed fetch degrades to the seed overlay: numeric favorites
-            // stay unresolved (previous values survive), seed-id favorites
-            // still answer — status unknown, never a false "working".
+            // A failed fetch degrades to the seed: every favorite the seed
+            // knows still answers — status unknown, never a false "working".
             resolved = Self.overlaid(live: live ?? [], seed: seed, stations: stations)
         }
         let byId = Dictionary(resolved.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
@@ -183,64 +179,33 @@ actor EquipmentCatalog {
         for id in ids {
             if let hit = bridged[id].flatMap({ byId[$0] }) ?? byId[id] { result[id] = hit }
         }
-        // Last resort for seed ids the overlay didn't answer (e.g. an
-        // accessibilityCloud-source seed record next to live data, unbridged
-        // because no catalog build ever landed): resolve from the bundled
-        // seed directly — status unknown, never a false "working", and no
-        // spurious failure report.
-        let missingSeedIds = ids.filter { result[$0] == nil && Int($0) == nil }
-        if !missingSeedIds.isEmpty {
-            for record in Self.overlaid(live: [], seed: seed.filter { missingSeedIds.contains($0.id) }, stations: stations) {
-                result[record.id] = record
-            }
-        }
         return result
     }
 
-    // Maps seed-record favorite ids (non-numeric) to the id of their live
-    // record, matched via the operator inventory number (= the seed's FaSta
-    // equipment number, stable across both APIs). Pure, unit-tested. Only
-    // numeric candidates count as live — an appended seed record (which also
-    // carries the number) must not bridge to itself.
+    // Maps format-1 seed ids (non-numeric) to live ids. Pure, unit-tested.
     nonisolated static func bridgedLiveIds(
         for ids: Set<String>,
-        seed: [SeedCatalog.Record],
-        in catalog: [AccessibilityCloudClient.Equipment]
+        legacyIds: [String: String]
     ) -> [String: String] {
-        let seedIds = ids.filter { Int($0) == nil }
-        guard !seedIds.isEmpty, !catalog.isEmpty else { return [:] }
-        let seedById = Dictionary(seed.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
-        let liveByNumber = Dictionary(
-            catalog.compactMap { record -> (Int, String)? in
-                guard Int(record.id) != nil,
-                      let number = record.fastaEquipmentNumber ?? record.inventoryId.flatMap({ Int($0) })
-                else { return nil }
-                return (number, record.id)
-            },
-            uniquingKeysWith: { first, _ in first }
-        )
-        return Dictionary(uniqueKeysWithValues: seedIds.compactMap { id in
-            guard let number = seedById[id]?.fastaEquipmentNumber,
-                  let liveId = liveByNumber[number] else { return nil }
-            return (id, liveId)
+        Dictionary(uniqueKeysWithValues: ids.compactMap { id in
+            guard Int(id) == nil, let live = legacyIds[id] else { return nil }
+            return (id, live)
         })
     }
 
-    // Pure merge, unit-tested. `live` wins; matching runs over the operator
-    // inventory number (= the seed's FaSta equipment number, stable across
-    // both APIs). Matched records gain the seed's station/source/operator
-    // names, coordinates and region; whatever the match leaves empty — and
-    // everything on a record the number matches nothing for — falls back to
-    // the station (see stationBackfilled). Seed records the live catalog does not
-    // answer for are appended with unknown status — never a false "working":
-    // "fasta" records whose elevator is missing upstream, "brokenlifts"
-    // records while their whole station is absent (at a live station a stale
-    // record would just sit next to the real elevators), and the entire seed
-    // when offline. Unmatched accessibilityCloud records stay out either way
-    // — their stations are live, appending them would duplicate elevators.
-    // Whatever still has no coordinate after all that takes the station's
-    // from the seed's `stations` list (keyed by the station number) — the
-    // last resort for a station whose records carry no centroid upstream.
+    // Pure merge, unit-tested. Seed and live share their ids, so a live
+    // record takes from its seed record whatever it lacks — live always
+    // wins. Typically that is the station (stationId, name, modes, region)
+    // of an elevator upstream hasn't linked to a stop place, plus source and
+    // operator names. A live record the seed doesn't know (added upstream
+    // since the generation) falls back to the station: seed records at the
+    // same station name supply coordinates, region and — when they all name
+    // the same one — source/operator (see stationBackfilled). Seed records
+    // only stand in for live ones when there is no live data at all
+    // (offline, or a failed targeted fetch): then the whole seed is
+    // returned, status unknown — never a false "working". With live data an
+    // elevator missing from it is gone upstream and stays out. Whatever still
+    // has no coordinate takes its station's from the `stations` list.
     nonisolated static func overlaid(
         live: [AccessibilityCloudClient.Equipment],
         seed: [SeedCatalog.Record],
@@ -250,37 +215,29 @@ actor EquipmentCatalog {
             stations.map { ($0.stationId, $0) },
             uniquingKeysWith: { first, _ in first }
         )
-        let seedByInventory = Dictionary(
-            seed.compactMap { record in
-                record.fastaEquipmentNumber.map { (String($0), record) }
-            },
-            uniquingKeysWith: { first, _ in first }
-        )
-
-        // Seed records by station, for the fallback below. Built from the
-        // whole seed, matched or not: at a station where two of three lifts
-        // matched, the third is exactly the record that needs the other two.
+        guard !live.isEmpty else {
+            return seed.map { stationCoordinated(equipment(from: $0), from: stationsById) }
+        }
+        let seedById = Dictionary(seed.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         let seedByStation = Dictionary(
             grouping: seed.filter { !stationKey($0.stationName).isEmpty },
             by: { stationKey($0.stationName) }
         )
-
-        var matchedSeedIds = Set<String>()
-        let merged = live.map { equipment -> AccessibilityCloudClient.Equipment in
-            guard let record = equipment.inventoryId.flatMap({ seedByInventory[$0] }) else {
-                return stationBackfilled(equipment, from: seedByStation)
+        return live.map { equipment in
+            guard let record = seedById[equipment.id] else {
+                return stationCoordinated(stationBackfilled(equipment, from: seedByStation), from: stationsById)
             }
-            matchedSeedIds.insert(record.id)
-            // Backfilled again on the way out: a matched seed record can
-            // itself carry no coordinates (Waßmannsdorf), which its siblings
-            // at the same station do.
-            return stationBackfilled(AccessibilityCloudClient.Equipment(
+            // The seed's station replaces the live one only when live has
+            // none — id, name and modes travel together.
+            let hasStation = !equipment.stationName.isEmpty
+            return stationCoordinated(AccessibilityCloudClient.Equipment(
                 id: equipment.id,
-                inventoryId: equipment.inventoryId,
-                stationId: equipment.stationId,
-                stationName: equipment.stationName.isEmpty ? record.stationName : equipment.stationName,
-                stationNetworks: equipment.stationNetworks,
-                description: equipment.description,
+                inventoryId: equipment.inventoryId ?? record.inventoryId,
+                stationId: hasStation && !equipment.stationId.isEmpty ? equipment.stationId : record.stationId,
+                stationName: hasStation ? equipment.stationName : record.stationName,
+                stationNetworks: hasStation && !equipment.stationNetworks.isEmpty
+                    ? equipment.stationNetworks : record.networks,
+                description: equipment.description.isEmpty ? record.description : equipment.description,
                 isWorking: equipment.isWorking,
                 lastUpdate: equipment.lastUpdate,
                 sourceName: equipment.sourceName.isEmpty ? record.sourceName : equipment.sourceName,
@@ -289,42 +246,30 @@ actor EquipmentCatalog {
                 stateExplanation: equipment.stateExplanation,
                 latitude: equipment.latitude ?? record.latitude,
                 longitude: equipment.longitude ?? record.longitude,
-                fastaEquipmentNumber: record.fastaEquipmentNumber,
-                region: equipment.region ?? record.region.flatMap(TransitRegion.init(rawValue:))
-            ), from: seedByStation)
+                fastaEquipmentNumber: equipment.fastaEquipmentNumber,
+                brokenliftsIndex: equipment.brokenliftsIndex,
+                region: equipment.region ?? record.transitRegion
+            ), from: stationsById)
         }
+    }
 
-        let liveStationIds = Set(merged.map(\.stationId))
-        var appended = merged
-        for record in seed where !matchedSeedIds.contains(record.id) {
-            switch record.source {
-            case _ where live.isEmpty:
-                break
-            case "fasta":
-                break
-            case "brokenlifts" where !liveStationIds.contains(record.brokenliftsStationId ?? ""):
-                break
-            default:
-                continue
-            }
-            appended.append(AccessibilityCloudClient.Equipment(
-                id: record.id,
-                stationId: record.brokenliftsStationId
-                    ?? record.stationNumber.map(String.init) ?? "",
-                stationName: record.stationName,
-                description: record.description,
-                isWorking: nil,
-                lastUpdate: nil,
-                sourceName: record.sourceName,
-                organizationName: record.organizationName,
-                latitude: record.latitude,
-                longitude: record.longitude,
-                fastaEquipmentNumber: record.fastaEquipmentNumber,
-                brokenliftsIndex: record.brokenliftsIndex,
-                region: record.region.flatMap(TransitRegion.init(rawValue:))
-            ))
-        }
-        return appended.map { stationCoordinated($0, from: stationsById) }
+    // A seed record as a status-unknown catalog record.
+    nonisolated static func equipment(from record: SeedCatalog.Record) -> AccessibilityCloudClient.Equipment {
+        AccessibilityCloudClient.Equipment(
+            id: record.id,
+            inventoryId: record.inventoryId,
+            stationId: record.stationId,
+            stationName: record.stationName,
+            stationNetworks: record.networks,
+            description: record.description,
+            isWorking: nil,
+            lastUpdate: nil,
+            sourceName: record.sourceName,
+            organizationName: record.organizationName,
+            latitude: record.latitude,
+            longitude: record.longitude,
+            region: record.transitRegion
+        )
     }
 
     // The station's own coordinate for a record that has none — after the
@@ -334,9 +279,10 @@ actor EquipmentCatalog {
         _ equipment: AccessibilityCloudClient.Equipment,
         from stationsById: [String: SeedCatalog.Station]
     ) -> AccessibilityCloudClient.Equipment {
-        guard equipment.latitude == nil || equipment.longitude == nil,
+        guard equipment.latitude == nil || equipment.longitude == nil || equipment.region == nil,
               let station = stationsById[equipment.stationId]
         else { return equipment }
+        let needsCoordinate = equipment.latitude == nil || equipment.longitude == nil
         return AccessibilityCloudClient.Equipment(
             id: equipment.id,
             inventoryId: equipment.inventoryId,
@@ -349,11 +295,11 @@ actor EquipmentCatalog {
             sourceName: equipment.sourceName,
             organizationName: equipment.organizationName,
             stateExplanation: equipment.stateExplanation,
-            latitude: station.latitude,
-            longitude: station.longitude,
+            latitude: needsCoordinate ? station.latitude : equipment.latitude,
+            longitude: needsCoordinate ? station.longitude : equipment.longitude,
             fastaEquipmentNumber: equipment.fastaEquipmentNumber,
             brokenliftsIndex: equipment.brokenliftsIndex,
-            region: equipment.region
+            region: equipment.region ?? station.region.flatMap(TransitRegion.init(rawValue:))
         )
     }
 
@@ -440,28 +386,82 @@ extension AccessibilityCloudClient {
     }
 
     // The pure name filter, shared by both search phases (instant snapshot,
-    // fresh catalog).
+    // fresh catalog). A name matches when it contains the query as typed or
+    // once station abbreviations are spelled out on both sides
+    // (`StationAliases`: "Hauptbahnhof" finds "München Hbf", "Hbf" finds
+    // "Berlin Hauptbahnhof") — the first keeps every partial match while
+    // typing ("hb…"), the second bridges the spellings.
     static func matchStations(_ query: String, in catalog: [Equipment]) -> [Equipment] {
         let needle = normalize(query)
         guard !needle.isEmpty else { return [] }
-        return catalog.filter { normalize($0.stationName).contains(needle) }
+        let expandedNeedle = StationAliases.expanded(needle)
+        return catalog.filter {
+            let name = normalize($0.stationName)
+            return name.contains(needle) || StationAliases.expanded(name).contains(expandedNeedle)
+        }
     }
 
     // The station name with the query match emphasized (bold) — the "why is
     // this a result" cue in the list. Matching mirrors matchStations'
     // normalization (case- and diacritic-insensitive: "schonhauser" bolds
-    // "Schönhauser"); when no contiguous match exists the name renders plain.
+    // "Schönhauser"), aliases included ("Hauptbahnhof" bolds the "Hbf");
+    // when no contiguous match exists the name renders plain.
     static func highlightedStationName(_ name: String, matching query: String) -> AttributedString {
         var attributed = AttributedString(name)
         let trimmed = query.trimmingCharacters(in: .whitespaces)
-        guard !trimmed.isEmpty,
-              let range = attributed.range(of: trimmed, options: [.caseInsensitive, .diacriticInsensitive])
-        else { return attributed }
-        attributed[range].inlinePresentationIntent = .stronglyEmphasized
+        guard !trimmed.isEmpty else { return attributed }
+        for candidate in [trimmed] + StationAliases.variants(of: trimmed) {
+            if let range = attributed.range(of: candidate, options: [.caseInsensitive, .diacriticInsensitive]) {
+                attributed[range].inlinePresentationIntent = .stronglyEmphasized
+                break
+            }
+        }
         return attributed
     }
 
     private static func normalize(_ string: String) -> String {
         string.folding(options: .diacriticInsensitive, locale: .current).lowercased()
+    }
+}
+
+// Abbreviations station names use interchangeably with the full word — DB's
+// "München Hbf" next to the stop places' "Berlin Hauptbahnhof". Applied to
+// already folded (lowercased) text, whole words only, so "Hbf" expands but
+// "Abfahrt" stays. Pure, unit-tested; Hissi-Android mirrors it.
+nonisolated enum StationAliases {
+    static let pairs: [(short: String, full: String)] = [
+        ("hbf", "hauptbahnhof"),
+        ("bhf", "bahnhof"),
+        ("bf", "bahnhof"),
+    ]
+
+    // Every abbreviation spelled out ("münchen hbf" → "münchen hauptbahnhof").
+    static func expanded(_ folded: String) -> String {
+        pairs.reduce(folded) { text, pair in
+            text.replacingOccurrences(
+                of: "\\b\(pair.short)\\b\\.?", with: pair.full, options: .regularExpression
+            )
+        }
+    }
+
+    // The query's other spellings, for the highlight: each full word as its
+    // abbreviations and each abbreviation spelled out ("Hauptbahnhof" →
+    // "hbf"). Case is folded; the highlight matches case-insensitively.
+    static func variants(of query: String) -> [String] {
+        let folded = query.lowercased()
+        var variants: [String] = []
+        for pair in pairs {
+            if folded.range(of: "\\b\(pair.full)\\b", options: .regularExpression) != nil {
+                variants.append(folded.replacingOccurrences(
+                    of: "\\b\(pair.full)\\b", with: pair.short, options: .regularExpression
+                ))
+            }
+            if folded.range(of: "\\b\(pair.short)\\b", options: .regularExpression) != nil {
+                variants.append(folded.replacingOccurrences(
+                    of: "\\b\(pair.short)\\b\\.?", with: pair.full, options: .regularExpression
+                ))
+            }
+        }
+        return variants
     }
 }

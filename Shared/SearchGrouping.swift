@@ -67,6 +67,7 @@ nonisolated enum SearchGrouping {
                 description: equipment.description,
                 stationName: equipment.stationName,
                 sourceName: equipment.sourceName,
+                organizationName: equipment.organizationName,
                 stationModes: equipment.stationNetworks
             )
         }

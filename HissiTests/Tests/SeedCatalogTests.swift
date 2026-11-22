@@ -4,303 +4,177 @@ import Foundation
 
 private let seedJSON = Data("""
 {
- "generatedAt": "2026-07-19T21:00:00Z",
- "elevators": [
-  {
-   "id": "g9DnAE6CioBKy6kbn",
-   "source": "accessibilityCloud",
-   "acId": "g9DnAE6CioBKy6kbn",
-   "stationName": "S Pankow-Heinersdorf (Berlin)",
-   "description": "Prenzlauer Promenade ⟷ S-Bahnsteig Gl. 1/2",
-   "latitude": 52.577603,
-   "longitude": 13.42909,
-   "sourceName": "VBB Anlagen (S-Bahn)",
-   "organizationName": "VBB",
-   "fastaEquipmentNumber": 10906243,
-   "region": "berlin"
-  },
-  {
-   "id": "hugGa4c2AnzMaWWQu",
-   "source": "accessibilityCloud",
-   "acId": "hugGa4c2AnzMaWWQu",
-   "stationName": "Waßmannsdorf",
-   "description": "Waßmannsdorf zu Gleis 1",
-   "latitude": null,
-   "longitude": null,
-   "sourceName": "VBB Anlagen (S-Bahn)",
-   "organizationName": "VBB",
-   "fastaEquipmentNumber": 10466002
-  },
-  {
-   "id": "fasta-10466003",
-   "source": "fasta",
-   "fastaEquipmentNumber": 10466003,
-   "stationNumber": 7723,
-   "stationName": "Waßmannsdorf",
-   "description": "zu Gleis 2",
-   "latitude": 52.3683272,
-   "longitude": 13.4637534,
-   "sourceName": "DB FaSta",
-   "organizationName": "DB InfraGO",
-   "region": "brandenburg"
-  },
-  {
-   "id": "brokenlifts-900009103-0",
-   "source": "brokenlifts",
-   "brokenliftsStationId": "900009103",
-   "brokenliftsIndex": 0,
-   "stationName": "U Seestr.",
-   "description": "Aufzug zwischen U-Bahnsteig i. Ri. Alt-Tegel und Müllerstr.",
-   "latitude": 52.550471,
-   "longitude": 13.351966,
-   "sourceName": "brokenlifts.org",
-   "organizationName": "Berliner Verkehrsbetriebe (BVG)"
-  }
- ],
- "stations": [
-  {
-   "stationId": "900100015",
-   "dhid": "de:11000:900100015",
-   "name": "Klosterstraße (Berlin)",
-   "latitude": 52.517229,
-   "longitude": 13.412455
-  }
- ]
+"version":2,
+"generatedAt":"2026-11-21T20:00:00Z",
+"elevators":[
+ {"id":"6696","inventoryId":"5279","stationId":"900130002","stationName":"Pankow (Berlin)","stationModes":[1,2],"region":"berlin","description":"Vorhalle ↔ Bahnsteig U2","latitude":52.567,"longitude":13.412,"sourceName":"BVG","organizationName":"Berliner Verkehrsbetriebe (BVG)"},
+ {"id":"6697","stationId":"900130002","stationName":"Pankow (Berlin)","stationModes":[1,2],"region":"berlin","description":"Vorhalle ↔ S-Bahnsteig","sourceName":"BVG","organizationName":"Berliner Verkehrsbetriebe (BVG)"},
+ {"id":"3910","inventoryId":"10855569","stationId":"name:Dinslaken Bahnhof","stationName":"Dinslaken Bahnhof","stationModes":[],"region":"nordrhein-westfalen","description":"→ Bahnsteig 2","latitude":51.567681,"longitude":6.738101,"sourceName":"DB FaSta","organizationName":"DB InfraGO"},
+ {"id":"4011","stationId":"name:Wernau (N)","stationName":"Wernau (N)","description":"→ Gleis 1"}
+],
+"stations":[
+ {"stationId":"900130002","dhid":"de:11000:900130002","name":"Pankow (Berlin)","region":"berlin","latitude":52.5671,"longitude":13.4121},
+ {"stationId":"name:Wernau (N)","name":"Wernau (N)","region":"baden-wuerttemberg","latitude":48.6890,"longitude":9.4160}
+],
+"legacyIds":{
+ "fasta-10855569":"3910",
+ "z87ZFWJs5aB2seuYf":"6696"
+}
 }
 """.utf8)
 
-@Suite struct SeedCatalogTests {
+@Suite struct SeedCatalogParsingTests {
     @Test func parsesAllRecordsWithOptionalFields() throws {
         let records = SeedCatalog.parse(seedJSON)
         #expect(records.count == 4)
-        let heinersdorf = try #require(records.first { $0.id == "g9DnAE6CioBKy6kbn" })
-        #expect(heinersdorf.fastaEquipmentNumber == 10906243)
-        #expect(heinersdorf.stationNumber == nil)
-        let fastaOnly = try #require(records.first { $0.source == "fasta" })
-        #expect(fastaOnly.stationNumber == 7723)
-        let brokenlifts = try #require(records.first { $0.source == "brokenlifts" })
-        #expect(brokenlifts.brokenliftsStationId == "900009103")
-        #expect(brokenlifts.brokenliftsIndex == 0)
+        let pankow = try #require(records.first)
+        #expect(pankow.id == "6696")
+        #expect(pankow.inventoryId == "5279")
+        #expect(pankow.networks == [.sBahn, .uBahn])
+        #expect(pankow.transitRegion == .berlin)
+        // Missing fields decode to their empty values.
+        let bare = try #require(records.last)
+        #expect(bare.inventoryId == nil)
+        #expect(bare.stationModes.isEmpty)
+        #expect(bare.region == nil)
+        #expect(bare.latitude == nil)
+        #expect(bare.sourceName.isEmpty)
+    }
+
+    @Test func parsesStationsAndLegacyIds() {
+        let stations = SeedCatalog.parseStations(seedJSON)
+        #expect(stations.map(\.stationId) == ["900130002", "name:Wernau (N)"])
+        #expect(stations[1].dhid == nil)
+        #expect(SeedCatalog.parseLegacyIds(seedJSON) == ["fasta-10855569": "3910", "z87ZFWJs5aB2seuYf": "6696"])
     }
 
     @Test func unparseableDataYieldsEmpty() {
         #expect(SeedCatalog.parse(Data("nonsense".utf8)).isEmpty)
+        #expect(SeedCatalog.parseStations(Data("{}".utf8)).isEmpty)
+        #expect(SeedCatalog.parseLegacyIds(Data("{}".utf8)).isEmpty)
     }
 
-    @Test func parsesTheStationListAndToleratesItsAbsence() throws {
-        let stations = SeedCatalog.parseStations(seedJSON)
-        let klosterstrasse = try #require(stations.first)
-        #expect(stations.count == 1)
-        #expect(klosterstrasse.stationId == "900100015")
-        #expect(klosterstrasse.latitude == 52.517229)
-        // A seed from before the list existed.
-        #expect(SeedCatalog.parseStations(Data(#"{"elevators": []}"#.utf8)).isEmpty)
-        #expect(SeedCatalog.parse(Data(#"{"elevators": []}"#.utf8)).isEmpty)
+    // The bundled seed itself: live ids only, every record at a station, and
+    // every station known to the coordinate list.
+    @Test func bundledSeedIsConsistent() throws {
+        let data = try Data(contentsOf: URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
+            .appendingPathComponent("Shared/Resources/seed-catalog.json"))
+        let records = SeedCatalog.parse(data)
+        let stations = Set(SeedCatalog.parseStations(data).map(\.stationId))
+        #expect(records.count > 1000)
+        #expect(records.allSatisfy { Int($0.id) != nil })
+        #expect(Set(records.map(\.id)).count == records.count)
+        #expect(records.allSatisfy { !$0.stationName.isEmpty && stations.contains($0.stationId) })
+        #expect(records.allSatisfy { $0.transitRegion != nil })
+        let ids = Set(records.map(\.id))
+        #expect(SeedCatalog.parseLegacyIds(data).values.allSatisfy { ids.contains($0) })
     }
 }
 
-// The seed's station list: the station's own coordinate for a record that
-// nothing else places — a live record without a centroid at a station the
-// seed has no elevator for.
-@Suite struct StationCoordinateTests {
-    private var seed: [SeedCatalog.Record] { SeedCatalog.parse(seedJSON) }
-    private var stations: [SeedCatalog.Station] { SeedCatalog.parseStations(seedJSON) }
+@Suite struct SeedOverlayTests {
+    private let seed = SeedCatalog.parse(seedJSON)
+    private let stations = SeedCatalog.parseStations(seedJSON)
 
     private func live(
-        stationId: String, stationName: String, inventoryId: String? = nil,
-        latitude: Double? = nil, longitude: Double? = nil
+        id: String,
+        stationId: String = "",
+        stationName: String = "",
+        description: String = "",
+        latitude: Double? = nil,
+        longitude: Double? = nil
     ) -> AccessibilityCloudClient.Equipment {
         AccessibilityCloudClient.Equipment(
-            id: "6740", inventoryId: inventoryId, stationId: stationId, stationName: stationName,
-            description: "Straße ↔ Bahnsteig", isWorking: true, lastUpdate: nil,
+            id: id, inventoryId: nil, stationId: stationId, stationName: stationName,
+            description: description, isWorking: true, lastUpdate: Date(),
             latitude: latitude, longitude: longitude
         )
     }
 
-    @Test func placesARecordNothingElseCan() throws {
+    // An elevator upstream hasn't linked to a stop place arrives without a
+    // station — the seed's (assigned) station makes it searchable.
+    @Test func unlinkedLiveRecordTakesTheSeedStation() throws {
         let merged = EquipmentCatalog.overlaid(
-            live: [live(stationId: "900100015", stationName: "Klosterstraße (Berlin)")],
+            live: [live(id: "3910", description: "→ Bahnsteig 2", latitude: 51.5, longitude: 6.7)],
             seed: seed, stations: stations
         )
-        let record = try #require(merged.first { $0.id == "6740" })
-        #expect(record.latitude == 52.517229)
-        #expect(record.longitude == 13.412455)
-    }
-
-    @Test func liveCentroidAndSeedSiblingsWin() throws {
-        let own = EquipmentCatalog.overlaid(
-            live: [live(stationId: "900100015", stationName: "Klosterstraße (Berlin)", latitude: 52.5, longitude: 13.4)],
-            seed: seed, stations: stations
-        )
-        #expect(try #require(own.first).latitude == 52.5)
-        // Waßmannsdorf: the matched seed record has no coordinates, its
-        // fasta sibling does — that sibling comes before the station list.
-        let sibling = EquipmentCatalog.overlaid(
-            live: [live(stationId: "900260022", stationName: "Waßmannsdorf", inventoryId: "10466002")],
-            seed: seed,
-            stations: [SeedCatalog.Station(stationId: "900260022", dhid: nil, name: "Waßmannsdorf", latitude: 1, longitude: 1)]
-        )
-        #expect(try #require(sibling.first { $0.id == "6740" }).latitude == 52.3683272)
-    }
-
-    @Test func unknownStationStaysUnplaced() throws {
-        let merged = EquipmentCatalog.overlaid(
-            live: [live(stationId: "900000001", stationName: "Nirgendwo")],
-            seed: seed, stations: stations
-        )
-        #expect(try #require(merged.first).latitude == nil)
-    }
-}
-
-@Suite struct CatalogOverlayTests {
-    private var seed: [SeedCatalog.Record] { SeedCatalog.parse(seedJSON) }
-
-    private func liveEquipment(
-        id: String = "6225",
-        inventoryId: String? = "10906243",
-        stationName: String = "Pankow-Heinersdorf (Berlin)"
-    ) -> AccessibilityCloudClient.Equipment {
-        AccessibilityCloudClient.Equipment(
-            id: id,
-            inventoryId: inventoryId,
-            stationId: "900130011",
-            stationName: stationName,
-            description: "Straßenland ⟷ Gleis 1/2 (S-Bahn)",
-            isWorking: true,
-            lastUpdate: Date()
-        )
-    }
-
-    // The operator inventory number (= the seed's FaSta equipment number)
-    // matches live records to the seed, which backfills what the API doesn't
-    // serve — names, coordinates, region.
-    @Test func inventoryNumberMatchBackfillsSeedMetadata() throws {
-        let merged = EquipmentCatalog.overlaid(live: [liveEquipment()], seed: seed)
-        let record = try #require(merged.first { $0.id == "6225" })
-        #expect(record.fastaEquipmentNumber == 10906243)
-        #expect(record.sourceName == "VBB Anlagen (S-Bahn)")
-        #expect(record.latitude == 52.577603)
-        #expect(record.region == .berlin)
+        let record = try #require(merged.first)
+        #expect(record.stationId == "name:Dinslaken Bahnhof")
+        #expect(record.stationName == "Dinslaken Bahnhof")
+        #expect(record.region == .nordrheinWestfalen)
+        #expect(record.sourceName == "DB FaSta")
+        #expect(record.organizationName == "DB InfraGO")
+        #expect(record.inventoryId == "10855569")
+        // Live wins where it has a value.
+        #expect(record.latitude == 51.5)
         #expect(record.isWorking == true)
-        // The matched seed record must not reappear as a duplicate.
-        #expect(!merged.contains { $0.id == "g9DnAE6CioBKy6kbn" })
-        #expect(merged.count == 3) // live + fasta and brokenlifts gap records
     }
 
-    @Test func emptyStationNameIsBackfilledFromSeed() throws {
+    // A linked live record keeps its own station; the seed only fills the
+    // rest.
+    @Test func linkedLiveRecordKeepsItsStation() throws {
         let merged = EquipmentCatalog.overlaid(
-            live: [liveEquipment(id: "5034", inventoryId: "10466002", stationName: "")],
-            seed: seed
+            live: [live(id: "6696", stationId: "900130002", stationName: "Pankow (Berlin)",
+                        description: "Vorhalle ↔ Bahnsteig U2")],
+            seed: seed, stations: stations
         )
-        let record = try #require(merged.first { $0.id == "5034" })
-        #expect(record.stationName == "Waßmannsdorf")
+        let record = try #require(merged.first)
+        #expect(record.stationName == "Pankow (Berlin)")
+        #expect(record.stationNetworks == [.sBahn, .uBahn])
+        #expect(record.latitude == 52.567)
+        #expect(record.sourceName == "BVG")
     }
 
-    // A "fasta" record whose inventory number appears live is answered by the
-    // API — it must not be appended on top.
-    @Test func fastaRecordMatchedByInventoryIsNotAppended() throws {
-        let live = liveEquipment(id: "4972", inventoryId: "10466003", stationName: "Waßmannsdorf")
-        let merged = EquipmentCatalog.overlaid(live: [live], seed: seed)
-        #expect(!merged.contains { $0.id == "fasta-10466003" })
-        #expect(merged.first { $0.id == "4972" }?.fastaEquipmentNumber == 10466003)
+    // With live data, a seed record live doesn't answer for is gone upstream
+    // and stays out — no duplicates, no ghosts.
+    @Test func seedRecordsMissingLiveAreNotAppended() {
+        let merged = EquipmentCatalog.overlaid(live: [live(id: "3910")], seed: seed, stations: stations)
+        #expect(merged.map(\.id) == ["3910"])
     }
 
-    // Seed records the live catalog does not answer for stay searchable with
-    // unknown status: "fasta" records missing upstream, "brokenlifts" records
-    // while their whole station is absent. Unmatched accessibilityCloud
-    // records must not duplicate live elevators.
-    @Test func unansweredGapRecordsAreAppendedWithUnknownStatus() throws {
-        let merged = EquipmentCatalog.overlaid(live: [liveEquipment()], seed: seed)
-        let fastaOnly = try #require(merged.first { $0.id == "fasta-10466003" })
-        #expect(fastaOnly.isWorking == nil)
-        #expect(fastaOnly.stationId == "7723")
-        #expect(fastaOnly.region == .brandenburg)
-        // Live catalog has no station 900009103 ⇒ the brokenlifts record fills
-        // the gap… (see next test for the covered-station case)
-        #expect(merged.contains { $0.id == "brokenlifts-900009103-0" })
-        #expect(!merged.contains { $0.id == "hugGa4c2AnzMaWWQu" })
+    @Test func offlineFallbackServesWholeSeedUnknown() {
+        let merged = EquipmentCatalog.overlaid(live: [], seed: seed, stations: stations)
+        #expect(merged.map(\.id) == ["6696", "6697", "3910", "4011"])
+        #expect(merged.allSatisfy { $0.isWorking == nil })
     }
 
-    @Test func brokenliftsRecordAtLiveStationIsDropped() {
-        let seestrasse = AccessibilityCloudClient.Equipment(
-            id: "6743",
-            stationId: "900009103",
-            stationName: "Seestraße (Berlin)",
-            description: "Straße ⟷ U6 (→ Alt-Tegel)",
-            isWorking: true,
-            lastUpdate: Date()
-        )
-        let merged = EquipmentCatalog.overlaid(live: [seestrasse], seed: seed)
-        // The station is live — a stale seed record would just sit next to
-        // the real elevator.
-        #expect(!merged.contains { $0.id == "brokenlifts-900009103-0" })
+    // No centroid: the station's coordinate (and region) from the list.
+    @Test func stationListPlacesRecordsWithoutCoordinates() throws {
+        let merged = EquipmentCatalog.overlaid(live: [], seed: seed, stations: stations)
+        let pankowS = try #require(merged.first { $0.id == "6697" })
+        #expect(pankowS.latitude == 52.5671)
+        let wernau = try #require(merged.first { $0.id == "4011" })
+        #expect(wernau.latitude == 48.6890)
+        #expect(wernau.region == .badenWuerttemberg)
     }
 
-    // The inventory number goes stale upstream (~30 of the seed's numbers,
-    // e.g. U Spittelmarkt) and thousands of live records have no seed
-    // counterpart at all. Since the API serves neither coordinates nor
-    // source/operator names, such a record would lose its map and both name
-    // rows — the seed records of the same station answer for it.
-    @Test func unmatchedRecordIsBackfilledFromItsStation() throws {
+    // An elevator added upstream after the generation: its station's seed
+    // records answer for coordinates, region and the unanimous operator.
+    @Test func unknownLiveRecordIsBackfilledFromItsStation() throws {
         let merged = EquipmentCatalog.overlaid(
-            live: [liveEquipment(id: "9001", inventoryId: "5279")],
-            seed: seed
+            live: [live(id: "9001", stationId: "900130002", stationName: "Pankow (Berlin)")],
+            seed: seed, stations: stations
         )
-        let record = try #require(merged.first { $0.id == "9001" })
-        #expect(record.latitude == 52.577603)
-        #expect(record.longitude == 13.42909)
-        #expect(record.sourceName == "VBB Anlagen (S-Bahn)")
-        #expect(record.organizationName == "VBB")
+        let record = try #require(merged.first)
+        #expect(record.latitude == 52.567)
         #expect(record.region == .berlin)
-        // The station answers for metadata, never for identity: the number
-        // is what favorites bridge on.
-        #expect(record.fastaEquipmentNumber == nil)
-        // …and the seed record it borrowed from stays a match for its own
-        // live record, not a duplicate.
-        #expect(!merged.contains { $0.id == "g9DnAE6CioBKy6kbn" })
-    }
-
-    // Waßmannsdorf carries a VBB and a DB FaSta record — who runs this lift
-    // is genuinely unknown, so those rows stay empty. The coordinates are a
-    // station property and fill regardless.
-    @Test func ambiguousStationLeavesSourceAndOperatorEmpty() throws {
-        let merged = EquipmentCatalog.overlaid(
-            live: [liveEquipment(id: "9002", inventoryId: "5279", stationName: "Waßmannsdorf")],
-            seed: seed
-        )
-        let record = try #require(merged.first { $0.id == "9002" })
-        #expect(record.latitude == 52.3683272)
-        #expect(record.sourceName.isEmpty)
-        #expect(record.organizationName.isEmpty)
-        #expect(record.region == .brandenburg)
-    }
-
-    // A matched seed record can itself carry no coordinates — its siblings
-    // at the same station do.
-    @Test func matchedRecordWithoutSeedCoordinatesFallsBackToItsStation() throws {
-        let merged = EquipmentCatalog.overlaid(
-            live: [liveEquipment(id: "5034", inventoryId: "10466002", stationName: "Waßmannsdorf")],
-            seed: seed
-        )
-        let record = try #require(merged.first { $0.id == "5034" })
-        #expect(record.latitude == 52.3683272)
-        // The match itself named the source — no ambiguity to resolve.
-        #expect(record.sourceName == "VBB Anlagen (S-Bahn)")
+        #expect(record.sourceName == "BVG")
+        #expect(record.organizationName == "Berliner Verkehrsbetriebe (BVG)")
     }
 
     @Test func stationFallbackNeverReachesAcrossStations() throws {
         let merged = EquipmentCatalog.overlaid(
-            live: [liveEquipment(id: "9003", inventoryId: nil, stationName: "Ostkreuz (Berlin)")],
-            seed: seed
+            live: [live(id: "9003", stationName: "Ostkreuz (Berlin)")],
+            seed: seed, stations: stations
         )
-        let record = try #require(merged.first { $0.id == "9003" })
+        let record = try #require(merged.first)
         #expect(record.latitude == nil)
         #expect(record.sourceName.isEmpty)
         #expect(record.region == nil)
     }
 
-    // The two datasets differ by the network prefix; everything else must
-    // keep stations apart.
+    // Station names differ by the network prefix between operator feeds;
+    // everything else must keep stations apart.
     @Test func stationKeyFoldsOnlyTheNetworkPrefix() {
         #expect(EquipmentCatalog.stationKey("U Spittelmarkt (Berlin)")
             == EquipmentCatalog.stationKey("Spittelmarkt (Berlin)"))
@@ -313,13 +187,5 @@ private let seedJSON = Data("""
         #expect(EquipmentCatalog.stationKey("Ostkreuz")
             != EquipmentCatalog.stationKey("Ostkreuz (Berlin)"))
         #expect(EquipmentCatalog.stationKey("").isEmpty)
-    }
-
-    @Test func offlineFallbackServesWholeSeed() {
-        let merged = EquipmentCatalog.overlaid(live: [], seed: seed)
-        #expect(merged.count == 4)
-        #expect(merged.allSatisfy { $0.isWorking == nil })
-        // Seeds from before the region field existed decode to nil.
-        #expect(merged.first { $0.id == "brokenlifts-900009103-0" }?.region == nil)
     }
 }

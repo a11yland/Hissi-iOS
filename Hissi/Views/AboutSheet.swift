@@ -3,7 +3,8 @@ import SwiftUI
 // "Über Hissi", behind the toolbar logo. Not an onboarding moment but a
 // reference screen, so it is a sectioned list rather than the welcome's
 // scaffold: nothing sits below the fold behind a pinned button, and the
-// data attribution — required by accessibility.cloud's terms, and since
+// data attribution — required by accessibility.cloud's terms and the
+// station data's CC BY licenses, and since
 // the favorites footer dropped its links the one place that carries it —
 // has a section of its own instead of a paragraph the close button hides.
 struct AboutSheet: View {
@@ -38,6 +39,12 @@ struct AboutSheet: View {
                         .foregroundStyle(Color.hissiTextSecondary)
                     LinkRow(title: "accessibility.cloud", destination: AttributionLinks.accessibilityCloud)
                     LinkRow(title: "Sozialhelden e.V.", destination: AttributionLinks.sozialhelden)
+                    Text("Stationsnamen und -orte stammen von DELFI e.V. über gtfs.de (CC BY 4.0) und von der VBB Verkehrsverbund Berlin-Brandenburg GmbH (CC BY).")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.hissiTextSecondary)
+                    LinkRow(title: "gtfs.de", destination: AttributionLinks.gtfsDE)
+                    LinkRow(title: "VBB", destination: AttributionLinks.vbb)
+                    LinkRow(title: "Lizenz CC BY 4.0", destination: AttributionLinks.ccBy4)
                 }
                 .hissiRows()
 
@@ -78,7 +85,7 @@ struct AboutSheet: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(verbatim: "Hissi")
                     .font(.largeTitle.bold())
-                Text("Aufzugstatus für Berlin und Brandenburg")
+                Text("Aufzugstatus für Berlin, Brandenburg und Bahnhöfe der Deutschen Bahn")
                     .font(.subheadline)
                     .foregroundStyle(Color.hissiTextSecondary)
             }
@@ -109,11 +116,17 @@ private struct LinkRow: View {
     }
 }
 
-// The two organisations the data attribution points to — one place for the
-// URLs, used by the footer and the about sheet.
+// What the data attribution points to — one place for the URLs. The
+// elevators come from accessibility.cloud; the station names and locations
+// in the bundled seed from DELFI e.V. (via gtfs.de, CC BY 4.0) and the VBB
+// (CC BY), whose licenses require naming them (see
+// scripts/generate-seed-catalog.py).
 enum AttributionLinks {
     static let accessibilityCloud = URL(string: "https://transit.accessibility.cloud")!
     static let sozialhelden = URL(string: "https://sozialhelden.de")!
+    static let gtfsDE = URL(string: "https://gtfs.de")!
+    static let vbb = URL(string: "https://www.vbb.de")!
+    static let ccBy4 = URL(string: "https://creativecommons.org/licenses/by/4.0/")!
 }
 
 #Preview("Über Hissi") {
