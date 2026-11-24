@@ -677,6 +677,16 @@
         }
       }
     },
+    "Ferngesteuert abgeschaltet" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Switched off remotely"
+          }
+        }
+      }
+    },
     "Fertig" : {
       "localizations" : {
         "en" : {
@@ -866,6 +876,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "No elevator selected"
+          }
+        }
+      }
+    },
+    "Kein Betrieb" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not in operation"
           }
         }
       }
@@ -1130,6 +1150,16 @@
         }
       }
     },
+    "Nicht betriebsbereit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not ready for operation"
+          }
+        }
+      }
+    },
     "Niedersachsen" : {
       "localizations" : {
         "en" : {
@@ -1306,6 +1336,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Status since"
+          }
+        }
+      }
+    },
+    "Störung (Personenbefreiung)" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fault (passenger rescue)"
           }
         }
       }
