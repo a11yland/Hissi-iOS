@@ -44,6 +44,10 @@ struct AboutSheet: View {
                         .foregroundStyle(Color.hissiTextSecondary)
                     LinkRow(title: "gtfs.de", destination: AttributionLinks.gtfsDE)
                     LinkRow(title: "VBB", destination: AttributionLinks.vbb)
+                    Text("Weitere Aufzüge und Haltestellen in Nordrhein-Westfalen stammen vom Verkehrsverbund Rhein-Ruhr (VRR), CC BY 4.0.")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.hissiTextSecondary)
+                    LinkRow(title: "VRR Open Data", destination: AttributionLinks.vrr)
                     LinkRow(title: "Lizenz CC BY 4.0", destination: AttributionLinks.ccBy4)
                 }
                 .hissiRows()
@@ -119,13 +123,15 @@ private struct LinkRow: View {
 // What the data attribution points to — one place for the URLs. The
 // elevators come from accessibility.cloud; the station names and locations
 // in the bundled seed from DELFI e.V. (via gtfs.de, CC BY 4.0) and the VBB
-// (CC BY), whose licenses require naming them (see
+// (CC BY), the elevators and stops of the municipal networks in NRW from
+// the VRR (CC BY 4.0) — licenses that require naming them (see
 // scripts/generate-seed-catalog.py).
 enum AttributionLinks {
     static let accessibilityCloud = URL(string: "https://transit.accessibility.cloud")!
     static let sozialhelden = URL(string: "https://sozialhelden.de")!
     static let gtfsDE = URL(string: "https://gtfs.de")!
     static let vbb = URL(string: "https://www.vbb.de")!
+    static let vrr = URL(string: "https://www.opendata-oepnv.de/ht/de/api")!
     static let ccBy4 = URL(string: "https://creativecommons.org/licenses/by/4.0/")!
 }
 
