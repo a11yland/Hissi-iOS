@@ -127,6 +127,60 @@ nonisolated struct MonitoredElevator: Identifiable, Codable, Equatable {
         }
     }
 
+    // How long a status has held, e.g. "seit 5 Min." / "seit 3 Std." / "seit
+    // 1 Tag" / "seit 3 Tagen". A day count says how serious an outage is —
+    // for two weeks; past that (the stale threshold) a date says more than
+    // "seit 40 Tagen": "seit dem 12. November", with the year when it isn't
+    // this one. `spoken` writes the units out for VoiceOver. `now` is explicit
+    // so widgets format against their entry date and tests stay
+    // deterministic.
+    nonisolated static func sinceLabel(
+        _ date: Date,
+        now: Date = Date(),
+        spoken: Bool = false,
+        calendar: Calendar = .current,
+        locale: Locale = .current
+    ) -> String {
+        // Under a minute — or a start slightly ahead of this device's clock —
+        // counts as one minute: "seit 0 Min." says nothing.
+        let minutes = max(1, Int(now.timeIntervalSince(date) / 60))
+        switch minutes {
+        case ..<60:
+            if spoken {
+                return minutes == 1
+                    ? String(localized: "seit 1 Minute")
+                    : String(localized: "seit \(minutes) Minuten")
+            }
+            return String(localized: "seit \(minutes) Min.")
+        case 60..<1440:
+            let hours = minutes / 60
+            if spoken {
+                return hours == 1
+                    ? String(localized: "seit 1 Stunde")
+                    : String(localized: "seit \(hours) Stunden")
+            }
+            return String(localized: "seit \(hours) Std.")
+        case 1440..<(staleAfterDays * 1440):
+            let days = minutes / 1440
+            return days == 1
+                ? String(localized: "seit 1 Tag")
+                : String(localized: "seit \(days) Tagen")
+        default:
+            let sameYear = calendar.component(.year, from: date) == calendar.component(.year, from: now)
+            var style = Date.FormatStyle.dateTime.day().month(.wide).locale(locale)
+            style.calendar = calendar
+            style.timeZone = calendar.timeZone
+            let day = date.formatted(sameYear ? style : style.year())
+            return String(localized: "seit dem \(day)")
+        }
+    }
+
+    // The row's "seit …" line; nil while the source doesn't say when the
+    // status began — the line is then left out.
+    func statusSinceLabel(now: Date = Date(), spoken: Bool = false) -> String? {
+        statusSince.map { Self.sinceLabel($0, now: now, spoken: spoken) }
+    }
+
     // Individual records can silently decouple from their disruption feed
     // (observed with VBB S-Bahn: frozen since 2024 while sibling records
     // update). Beyond this age the status is flagged as possibly outdated —

@@ -98,3 +98,75 @@ private func ago(minutes: Int) -> Date {
         #expect(!elevator(updated: nil).isDataStale)
     }
 }
+
+// "Seit": how long a status has held. Fixed `now`, calendar and locale — the
+// buckets must not depend on when or where the tests run.
+@Suite struct SinceLabelTests {
+    private let now = ISO8601DateFormatter().date(from: "2026-11-24T12:00:00Z")!
+    private var calendar: Calendar {
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(identifier: "Europe/Berlin")!
+        return calendar
+    }
+
+    private func label(minutes: Double, spoken: Bool = false) -> String {
+        MonitoredElevator.sinceLabel(
+            now.addingTimeInterval(-minutes * 60), now: now, spoken: spoken,
+            calendar: calendar, locale: Locale(identifier: "de_DE")
+        )
+    }
+
+    @Test func minutes() {
+        #expect(label(minutes: 5) == "seit 5 Min.")
+        #expect(label(minutes: 59.9) == "seit 59 Min.")
+    }
+
+    // Under a minute, or a start ahead of this device's clock, is one minute.
+    @Test func neverLessThanOneMinute() {
+        #expect(label(minutes: 0.2) == "seit 1 Min.")
+        #expect(label(minutes: -3) == "seit 1 Min.")
+    }
+
+    @Test func hours() {
+        #expect(label(minutes: 60) == "seit 1 Std.")
+        #expect(label(minutes: 23 * 60 + 59) == "seit 23 Std.")
+    }
+
+    @Test func days() {
+        #expect(label(minutes: 24 * 60) == "seit 1 Tag")
+        #expect(label(minutes: 3 * 1440) == "seit 3 Tagen")
+        #expect(label(minutes: 14 * 1440 - 1) == "seit 13 Tagen")
+    }
+
+    // From the stale threshold on, a date says more than a day count.
+    @Test func twoWeeksAndMoreNameTheDate() {
+        #expect(label(minutes: 14 * 1440) == "seit dem 10. November")
+        #expect(label(minutes: 40 * 1440) == "seit dem 15. Oktober")
+    }
+
+    @Test func anotherYearIsNamed() {
+        #expect(label(minutes: 400 * 1440) == "seit dem 20. Oktober 2025")
+    }
+
+    @Test func spokenFormWritesTheUnitsOut() {
+        #expect(label(minutes: 1, spoken: true) == "seit 1 Minute")
+        #expect(label(minutes: 5, spoken: true) == "seit 5 Minuten")
+        #expect(label(minutes: 60, spoken: true) == "seit 1 Stunde")
+        #expect(label(minutes: 180, spoken: true) == "seit 3 Stunden")
+        #expect(label(minutes: 3 * 1440, spoken: true) == "seit 3 Tagen")
+    }
+
+    @Test func statusSentenceCarriesTheDuration() {
+        let since = now.addingTimeInterval(-3 * 86_400)
+        #expect(ElevatorStatus.broken.sentence(since: since, now: now) == "Außer Betrieb seit 3 Tagen")
+        #expect(ElevatorStatus.working.sentence(since: now.addingTimeInterval(-7200), now: now) == "In Betrieb seit 2 Stunden")
+        #expect(ElevatorStatus.unknown.sentence(since: nil, now: now) == "Status unbekannt")
+    }
+
+    @Test func rowLabelIsLeftOutWithoutAStart() {
+        #expect(elevator().statusSinceLabel(now: now) == nil)
+        var dated = elevator()
+        dated.statusSince = now.addingTimeInterval(-86_400)
+        #expect(dated.statusSinceLabel(now: now) == "seit 1 Tag")
+    }
+}

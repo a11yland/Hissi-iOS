@@ -40,6 +40,14 @@ nonisolated enum ElevatorStatus: Equatable {
         }
     }
 
+    // The status with its duration as one spoken phrase — "Außer Betrieb
+    // seit 3 Tagen" — for the one-sentence VoiceOver labels of the widget and
+    // Live Activity rows. Without a known start it is just the label.
+    func sentence(since: Date?, now: Date = Date()) -> String {
+        guard let since else { return label }
+        return "\(label) \(MonitoredElevator.sinceLabel(since, now: now, spoken: true))"
+    }
+
     // Compact form for space-constrained surfaces (widgets, complications).
     var shortLabel: String {
         switch self {

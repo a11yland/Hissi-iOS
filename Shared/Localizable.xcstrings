@@ -1180,6 +1180,96 @@
         }
       }
     },
+    "seit %lld Min." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for %lld min"
+          }
+        }
+      }
+    },
+    "seit %lld Minuten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for %lld minutes"
+          }
+        }
+      }
+    },
+    "seit %lld Std." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for %lld hr"
+          }
+        }
+      }
+    },
+    "seit %lld Stunden" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for %lld hours"
+          }
+        }
+      }
+    },
+    "seit %lld Tagen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for %lld days"
+          }
+        }
+      }
+    },
+    "seit 1 Minute" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for 1 minute"
+          }
+        }
+      }
+    },
+    "seit 1 Stunde" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for 1 hour"
+          }
+        }
+      }
+    },
+    "seit 1 Tag" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for 1 day"
+          }
+        }
+      }
+    },
+    "seit dem %@" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "since %@"
+          }
+        }
+      }
+    },
     "Stationen in der Nähe öffnest du jetzt über das Standortsymbol neben der Glocke." : {
       "localizations" : {
         "en" : {
@@ -1196,6 +1286,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Station names and locations come from DELFI e.V. via gtfs.de (CC BY 4.0) and VBB Verkehrsverbund Berlin-Brandenburg GmbH (CC BY)."
+          }
+        }
+      }
+    },
+    "Status seit" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Status since"
           }
         }
       }
