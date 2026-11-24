@@ -226,6 +226,10 @@ struct ElevatorDetailView: View {
             if !elevator.elevatorDescription.isEmpty {
                 LabeledContent("Aufzug", value: elevator.elevatorDescription)
             }
+            // The exact moment — the row's "seit 3 Tagen" as a date and time.
+            if let since = elevator.statusSince {
+                LabeledContent("Status seit", value: since.formatted(date: .abbreviated, time: .shortened))
+            }
             LabeledContent("Datenstand", value: elevator.lastUpdated.map(MonitoredElevator.relativeTime(since:)) ?? "unbekannt")
             if elevator.isDataStale {
                 Label("Status möglicherweise veraltet", systemImage: "exclamationmark.triangle.fill")

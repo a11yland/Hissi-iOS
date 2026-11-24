@@ -42,9 +42,14 @@ struct ElevatorRowView: View {
                     .fontWeight(.medium)
                     .foregroundStyle(status.textColor)
 
-                Text(elevator.lastUpdatedLabel)
-                    .font(.caption2)
-                    .foregroundStyle(Color.hissiTextSecondary)
+                // How long the status has held; left out while the source
+                // doesn't say — never a data age dressed up as a duration.
+                if let since = elevator.statusSinceLabel() {
+                    Text(since)
+                        .font(.caption2)
+                        .foregroundStyle(Color.hissiTextSecondary)
+                        .accessibilityLabel(elevator.statusSinceLabel(spoken: true) ?? since)
+                }
 
                 if elevator.isDataStale {
                     Label("Status möglicherweise veraltet", systemImage: "exclamationmark.triangle.fill")
