@@ -144,11 +144,14 @@ private let seedJSON = Data("""
         #expect(record.sourceName == "BVG")
     }
 
-    // With live data, a seed record live doesn't answer for is gone upstream
-    // and stays out — no duplicates, no ghosts.
+    // With live data, a seed record its source doesn't answer for is gone
+    // upstream and stays out — no duplicates, no ghosts. The VRR record is
+    // another source's: accessibility.cloud's answer says nothing about it,
+    // so it stands in from the seed (PerSourceOverlayTests).
     @Test func seedRecordsMissingLiveAreNotAppended() {
         let merged = EquipmentCatalog.overlaid(live: [live(id: "3910")], seed: seed, stations: stations)
-        #expect(merged.map(\.id) == ["3910"])
+        #expect(merged.map(\.id) == ["3910", "vrr:de:05112:16580:31"])
+        #expect(merged.last?.isWorking == nil)
     }
 
     @Test func offlineFallbackServesWholeSeedUnknown() {

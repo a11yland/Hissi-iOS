@@ -14,6 +14,12 @@ import Foundation
 // by the generator), source/operator names (only feed/org ids live), region,
 // station transport modes, and the station's coordinate where an elevator
 // has no centroid — and carries the search when there is no network.
+//
+// A second source runs alongside (FeatureToggle.vrr): the VRR
+// infrastructure API (VRRClient) with the municipal networks' elevators in
+// NRW. Its records carry "vrr:" ids (ElevatorSource), come complete in one
+// request and need no join; the seed overlay treats each source on its own,
+// so one source failing never drops the other's elevators.
 // Favorites from before the migration are NOT mapped: they are deleted once
 // with a notice (FavoritesStore.removeLegacyFavoritesIfNeeded); favorites
 // created from a format-1 seed preview bridge via SeedCatalog.legacyIds.
@@ -37,6 +43,19 @@ actor EquipmentCatalog {
     // WITHOUT the seed overlay — the overlay is applied on every load so a
     // release with a newer bundled seed reworks persisted data.
     private let buildLive: @Sendable () async -> [AccessibilityCloudClient.Equipment]?
+    // The targeted accessibility.cloud fetch behind equipment(for:).
+    private let fetchTargeted: @Sendable ([String]) async -> [AccessibilityCloudClient.Equipment]?
+    // Every VRR elevator with its status; nil when the request fails — or
+    // while the source is switched off.
+    private let fetchVRR: @Sendable () async -> [AccessibilityCloudClient.Equipment]?
+    // Which ids are part of the app (feature toggles). Applied to whatever
+    // comes back live or from disk, so switching a source off also hides
+    // what an earlier run persisted.
+    private let includes: @Sendable (String) -> Bool
+    // Whether the cached catalog holds live VRR records — a build during a
+    // VRR outage caches only their status-unknown seed stand-ins, which
+    // must not answer for ten minutes as if they were fresh.
+    private var cachedHasVRR = false
 
     // Persisted into the App Group container so the widget extension reads
     // the catalog the app built (the nearby widget needs the coordinates and
@@ -57,7 +76,14 @@ actor EquipmentCatalog {
         legacyIds: [String: String] = SeedCatalog.legacyIds,
         buildLive: @escaping @Sendable () async -> [AccessibilityCloudClient.Equipment]? = {
             await AccessibilityCloudClient.fetchCatalog()
-        }
+        },
+        fetchTargeted: @escaping @Sendable ([String]) async -> [AccessibilityCloudClient.Equipment]? = {
+            await AccessibilityCloudClient.fetchEquipment(ids: $0)
+        },
+        fetchVRR: @escaping @Sendable () async -> [AccessibilityCloudClient.Equipment]? = {
+            FeatureToggle.vrr ? await VRRClient.fetchAll() : nil
+        },
+        includes: @escaping @Sendable (String) -> Bool = { FeatureToggle.includes($0) }
     ) {
         self.ttl = ttl
         self.cacheFileURL = cacheFileURL
@@ -65,6 +91,9 @@ actor EquipmentCatalog {
         self.stations = stations
         self.legacyIds = legacyIds
         self.buildLive = buildLive
+        self.fetchTargeted = fetchTargeted
+        self.fetchVRR = fetchVRR
+        self.includes = includes
     }
 
     // Instant snapshot for stale-while-revalidate UIs (the search): memory or
@@ -102,18 +131,38 @@ actor EquipmentCatalog {
     // completed build is always safe to cache.
     private func startBuild() -> Task<[AccessibilityCloudClient.Equipment]?, Never> {
         if let inFlight { return inFlight }
-        let build = Task { await finishBuild(live: buildLive()) }
+        let buildLive = buildLive, fetchVRR = fetchVRR
+        let build = Task {
+            // Both sources at once; VRR is one quick request.
+            async let accessibilityCloud = buildLive()
+            async let vrr = fetchVRR()
+            return await finishBuild(live: accessibilityCloud, vrr: vrr)
+        }
         inFlight = build
         return build
     }
 
-    private func finishBuild(live: [AccessibilityCloudClient.Equipment]?) -> [AccessibilityCloudClient.Equipment]? {
+    // accessibility.cloud decides whether there is a catalog at all: without
+    // it the build fails as before and the cache stays (a catalog of
+    // status-unknown seed records must not count as fresh). A VRR outage
+    // only leaves the VRR elevators unknown — the overlay stands their seed
+    // records in.
+    private func finishBuild(
+        live accessibilityCloud: [AccessibilityCloudClient.Equipment]?,
+        vrr: [AccessibilityCloudClient.Equipment]?
+    ) -> [AccessibilityCloudClient.Equipment]? {
         inFlight = nil
-        guard let live else { return nil }
+        guard let accessibilityCloud else { return nil }
+        let live = (accessibilityCloud + (vrr ?? [])).filter { includes($0.id) }
         cached = Self.overlaid(live: live, seed: seed, stations: stations)
+        cachedHasVRR = Self.hasVRR(live)
         fetchedAt = Date()
         persist(live: live)
         return cached
+    }
+
+    private nonisolated static func hasVRR(_ records: [AccessibilityCloudClient.Equipment]) -> Bool {
+        records.contains { ElevatorSource(id: $0.id) == .vrr }
     }
 
     // MARK: - Disk persistence (stale-while-revalidate across launches)
@@ -136,7 +185,10 @@ actor EquipmentCatalog {
               let persisted = try? JSONDecoder().decode(PersistedCatalog.self, from: data),
               !persisted.live.isEmpty
         else { return }
-        cached = Self.overlaid(live: persisted.live, seed: seed, stations: stations)
+        let live = persisted.live.filter { includes($0.id) }
+        guard !live.isEmpty else { return }
+        cached = Self.overlaid(live: live, seed: seed, stations: stations)
+        cachedHasVRR = Self.hasVRR(live)
         fetchedAt = persisted.fetchedAt
     }
 
@@ -165,14 +217,32 @@ actor EquipmentCatalog {
         loadDiskIfNeeded()
         let bridged = Self.bridgedLiveIds(for: ids, legacyIds: legacyIds)
         let resolved: [AccessibilityCloudClient.Equipment]
+        let wantsVRR = ids.contains { ElevatorSource(id: $0) == .vrr }
+        let fetchTargeted = fetchTargeted, fetchVRR = fetchVRR
         if !cached.isEmpty, let fetchedAt, Date().timeIntervalSince(fetchedAt) < ttl {
-            resolved = cached
+            if wantsVRR, !cachedHasVRR, let vrr = await fetchVRR()?.filter({ includes($0.id) }), !vrr.isEmpty {
+                // The fresh catalog was built while VRR didn't answer: its
+                // VRR records are seed stand-ins. Ask again rather than
+                // serving "unbekannt" until the cache expires.
+                let vrrSeed = seed.filter { ElevatorSource(id: $0.id) == .vrr }
+                resolved = cached.filter { ElevatorSource(id: $0.id) != .vrr }
+                    + Self.overlaid(live: vrr, seed: vrrSeed, stations: stations)
+            } else {
+                resolved = cached
+            }
         } else {
+            // Each source by its own means, at once: accessibility.cloud's
+            // targeted request over exactly the asked ids, VRR's whole list
+            // (its only cheap form — and it names no favorite) when a VRR id
+            // is asked for.
             let numeric = Set(ids.filter { ElevatorSource(id: $0) == .accessibilityCloud } + bridged.values).sorted()
-            let live = numeric.isEmpty ? [] : await AccessibilityCloudClient.fetchEquipment(ids: numeric)
-            // A failed fetch degrades to the seed: every favorite the seed
-            // knows still answers — status unknown, never a false "working".
-            resolved = Self.overlaid(live: live ?? [], seed: seed, stations: stations)
+            async let accessibilityCloud = numeric.isEmpty ? [] : fetchTargeted(numeric)
+            async let vrr = wantsVRR ? fetchVRR() : nil
+            let live = ((await accessibilityCloud ?? []) + (await vrr ?? [])).filter { includes($0.id) }
+            // A failed fetch degrades to the seed, per source: every
+            // favorite the seed knows still answers — status unknown, never
+            // a false "working".
+            resolved = Self.overlaid(live: live, seed: seed, stations: stations)
         }
         let byId = Dictionary(resolved.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
         var result: [String: AccessibilityCloudClient.Equipment] = [:]
@@ -202,11 +272,16 @@ actor EquipmentCatalog {
     // since the generation) falls back to the station: seed records at the
     // same station name supply coordinates, region and — when they all name
     // the same one — source/operator (see stationBackfilled). Seed records
-    // only stand in for live ones when there is no live data at all
-    // (offline, or a failed targeted fetch): then the whole seed is
-    // returned, status unknown — never a false "working". With live data an
-    // elevator missing from it is gone upstream and stays out. Whatever still
-    // has no coordinate takes its station's from the `stations` list.
+    // only stand in for live ones when their source has no live data at all
+    // (offline, or a failed fetch): then that source's seed records are
+    // returned, status unknown — never a false "working". This holds per
+    // source (ElevatorSource): accessibility.cloud answering says nothing
+    // about the VRR elevators, and the other way round. With live data from
+    // its source an elevator missing from it is gone upstream and stays out.
+    // Whatever still has no coordinate takes its station's from the
+    // `stations` list. A VRR record's station name is the seed's — the
+    // generator spelled the town out and matched it to existing stations,
+    // the feed's raw name ("D-Kirchplatz U") would split the station.
     nonisolated static func overlaid(
         live: [AccessibilityCloudClient.Equipment],
         seed: [SeedCatalog.Record],
@@ -224,13 +299,25 @@ actor EquipmentCatalog {
             grouping: seed.filter { !stationKey($0.stationName).isEmpty },
             by: { stationKey($0.stationName) }
         )
+        let answering = Set(live.map { ElevatorSource(id: $0.id) })
+        let standIns = seed
+            .filter { !answering.contains(ElevatorSource(id: $0.id)) }
+            .map { stationCoordinated(equipment(from: $0), from: stationsById) }
         return live.map { equipment in
+            let isVRR = ElevatorSource(id: equipment.id) == .vrr
             guard let record = seedById[equipment.id] else {
-                return stationCoordinated(stationBackfilled(equipment, from: seedByStation), from: stationsById)
+                // A VRR lift added since the generation, at a stop the seed
+                // knows: the seed's spelling of the station, so it groups
+                // with its siblings.
+                let named = isVRR
+                    ? renamed(equipment, stationName: stationsById[equipment.stationId]?.name)
+                    : equipment
+                return stationCoordinated(stationBackfilled(named, from: seedByStation), from: stationsById)
             }
             // The seed's station replaces the live one only when live has
-            // none — id, name and modes travel together.
-            let hasStation = !equipment.stationName.isEmpty
+            // none — id, name and modes travel together. VRR is the
+            // exception: there the seed's (normalised) name always wins.
+            let hasStation = !equipment.stationName.isEmpty && !isVRR
             return stationCoordinated(AccessibilityCloudClient.Equipment(
                 id: equipment.id,
                 inventoryId: equipment.inventoryId ?? record.inventoryId,
@@ -252,7 +339,33 @@ actor EquipmentCatalog {
                 brokenliftsIndex: equipment.brokenliftsIndex,
                 region: equipment.region ?? record.transitRegion
             ), from: stationsById)
-        }
+        } + standIns
+    }
+
+    private nonisolated static func renamed(
+        _ equipment: AccessibilityCloudClient.Equipment,
+        stationName: String?
+    ) -> AccessibilityCloudClient.Equipment {
+        guard let stationName, !stationName.isEmpty, stationName != equipment.stationName else { return equipment }
+        return AccessibilityCloudClient.Equipment(
+            id: equipment.id,
+            inventoryId: equipment.inventoryId,
+            stationId: equipment.stationId,
+            stationName: stationName,
+            stationNetworks: equipment.stationNetworks,
+            description: equipment.description,
+            isWorking: equipment.isWorking,
+            lastUpdate: equipment.lastUpdate,
+            statusSince: equipment.statusSince,
+            sourceName: equipment.sourceName,
+            organizationName: equipment.organizationName,
+            stateExplanation: equipment.stateExplanation,
+            latitude: equipment.latitude,
+            longitude: equipment.longitude,
+            fastaEquipmentNumber: equipment.fastaEquipmentNumber,
+            brokenliftsIndex: equipment.brokenliftsIndex,
+            region: equipment.region
+        )
     }
 
     // A seed record as a status-unknown catalog record.
