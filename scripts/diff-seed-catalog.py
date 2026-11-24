@@ -32,6 +32,12 @@ def load(path: str) -> tuple[int, dict[str, dict], dict[str, dict]]:
     )
 
 
+def seed_sort_key(elevator_id: str) -> tuple:
+    # Numeric (transit.accessibility.cloud) ids first, in numeric order;
+    # other sources ("vrr:…") after them, by id — as the generator sorts.
+    return (0, int(elevator_id), "") if elevator_id.isdigit() else (1, 0, elevator_id)
+
+
 def describe(record: dict) -> str:
     return f"`{record['id']}` — {record.get('stationName', '?')}: {record.get('description', '')}"
 
@@ -51,9 +57,9 @@ def main() -> int:
               f"(bundled: {len(bundled)} elevators, {len(bundled_stations)} stations).")
         return 1
 
-    added = [fresh[i] for i in sorted(fresh.keys() - bundled.keys(), key=int)]
-    removed = [bundled[i] for i in sorted(bundled.keys() - fresh.keys(), key=int)]
-    changed = [(bundled[i], d) for i in sorted(bundled.keys() & fresh.keys(), key=int)
+    added = [fresh[i] for i in sorted(fresh.keys() - bundled.keys(), key=seed_sort_key)]
+    removed = [bundled[i] for i in sorted(bundled.keys() - fresh.keys(), key=seed_sort_key)]
+    changed = [(bundled[i], d) for i in sorted(bundled.keys() & fresh.keys(), key=seed_sort_key)
                if (d := changes(bundled[i], fresh[i], ELEVATOR_FIELDS))]
     stations_added = [fresh_stations[i] for i in sorted(fresh_stations.keys() - bundled_stations.keys())]
     stations_removed = [bundled_stations[i] for i in sorted(bundled_stations.keys() - fresh_stations.keys())]
