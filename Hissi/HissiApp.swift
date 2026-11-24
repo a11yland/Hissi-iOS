@@ -10,6 +10,7 @@ import SwiftUI
 struct HissiApp: App {
     init() {
         DemoMode.adoptLaunchArguments()
+        FeatureToggle.adoptLaunchArguments()
         WatchSync.shared.start()
         BackgroundRefreshManager.register()
         // The parameterized App Shortcut ("⟨Aufzug⟩ in Hissi prüfen") only

@@ -168,7 +168,7 @@ actor EquipmentCatalog {
         if !cached.isEmpty, let fetchedAt, Date().timeIntervalSince(fetchedAt) < ttl {
             resolved = cached
         } else {
-            let numeric = Set(ids.filter { Int($0) != nil } + bridged.values).sorted()
+            let numeric = Set(ids.filter { ElevatorSource(id: $0) == .accessibilityCloud } + bridged.values).sorted()
             let live = numeric.isEmpty ? [] : await AccessibilityCloudClient.fetchEquipment(ids: numeric)
             // A failed fetch degrades to the seed: every favorite the seed
             // knows still answers — status unknown, never a false "working".
@@ -182,13 +182,14 @@ actor EquipmentCatalog {
         return result
     }
 
-    // Maps format-1 seed ids (non-numeric) to live ids. Pure, unit-tested.
+    // Maps format-1 seed ids (legacy, ElevatorSource) to live ids. Pure,
+    // unit-tested.
     nonisolated static func bridgedLiveIds(
         for ids: Set<String>,
         legacyIds: [String: String]
     ) -> [String: String] {
         Dictionary(uniqueKeysWithValues: ids.compactMap { id in
-            guard Int(id) == nil, let live = legacyIds[id] else { return nil }
+            guard ElevatorSource(id: id) == .legacy, let live = legacyIds[id] else { return nil }
             return (id, live)
         })
     }

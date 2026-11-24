@@ -13,7 +13,7 @@ nonisolated enum StatusMerge {
         // adopt the live identity so the favorite matches search results and
         // refreshes by its numeric id from now on. The app persists the
         // migration (FavoritesStore.migrateIds).
-        if equipment.id != elevator.id, Int(equipment.id) != nil {
+        if equipment.id != elevator.id, ElevatorSource(id: equipment.id).isLive {
             updated = MonitoredElevator(
                 id: equipment.id,
                 stationId: equipment.stationId.isEmpty ? elevator.stationId : equipment.stationId,

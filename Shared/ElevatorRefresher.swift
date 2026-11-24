@@ -67,8 +67,15 @@ nonisolated enum ElevatorRefresher {
         now: Date = Date()
     ) async -> [MonitoredElevator] {
         guard let latestSpans = sources.latestSpans else { return elevators }
+        // Only accessibility.cloud keeps a span history; other sources date
+        // their statuses themselves.
         let undated = Set(
-            elevators.filter { $0.statusSince == nil && !skipped.contains($0.id) }.map(\.id)
+            elevators
+                .filter {
+                    $0.statusSince == nil && !skipped.contains($0.id)
+                        && ElevatorSource(id: $0.id) == .accessibilityCloud
+                }
+                .map(\.id)
         )
         guard !undated.isEmpty, let spans = await latestSpans(undated) else { return elevators }
         return StatusHistory.applied(to: elevators, spans: spans, now: now)

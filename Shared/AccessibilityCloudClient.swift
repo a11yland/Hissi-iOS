@@ -257,7 +257,7 @@ nonisolated enum AccessibilityCloudClient {
     // favorites than anyone keeps; an elevator crowded out of it simply stays
     // undated. Nil on failure.
     static func fetchLatestSpans(elevatorIds: Set<String>, now: Date = Date()) async -> [StatusSpan]? {
-        let ids = elevatorIds.filter { Int($0) != nil }.sorted()
+        let ids = elevatorIds.filter { ElevatorSource(id: $0) == .accessibilityCloud }.sorted()
         guard !ids.isEmpty else { return [] }
         #if DEBUG
         if DemoMode.isActive { return [] }

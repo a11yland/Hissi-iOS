@@ -103,7 +103,9 @@ nonisolated enum SeedCatalog {
         }
     }
 
-    static let records: [Record] = file?.elevators ?? []
+    // Sources behind a feature toggle that is off stay out — here, once,
+    // for search, nearby, widgets and the watch alike.
+    static let records: [Record] = (file?.elevators ?? []).filter { FeatureToggle.includes($0.id) }
     static let stations: [Station] = file?.stations ?? []
     static let legacyIds: [String: String] = file?.legacyIds ?? [:]
 

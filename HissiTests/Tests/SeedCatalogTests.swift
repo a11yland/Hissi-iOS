@@ -63,7 +63,7 @@ private let seedJSON = Data("""
         let records = SeedCatalog.parse(data)
         let stations = Set(SeedCatalog.parseStations(data).map(\.stationId))
         #expect(records.count > 1000)
-        #expect(records.allSatisfy { Int($0.id) != nil })
+        #expect(records.allSatisfy { ElevatorSource(id: $0.id).isLive })
         #expect(Set(records.map(\.id)).count == records.count)
         #expect(records.allSatisfy { !$0.stationName.isEmpty && stations.contains($0.stationId) })
         #expect(records.allSatisfy { $0.transitRegion != nil })

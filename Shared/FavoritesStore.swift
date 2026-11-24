@@ -36,10 +36,16 @@ enum FavoritesStore {
         guard !defaults.bool(forKey: transitCleanupKey) else { return }
         defaults.set(true, forKey: transitCleanupKey)
         let current = load()
-        let kept = current.filter { Int($0.id) != nil }
+        let kept = withoutLegacy(current)
         guard kept.count != current.count else { return }
         persist(kept)
         defaults.set(true, forKey: removalNoticeKey)
+    }
+
+    // What the cleanup keeps: every favorite a status source answers for —
+    // accessibility.cloud's numeric ids and the VRR ids alike. Pure.
+    static func withoutLegacy(_ favorites: [MonitoredElevator]) -> [MonitoredElevator] {
+        favorites.filter { ElevatorSource(id: $0.id).isLive }
     }
 
     static var removalNoticePending: Bool {

@@ -16,8 +16,8 @@ struct DemoFixturesTests {
         DemoFixtures.catalog(seed: seed, now: now, language: "de")
     }
 
-    @Test func everySeedRecordKeepsItsNumericId() {
-        #expect(catalog.allSatisfy { Int($0.id) != nil })
+    @Test func everySeedRecordKeepsItsLiveId() {
+        #expect(catalog.allSatisfy { ElevatorSource(id: $0.id).isLive })
         #expect(Set(catalog.map(\.id)).count == catalog.count)
     }
 
