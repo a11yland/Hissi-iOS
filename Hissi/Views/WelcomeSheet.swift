@@ -151,6 +151,12 @@ struct WhatsNewSheet: View {
                 title: "DB-Aufzüge in ganz Deutschland",
                 detail: "Hissi kennt jetzt auch die Aufzüge der Deutschen Bahn an Bahnhöfen außerhalb von Berlin und Brandenburg. Suchergebnisse sind nach Bundesland sortiert."
             )
+        case "1.5.0":
+            FeatureRow(
+                symbol: "clock",
+                title: "Wie lange schon",
+                detail: "Jeder Aufzug zeigt, seit wann er in Betrieb oder außer Betrieb ist – auch in Widgets und im Live-Status."
+            )
         default:
             EmptyView()
         }

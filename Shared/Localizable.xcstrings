@@ -837,6 +837,16 @@
         }
       }
     },
+    "Jeder Aufzug zeigt, seit wann er in Betrieb oder außer Betrieb ist – auch in Widgets und im Live-Status." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every elevator shows how long it has been in service or out of service – in widgets and the live status too."
+          }
+        }
+      }
+    },
     "Karte" : {
 
     },
@@ -1339,6 +1349,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Widgets show only what's not working"
+          }
+        }
+      }
+    },
+    "Wie lange schon" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For how long"
           }
         }
       }
