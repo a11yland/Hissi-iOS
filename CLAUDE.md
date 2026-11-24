@@ -23,7 +23,7 @@ Unit tests live in `HissiTests/` as a standalone Swift Package (`HissiCore`, who
 
 ## Accessibility
 
-- Target: WCAG 2.2 AA is required for every change; AAA is a bonus goal where feasible. Accessibility issues must carry the `a11y` label.
+- Target: WCAG 2.2 AA is required for every change; AAA is a bonus goal where feasible. Issues are tracked centrally in [a11yland/Hissi-Web](https://github.com/a11yland/Hissi-Web/issues) (this repo's with the `iOS` label), not here; accessibility issues must also carry the `a11y` label.
 - Read `ACCESSIBILITY.md` before any UI change and keep it updated (especially Known barriers).
 
 ## Architecture

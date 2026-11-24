@@ -33,20 +33,20 @@ The **Accessibility Nutrition Labels** declared in App Store Connect claim Voice
 
 ## Known barriers
 
-All open items are tracked as [issues with the `a11y` label](https://github.com/a11yland/Hissi-iOS/issues?q=is%3Aissue+is%3Aopen+label%3Aa11y).
+All open items are tracked as [issues with the `a11y` and `iOS` labels in Hissi-Web](https://github.com/a11yland/Hissi-Web/issues?q=is%3Aissue+is%3Aopen+label%3Aa11y+label%3AiOS), where the issues of both apps and the website are tracked.
 
-Tracked in [#3 Close the gaps behind the Accessibility Nutrition Labels](https://github.com/a11yland/Hissi-iOS/issues/3). The code fixes for contrast, the map input label, Reduce Motion, the four Larger Text spots and the banner announcement have landed; still open there:
+Tracked in [#15 Close the gaps behind the Accessibility Nutrition Labels](https://github.com/a11yland/Hissi-Web/issues/15). The code fixes for contrast, the map input label, Reduce Motion, the four Larger Text spots and the banner announcement have landed; still open there:
 
 - Voice Control on a device: swipe "Entfernen", the reorder actions, the recent-search chip context menu via "Show actions", search and the favorite star have not been verified.
 
-Found in a code review and not yet covered by #3:
+Found in a code review and not yet covered by #15:
 
-- **Larger Text** ([#7](https://github.com/a11yland/Hissi-iOS/issues/7)). The "In der Nähe" header row puts up to four items side by side; the map snippet has a fixed height of 160 points with two text pills that can collide at large sizes; the live status sheet sizes itself to its content without a scroll view; the watch elevator page has no scroll view and cuts the disruption reason at three lines.
-- **Target size (AAA)** ([#8](https://github.com/a11yland/Hissi-iOS/issues/8)). A few controls stay below 44 points: the "Meinen Standort anzeigen" pill on the map, the "Einstellungen öffnen" link when location access is denied, and the "Fertig" button in the live status sheet.
-- **Headings** ([#9](https://github.com/a11yland/Hissi-iOS/issues/9)). The "In der Nähe" and "Letzte Suchen" section titles on the search screen are not marked as headers, so the VoiceOver rotor skips them.
-- **Contrast** ([#10](https://github.com/a11yland/Hissi-iOS/issues/10)). The refresh error on the favorites list is drawn over the rows without a background, so its contrast depends on what is underneath. The watch colour constants are not covered by `PaletteTests`.
+- **Larger Text** ([#16](https://github.com/a11yland/Hissi-Web/issues/16)). The "In der Nähe" header row puts up to four items side by side; the map snippet has a fixed height of 160 points with two text pills that can collide at large sizes; the live status sheet sizes itself to its content without a scroll view; the watch elevator page has no scroll view and cuts the disruption reason at three lines.
+- **Target size (AAA)** ([#17](https://github.com/a11yland/Hissi-Web/issues/17)). A few controls stay below 44 points: the "Meinen Standort anzeigen" pill on the map, the "Einstellungen öffnen" link when location access is denied, and the "Fertig" button in the live status sheet.
+- **Headings** ([#18](https://github.com/a11yland/Hissi-Web/issues/18)). The "In der Nähe" and "Letzte Suchen" section titles on the search screen are not marked as headers, so the VoiceOver rotor skips them.
+- **Contrast** ([#19](https://github.com/a11yland/Hissi-Web/issues/19)). The refresh error on the favorites list is drawn over the rows without a background, so its contrast depends on what is underneath. The watch colour constants are not covered by `PaletteTests`.
 - **iPhone Duo, unverified**. Pose changes can't be scripted in the simulator, so the inner display (portrait and landscape) and the partially folded poses have only been checked by hand in Device Hub, never with VoiceOver; the outer display runs through the screenshot test. Not yet tracked as an issue.
-- **Feedback** ([#11](https://github.com/a11yland/Hissi-iOS/issues/11)). The app itself offers no way to report an accessibility problem.
+- **Feedback** ([#20](https://github.com/a11yland/Hissi-Web/issues/20)). The app itself offers no way to report an accessibility problem.
 
 ## Contributor expectations
 
@@ -64,7 +64,7 @@ Found in a code review and not yet covered by #3:
 
 ## Reporting process
 
-Report accessibility problems as an issue on [github.com/a11yland/Hissi-iOS/issues](https://github.com/a11yland/Hissi-iOS/issues). **Every accessibility issue must have the `a11y` label** so it can be found and triaged. Please include:
+Report accessibility problems as an issue on [github.com/a11yland/Hissi-Web/issues](https://github.com/a11yland/Hissi-Web/issues) — the central tracker for both apps and the website. **Every accessibility issue must have the `a11y` label, plus `iOS` for this app,** so it can be found and triaged. Please include:
 
 - device and system version (iPhone, iPad, Mac or Apple Watch)
 - the assistive technology or setting in use (for example VoiceOver, Voice Control, text size)
