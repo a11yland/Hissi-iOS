@@ -10,11 +10,13 @@ private let seedJSON = Data("""
  {"id":"6696","inventoryId":"5279","stationId":"900130002","stationName":"Pankow (Berlin)","stationModes":[1,2],"region":"berlin","description":"Vorhalle ↔ Bahnsteig U2","latitude":52.567,"longitude":13.412,"sourceName":"BVG","organizationName":"Berliner Verkehrsbetriebe (BVG)"},
  {"id":"6697","stationId":"900130002","stationName":"Pankow (Berlin)","stationModes":[1,2],"region":"berlin","description":"Vorhalle ↔ S-Bahnsteig","sourceName":"BVG","organizationName":"Berliner Verkehrsbetriebe (BVG)"},
  {"id":"3910","inventoryId":"10855569","stationId":"name:Dinslaken Bahnhof","stationName":"Dinslaken Bahnhof","stationModes":[],"region":"nordrhein-westfalen","description":"→ Bahnsteig 2","latitude":51.567681,"longitude":6.738101,"sourceName":"DB FaSta","organizationName":"DB InfraGO"},
- {"id":"4011","stationId":"name:Wernau (N)","stationName":"Wernau (N)","description":"→ Gleis 1"}
+ {"id":"4011","stationId":"name:Wernau (N)","stationName":"Wernau (N)","description":"→ Gleis 1"},
+ {"id":"vrr:de:05112:16580:31","stationId":"de:05112:16580","stationName":"Duisburg Duissern U-Bf","stationModes":[],"region":"nordrhein-westfalen","description":"Straßenebene zum Bahnsteig","latitude":51.43889,"longitude":6.78278,"sourceName":"VRR","organizationName":""}
 ],
 "stations":[
  {"stationId":"900130002","dhid":"de:11000:900130002","name":"Pankow (Berlin)","region":"berlin","latitude":52.5671,"longitude":13.4121},
- {"stationId":"name:Wernau (N)","name":"Wernau (N)","region":"baden-wuerttemberg","latitude":48.6890,"longitude":9.4160}
+ {"stationId":"name:Wernau (N)","name":"Wernau (N)","region":"baden-wuerttemberg","latitude":48.6890,"longitude":9.4160},
+ {"stationId":"de:05112:16580","dhid":"de:05112:16580","name":"Duisburg Duissern U-Bf","region":"nordrhein-westfalen","latitude":51.439212,"longitude":6.782882}
 ],
 "legacyIds":{
  "fasta-10855569":"3910",
@@ -26,14 +28,14 @@ private let seedJSON = Data("""
 @Suite struct SeedCatalogParsingTests {
     @Test func parsesAllRecordsWithOptionalFields() throws {
         let records = SeedCatalog.parse(seedJSON)
-        #expect(records.count == 4)
+        #expect(records.count == 5)
         let pankow = try #require(records.first)
         #expect(pankow.id == "6696")
         #expect(pankow.inventoryId == "5279")
         #expect(pankow.networks == [.sBahn, .uBahn])
         #expect(pankow.transitRegion == .berlin)
         // Missing fields decode to their empty values.
-        let bare = try #require(records.last)
+        let bare = try #require(records.first { $0.id == "4011" })
         #expect(bare.inventoryId == nil)
         #expect(bare.stationModes.isEmpty)
         #expect(bare.region == nil)
@@ -43,9 +45,20 @@ private let seedJSON = Data("""
 
     @Test func parsesStationsAndLegacyIds() {
         let stations = SeedCatalog.parseStations(seedJSON)
-        #expect(stations.map(\.stationId) == ["900130002", "name:Wernau (N)"])
+        #expect(stations.map(\.stationId) == ["900130002", "name:Wernau (N)", "de:05112:16580"])
         #expect(stations[1].dhid == nil)
         #expect(SeedCatalog.parseLegacyIds(seedJSON) == ["fasta-10855569": "3910", "z87ZFWJs5aB2seuYf": "6696"])
+    }
+
+    // A VRR record: its id names the source, its station is the stop's full
+    // DHID (the last segment alone is not unique across municipalities).
+    @Test func parsesVRRRecords() throws {
+        let lift = try #require(SeedCatalog.parse(seedJSON).last)
+        #expect(ElevatorSource(id: lift.id) == .vrr)
+        #expect(lift.stationId == "de:05112:16580")
+        #expect(lift.transitRegion == .nordrheinWestfalen)
+        #expect(lift.networks.isEmpty)
+        #expect(lift.sourceName == "VRR")
     }
 
     @Test func unparseableDataYieldsEmpty() {
@@ -64,6 +77,12 @@ private let seedJSON = Data("""
         let stations = Set(SeedCatalog.parseStations(data).map(\.stationId))
         #expect(records.count > 1000)
         #expect(records.allSatisfy { ElevatorSource(id: $0.id).isLive })
+        // VRR: "vrr:" + the resource id, which starts with its stop's DHID —
+        // the record's station.
+        let vrr = records.filter { ElevatorSource(id: $0.id) == .vrr }
+        #expect(vrr.count > 100)
+        #expect(vrr.allSatisfy { $0.id.hasPrefix("vrr:\($0.stationId):") && $0.stationId.hasPrefix("de:05") })
+        #expect(vrr.allSatisfy { $0.latitude != nil && $0.sourceName == "VRR" })
         #expect(Set(records.map(\.id)).count == records.count)
         #expect(records.allSatisfy { !$0.stationName.isEmpty && stations.contains($0.stationId) })
         #expect(records.allSatisfy { $0.transitRegion != nil })
@@ -134,7 +153,7 @@ private let seedJSON = Data("""
 
     @Test func offlineFallbackServesWholeSeedUnknown() {
         let merged = EquipmentCatalog.overlaid(live: [], seed: seed, stations: stations)
-        #expect(merged.map(\.id) == ["6696", "6697", "3910", "4011"])
+        #expect(merged.map(\.id) == ["6696", "6697", "3910", "4011", "vrr:de:05112:16580:31"])
         #expect(merged.allSatisfy { $0.isWorking == nil })
     }
 
