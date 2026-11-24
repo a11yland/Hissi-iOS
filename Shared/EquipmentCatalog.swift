@@ -240,6 +240,7 @@ actor EquipmentCatalog {
                 description: equipment.description.isEmpty ? record.description : equipment.description,
                 isWorking: equipment.isWorking,
                 lastUpdate: equipment.lastUpdate,
+                statusSince: equipment.statusSince,
                 sourceName: equipment.sourceName.isEmpty ? record.sourceName : equipment.sourceName,
                 organizationName: equipment.organizationName.isEmpty
                     ? record.organizationName : equipment.organizationName,
@@ -292,6 +293,7 @@ actor EquipmentCatalog {
             description: equipment.description,
             isWorking: equipment.isWorking,
             lastUpdate: equipment.lastUpdate,
+            statusSince: equipment.statusSince,
             sourceName: equipment.sourceName,
             organizationName: equipment.organizationName,
             stateExplanation: equipment.stateExplanation,
@@ -339,6 +341,7 @@ actor EquipmentCatalog {
             description: equipment.description,
             isWorking: equipment.isWorking,
             lastUpdate: equipment.lastUpdate,
+            statusSince: equipment.statusSince,
             sourceName: equipment.sourceName.isEmpty
                 ? (unanimous(records.map(\.sourceName)) ?? "") : equipment.sourceName,
             organizationName: equipment.organizationName.isEmpty

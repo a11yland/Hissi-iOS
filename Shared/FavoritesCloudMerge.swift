@@ -38,6 +38,7 @@ nonisolated extension MonitoredElevator {
         identity.isWorking = nil
         identity.lastChecked = nil
         identity.lastUpdated = nil
+        identity.statusSince = nil
         identity.stateExplanation = nil
         return identity
     }
@@ -75,6 +76,7 @@ nonisolated enum FavoritesCloudMerge {
             merged.isWorking = known.isWorking
             merged.lastChecked = known.lastChecked
             merged.lastUpdated = known.lastUpdated
+            merged.statusSince = known.statusSince
             merged.stateExplanation = known.stateExplanation
             return merged
         }

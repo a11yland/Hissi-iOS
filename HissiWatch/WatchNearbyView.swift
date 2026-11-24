@@ -185,6 +185,7 @@ struct WatchNearbyStationView: View {
                 isWorking: record.isWorking,
                 lastChecked: nil,
                 lastUpdated: record.lastUpdate,
+                statusSince: record.statusSince,
                 sourceName: record.sourceName,
                 organizationName: record.organizationName,
                 stateExplanation: record.stateExplanation,

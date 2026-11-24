@@ -92,7 +92,7 @@ private func fetchAllElevators() async -> [MonitoredElevator] {
     // Migrated ids are deliberately not persisted here — the widget mirrors
     // the favorites, the app owns them and persists the migration on its next
     // refresh; the catalog resolves old ids via legacyId either way.
-    let (updated, _) = await ElevatorRefresher.refreshAll(cached)
+    let (updated, _) = await ElevatorRefresher.refreshAll(cached, sources: .statusOnly)
     ElevatorCache.save(updated)
     return updated
 }

@@ -1,0 +1,47 @@
+{
+  "docs": [
+    {
+      "id": 20485,
+      "elevator": [7349],
+      "operational_status": "unknown",
+      "start_date": "2026-06-24T05:32:25.047Z",
+      "end_date": "2026-06-24T12:44:23.502Z"
+    },
+    {
+      "id": 20301,
+      "elevator": [7349],
+      "operational_status": "out_of_service",
+      "start_date": "2026-06-23T08:34:36.070Z",
+      "end_date": "2026-06-24T05:32:25.047Z"
+    },
+    {
+      "id": 20100,
+      "elevator": [7400],
+      "operational_status": "out_of_service",
+      "start_date": "2026-06-20T07:00:00.000Z"
+    },
+    {
+      "id": 19663,
+      "elevator": [7349],
+      "operational_status": "unknown",
+      "start_date": "2026-06-19T10:58:24.291Z",
+      "end_date": "2026-06-23T08:34:36.070Z"
+    },
+    {
+      "id": 19000,
+      "elevator": [7401],
+      "operational_status": "operational",
+      "start_date": "2026-06-01T00:00:00.000Z",
+      "end_date": "2026-06-10T00:00:00.000Z"
+    },
+    {
+      "id": 18000,
+      "elevator": [7400],
+      "operational_status": "unknown",
+      "start_date": "2026-06-18T00:00:00.000Z",
+      "end_date": "2026-06-20T07:00:00.000Z"
+    }
+  ],
+  "hasNextPage": false,
+  "totalPages": 1
+}

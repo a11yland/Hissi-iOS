@@ -8,7 +8,7 @@ class WatchElevatorService: ObservableObject {
     func refresh() async {
         // Favorites live on the phone and arrive via WatchConnectivity. The
         // self-fetch only has the watch's mirrored cache to work from.
-        let (updated, _) = await ElevatorRefresher.refreshAll(ElevatorCache.load())
+        let (updated, _) = await ElevatorRefresher.refreshAll(ElevatorCache.load(), sources: .statusOnly)
         elevators = updated
     }
 }

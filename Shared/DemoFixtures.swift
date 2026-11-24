@@ -51,6 +51,9 @@ nonisolated enum DemoFixtures {
             // Spread the "Stand" times over the last three hours; a
             // disruption is older than that.
             let minutesAgo = isBroken ? 26 * 60 : 8 + (index * 37) % 170
+            // "Seit": the disruption began with its "Stand"; working lifts
+            // have been running for days, an unknown status is recent.
+            let sinceMinutesAgo = isBroken ? minutesAgo : isUnknown ? 2 * 60 : (2 + index % 19) * 1440
             return Equipment(
                 id: record.id,
                 inventoryId: record.inventoryId,
@@ -60,6 +63,7 @@ nonisolated enum DemoFixtures {
                 description: record.description,
                 isWorking: isUnknown ? nil : !isBroken,
                 lastUpdate: isUnknown ? nil : now.addingTimeInterval(-Double(minutesAgo) * 60),
+                statusSince: now.addingTimeInterval(-Double(sinceMinutesAgo) * 60),
                 sourceName: record.sourceName,
                 organizationName: record.organizationName,
                 stateExplanation: isBroken ? explanation(language) : nil,
@@ -84,6 +88,7 @@ nonisolated enum DemoFixtures {
                 isWorking: equipment.isWorking,
                 lastChecked: now,
                 lastUpdated: equipment.lastUpdate,
+                statusSince: equipment.statusSince,
                 stateExplanation: equipment.stateExplanation,
                 latitude: equipment.latitude,
                 longitude: equipment.longitude

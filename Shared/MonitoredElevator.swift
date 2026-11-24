@@ -20,6 +20,9 @@ nonisolated struct MonitoredElevator: Identifiable, Codable, Equatable {
     // `lastUpdate`). Distinct from lastChecked: a fresh poll can still return
     // stale source data.
     var lastUpdated: Date?
+    // When the current status began ("seit …") — a real transition time or
+    // nil, never a guess (AccessibilityCloudClient.statusSince, StatusHistory).
+    var statusSince: Date?
     // accessibility.cloud source/organization for this record, e.g.
     // "BVG Elevators (2025)" / "BVG Berliner Verkehrsbetriebe AöR".
     var sourceName: String = ""
@@ -52,6 +55,7 @@ nonisolated struct MonitoredElevator: Identifiable, Codable, Equatable {
         isWorking: Bool?,
         lastChecked: Date?,
         lastUpdated: Date? = nil,
+        statusSince: Date? = nil,
         sourceName: String = "",
         organizationName: String = "",
         stateExplanation: String? = nil,
@@ -69,6 +73,7 @@ nonisolated struct MonitoredElevator: Identifiable, Codable, Equatable {
         self.isWorking = isWorking
         self.lastChecked = lastChecked
         self.lastUpdated = lastUpdated
+        self.statusSince = statusSince
         self.sourceName = sourceName
         self.organizationName = organizationName
         self.stateExplanation = stateExplanation
@@ -91,6 +96,7 @@ nonisolated struct MonitoredElevator: Identifiable, Codable, Equatable {
         isWorking = try c.decodeIfPresent(Bool.self, forKey: .isWorking)
         lastChecked = try c.decodeIfPresent(Date.self, forKey: .lastChecked)
         lastUpdated = try c.decodeIfPresent(Date.self, forKey: .lastUpdated)
+        statusSince = try c.decodeIfPresent(Date.self, forKey: .statusSince)
         sourceName = try c.decodeIfPresent(String.self, forKey: .sourceName) ?? ""
         organizationName = try c.decodeIfPresent(String.self, forKey: .organizationName) ?? ""
         stateExplanation = try c.decodeIfPresent(String.self, forKey: .stateExplanation)

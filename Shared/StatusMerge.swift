@@ -24,6 +24,7 @@ nonisolated enum StatusMerge {
                 isWorking: elevator.isWorking,
                 lastChecked: elevator.lastChecked,
                 lastUpdated: elevator.lastUpdated,
+                statusSince: elevator.statusSince,
                 sourceName: elevator.sourceName,
                 organizationName: elevator.organizationName,
                 stateExplanation: elevator.stateExplanation,
@@ -37,6 +38,13 @@ nonisolated enum StatusMerge {
         }
         if !equipment.stationName.isEmpty { updated.stationName = equipment.stationName }
         if !equipment.description.isEmpty { updated.elevatorDescription = equipment.description }
+        // "Seit": a record that names the transition wins. One that doesn't
+        // (the catalog cache carries no span history) says nothing about it —
+        // while the status is unchanged the favorite keeps what it knows,
+        // a changed status drops it rather than dating the new status with
+        // the old one's start.
+        updated.statusSince = equipment.statusSince
+            ?? (equipment.isWorking == elevator.isWorking ? elevator.statusSince : nil)
         updated.isWorking = equipment.isWorking
         updated.lastChecked = Date()
         updated.lastUpdated = equipment.lastUpdate

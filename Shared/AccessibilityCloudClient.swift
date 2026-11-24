@@ -73,6 +73,11 @@ nonisolated enum AccessibilityCloudClient {
         let description: String
         let isWorking: Bool?
         let lastUpdate: Date?
+        // When the current status began — a real transition time (the
+        // current span's start, or the end of the span before a span-less
+        // stretch, StatusHistory), never a record-touch time. Nil when the
+        // source doesn't say: "seit …" is then left out, not guessed.
+        let statusSince: Date?
         let sourceName: String
         let organizationName: String
         let stateExplanation: String?
@@ -97,6 +102,7 @@ nonisolated enum AccessibilityCloudClient {
             description: String,
             isWorking: Bool?,
             lastUpdate: Date?,
+            statusSince: Date? = nil,
             sourceName: String = "",
             organizationName: String = "",
             stateExplanation: String? = nil,
@@ -114,6 +120,7 @@ nonisolated enum AccessibilityCloudClient {
             self.description = description
             self.isWorking = isWorking
             self.lastUpdate = lastUpdate
+            self.statusSince = statusSince
             self.sourceName = sourceName
             self.organizationName = organizationName
             self.stateExplanation = stateExplanation
@@ -238,6 +245,30 @@ nonisolated enum AccessibilityCloudClient {
             return nil
         }
         return joinTargeted(parseElevators(data).items)
+    }
+
+    // MARK: - Status history (the "seit" of span-less elevators)
+
+    // The most recent spans of the given elevators, newest first, in one
+    // request — closed ones included, which no other fetch asks for. A
+    // working elevator has no current span; when it came back is the end of
+    // its last one (StatusHistory.since). One page: the collection averages
+    // ~6 spans per elevator, so a page holds the latest span of far more
+    // favorites than anyone keeps; an elevator crowded out of it simply stays
+    // undated. Nil on failure.
+    static func fetchLatestSpans(elevatorIds: Set<String>, now: Date = Date()) async -> [StatusSpan]? {
+        let ids = elevatorIds.filter { Int($0) != nil }.sorted()
+        guard !ids.isEmpty else { return [] }
+        #if DEBUG
+        if DemoMode.isActive { return [] }
+        #endif
+        let query = select(["elevator"], ["operational_status"], ["start_date"], ["end_date"]) + [
+            URLQueryItem(name: "where[elevator][in]", value: ids.joined(separator: ",")),
+            URLQueryItem(name: "where[start_date][less_than_equal]", value: ISO8601DateFormatter().string(from: now)),
+            URLQueryItem(name: "sort", value: "-start_date"),
+        ]
+        guard let data = await fetchPage(TransitAPI.statusSpans, extraQuery: query, page: 1) else { return nil }
+        return parseStatusSpans(data).items
     }
 
     // The populated span carries every span field by default — trim it to
@@ -448,12 +479,23 @@ nonisolated enum AccessibilityCloudClient {
                 // "Stand": when the status last changed (span start), not
                 // when the record was last touched.
                 lastUpdate: span?.start ?? span?.lastUpdate ?? elevator.lastUpdate,
+                statusSince: statusSince(isWorking: isWorking, span: span, now: now),
                 stateExplanation: isWorking == false ? span?.reason : nil,
                 latitude: elevator.latitude ?? stop?.latitude,
                 longitude: elevator.longitude ?? stop?.longitude,
                 region: TransitRegion.from(originalPlaceInfoId: stop?.originalId)
             )
         }
+    }
+
+    // Since when the current status holds, as far as the current span says:
+    // its start — but only when the span agrees with the status it is quoted
+    // for (an elevator back in service whose outage span upstream hasn't
+    // closed yet says nothing about when it came back) and has begun. No
+    // fallback to an `updatedAt`: that is when a record was touched.
+    static func statusSince(isWorking: Bool?, span: StatusSpan?, now: Date = Date()) -> Date? {
+        guard let span, span.isWorking == isWorking, let start = span.start, start <= now else { return nil }
+        return start
     }
 
     // The span that covers `now`: already started (or no start) and not yet
