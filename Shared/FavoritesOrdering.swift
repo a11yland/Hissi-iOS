@@ -4,10 +4,15 @@ import Foundation
 // order — every mirror (widget, watch, complications, Shortcuts) reads the
 // favorites array as it stands, so ordering is applied once when writing and
 // nowhere else. The mode only decides what happens on the next write:
-// `.recentlyAdded` re-derives the order from `addedAt`, `.manual` leaves the
+// `.brokenFirst` re-derives the order from the statuses (so every refresh
+// is such a write), `.recentlyAdded` from `addedAt`, `.manual` leaves the
 // order the user dragged into place alone.
 nonisolated enum FavoritesOrder: String, CaseIterable, Sendable {
-    // Default: newest favorite first.
+    // Default: what is out of service stands on top — the elevators one
+    // opens the app for. Then unknown, then working; within each group the
+    // newest favorite first.
+    case brokenFirst
+    // The former default: newest favorite first, whatever its status.
     case recentlyAdded
     // Set implicitly the moment the user drags a row — nobody has to pick it
     // first, and a manual order that a re-sort would silently undo is not
@@ -15,10 +20,11 @@ nonisolated enum FavoritesOrder: String, CaseIterable, Sendable {
     // the state the list is in, not an action to take.
     case manual
 
-    static let `default` = FavoritesOrder.recentlyAdded
+    static let `default` = FavoritesOrder.brokenFirst
 
     var label: String {
         switch self {
+        case .brokenFirst:   String(localized: "Störungen zuerst")
         case .recentlyAdded: String(localized: "Zuletzt hinzugefügt")
         case .manual:        String(localized: "Eigene Reihenfolge")
         }
@@ -44,18 +50,28 @@ nonisolated enum FavoritesOrdering {
             .map(\.element)
     }
 
+    // Disruptions first, then unknown, then working (ElevatorRanking —
+    // the same urgency order the widgets and the Live Activity cut their
+    // rows by); within each group newest first. Stable.
+    static func byBrokenFirst(_ favorites: [MonitoredElevator]) -> [MonitoredElevator] {
+        ElevatorRanking.byUrgency(byRecentlyAdded(favorites))
+    }
+
     // Applies `order` to a favorites list. `.manual` is the identity — the
     // stored order already is the user's order.
     static func apply(_ order: FavoritesOrder, to favorites: [MonitoredElevator]) -> [MonitoredElevator] {
         switch order {
+        case .brokenFirst:   byBrokenFirst(favorites)
         case .recentlyAdded: byRecentlyAdded(favorites)
         case .manual:        favorites
         }
     }
 
-    // A new favorite goes to the top in both modes: it is the most recent one,
-    // and in a manually sorted list a fresh entry is easier to move from a
-    // visible position than to find at the bottom.
+    // A new favorite goes to the top: it is the most recent one, and in a
+    // manually sorted list a fresh entry is easier to move from a visible
+    // position than to find at the bottom. (In `.brokenFirst` the writer
+    // applies the order afterwards, which puts it on top of its status
+    // group.)
     static func inserting(
         _ elevator: MonitoredElevator,
         into favorites: [MonitoredElevator],

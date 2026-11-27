@@ -157,6 +157,11 @@ struct WhatsNewSheet: View {
                 title: "Wie lange schon",
                 detail: "Gestörte Aufzüge zeigen, seit wann sie außer Betrieb sind – auch in Widgets und im Live-Status."
             )
+            FeatureRow(
+                symbol: "arrow.up.arrow.down",
+                title: "Störungen zuerst",
+                detail: "Aufzüge außer Betrieb stehen in deinen Favoriten jetzt oben. Die bisherige Reihenfolge findest du im Sortieren-Menü."
+            )
         default:
             EmptyView()
         }

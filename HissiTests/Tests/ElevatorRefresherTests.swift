@@ -93,6 +93,7 @@ private actor CallLog {
             "legacyFavoritesRemovalNoticePending",
             "favoritesOrder",
             "favoritesAddedAtBackfilled",
+            "favoritesOrderBrokenFirstAdopted",
         ] { defaults.removeObject(forKey: key) }
     }
 
@@ -155,14 +156,76 @@ private actor CallLog {
         #expect(FavoritesStore.load().map(\.id) == ["456", "6225"])
     }
 
-    @Test func defaultsToRecentlyAddedAndPrepends() {
+    @Test func defaultsToBrokenFirstAndPrependsWithinTheStatusGroup() {
         reset()
         defer { reset() }
-        #expect(FavoritesStore.order == .recentlyAdded)
+        #expect(FavoritesStore.order == .brokenFirst)
         FavoritesStore.add(favorite(id: "1"), now: reference)
         FavoritesStore.add(favorite(id: "2"), now: reference.addingTimeInterval(60))
         #expect(FavoritesStore.load().map(\.id) == ["2", "1"])
         #expect(FavoritesStore.load().allSatisfy { $0.addedAt != nil })
+    }
+
+    // A new favorite goes on top of its status group, not above a broken one.
+    @Test func brokenFirstKeepsBrokenFavoritesAboveANewWorkingOne() {
+        reset()
+        defer { reset() }
+        var broken = favorite(id: "broken")
+        broken.isWorking = false
+        FavoritesStore.add(broken, now: reference)
+        FavoritesStore.add(favorite(id: "working"), now: reference.addingTimeInterval(60))
+        #expect(FavoritesStore.load().map(\.id) == ["broken", "working"])
+    }
+
+    // After a refresh the statuses decide again — in the store too, so the
+    // widget and the next launch see the displayed order.
+    @Test func refreshReordersBrokenFirstAndOnlyThat() {
+        reset()
+        defer { reset() }
+        FavoritesStore.add(favorite(id: "1"), now: reference)
+        FavoritesStore.add(favorite(id: "2"), now: reference.addingTimeInterval(60))
+        FavoritesStore.add(favorite(id: "3"), now: reference.addingTimeInterval(120))
+        #expect(FavoritesStore.load().map(\.id) == ["3", "2", "1"])
+
+        // The refresh finds "1" out of service.
+        var refreshed = FavoritesStore.load()
+        refreshed[2].isWorking = false
+        #expect(FavoritesStore.reordered(afterRefresh: refreshed).map(\.id) == ["1", "3", "2"])
+        #expect(FavoritesStore.load().map(\.id) == ["1", "3", "2"])
+
+        // A favorite added while the refresh ran is not in its result: it
+        // keeps its place after the refreshed ones.
+        FavoritesStore.setManualOrder(FavoritesStore.load() + [favorite(id: "late")])
+        FavoritesStore.setOrder(.brokenFirst)
+        _ = FavoritesStore.reordered(afterRefresh: refreshed)
+        #expect(FavoritesStore.load().map(\.id).last == "late")
+
+        // Other modes are left exactly as they are.
+        FavoritesStore.setManualOrder(Array(FavoritesStore.load().reversed()))
+        let manual = FavoritesStore.load().map(\.id)
+        #expect(FavoritesStore.reordered(afterRefresh: refreshed).map(\.id) == refreshed.map(\.id))
+        #expect(FavoritesStore.load().map(\.id) == manual)
+    }
+
+    // The upgrade moves a list in the former default to the new one — once;
+    // a manual order, or a later choice of "Zuletzt hinzugefügt", stays.
+    @Test func upgradeAdoptsBrokenFirstOnceAndKeepsManualOrders() {
+        reset()
+        defer { reset() }
+        FavoritesStore.add(favorite(id: "1"), now: reference)
+        FavoritesStore.setOrder(.recentlyAdded)
+        FavoritesStore.adoptBrokenFirstDefaultIfNeeded()
+        #expect(FavoritesStore.order == .brokenFirst)
+        // Chosen afterwards: it is the user's now.
+        FavoritesStore.setOrder(.recentlyAdded)
+        FavoritesStore.adoptBrokenFirstDefaultIfNeeded()
+        #expect(FavoritesStore.order == .recentlyAdded)
+
+        reset()
+        FavoritesStore.add(favorite(id: "1"), now: reference)
+        FavoritesStore.setManualOrder(FavoritesStore.load())
+        FavoritesStore.adoptBrokenFirstDefaultIfNeeded()
+        #expect(FavoritesStore.order == .manual)
     }
 
     @Test func manualOrderSurvivesAFurtherAdd() {

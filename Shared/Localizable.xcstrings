@@ -326,6 +326,16 @@
         }
       }
     },
+    "Aufzüge außer Betrieb stehen in deinen Favoriten jetzt oben. Die bisherige Reihenfolge findest du im Sortieren-Menü." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elevators that are out of service now come first in your favorites. You can find the previous order in the sort menu."
+          }
+        }
+      }
+    },
     "DB-Aufzüge in ganz Deutschland" : {
       "localizations" : {
         "en" : {
@@ -1306,6 +1316,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Station names and locations come from DELFI e.V. via gtfs.de (CC BY 4.0) and VBB Verkehrsverbund Berlin-Brandenburg GmbH (CC BY)."
+          }
+        }
+      }
+    },
+    "Störungen zuerst" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disruptions first"
           }
         }
       }

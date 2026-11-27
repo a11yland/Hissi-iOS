@@ -49,8 +49,37 @@ import Foundation
         #expect(FavoritesOrdering.apply(.recentlyAdded, to: list).map(\.id) == ["b", "a"])
     }
 
-    @Test func defaultOrderIsRecentlyAdded() {
-        #expect(FavoritesOrder.default == .recentlyAdded)
+    @Test func defaultOrderIsBrokenFirst() {
+        #expect(FavoritesOrder.default == .brokenFirst)
+        // The former default stays selectable, next to the manual order.
+        #expect(FavoritesOrder.allCases == [.brokenFirst, .recentlyAdded, .manual])
+    }
+
+    // Out of service on top, then unknown, then working — and within each
+    // group the newest favorite first.
+    @Test func brokenFirstGroupsByStatusThenNewestFirst() {
+        func status(_ id: String, _ isWorking: Bool?, minutes: Double) -> MonitoredElevator {
+            var elevator = favorite(id, addedAt: reference.addingTimeInterval(minutes * 60))
+            elevator.isWorking = isWorking
+            return elevator
+        }
+        let list = [
+            status("working-new", true, minutes: 50),
+            status("broken-old", false, minutes: 10),
+            status("unknown", nil, minutes: 40),
+            status("working-old", true, minutes: 20),
+            status("broken-new", false, minutes: 30),
+        ]
+        #expect(FavoritesOrdering.apply(.brokenFirst, to: list).map(\.id)
+            == ["broken-new", "broken-old", "unknown", "working-new", "working-old"])
+        // With every lift working it is simply newest first.
+        let allWorking = list.map { elevator -> MonitoredElevator in
+            var working = elevator
+            working.isWorking = true
+            return working
+        }
+        #expect(FavoritesOrdering.byBrokenFirst(allWorking).map(\.id)
+            == FavoritesOrdering.byRecentlyAdded(allWorking).map(\.id))
     }
 
     // MARK: - Adding

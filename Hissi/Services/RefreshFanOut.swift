@@ -14,6 +14,11 @@ enum RefreshFanOut {
         _ elevators: [MonitoredElevator],
         previous: [MonitoredElevator]? = nil
     ) async {
+        // The statuses are fresh: a status-dependent order ("Gestörte
+        // zuerst") is re-derived here, once, for every refresh path — the
+        // app's, the background task's, a Shortcut's — so cache, widgets
+        // and watch all get the list in the order it is displayed in.
+        let elevators = FavoritesStore.reordered(afterRefresh: elevators)
         ElevatorCache.save(elevators)
         WidgetCenter.shared.reloadAllTimelines()
         WatchSync.shared.push(elevators)
