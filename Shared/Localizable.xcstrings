@@ -166,6 +166,16 @@
         }
       }
     },
+    "Aktualisierte Aufzugsdaten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updated elevator data"
+          }
+        }
+      }
+    },
     "Alle Aufzüge einer Station mit Live-Status." : {
       "localizations" : {
         "en" : {
@@ -332,6 +342,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Elevators that are out of service now come first in your favorites. You can find the previous order in the sort menu."
+          }
+        }
+      }
+    },
+    "Bei deinen Favoriten steht jetzt zuverlässig dabei, warum ein Aufzug außer Betrieb ist." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your favorites now reliably say why an elevator is out of service."
           }
         }
       }
@@ -576,6 +596,16 @@
         }
       }
     },
+    "Einige Aufzüge haben genauere Beschreibungen, zum Beispiel mit Straßenname und Fahrtrichtung." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Some elevators have more precise descriptions, for example with the street name and the direction of travel."
+          }
+        }
+      }
+    },
     "Einstellungen öffnen" : {
       "localizations" : {
         "en" : {
@@ -733,6 +763,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Elevators that are out of service show for how long – in widgets and the live status too."
+          }
+        }
+      }
+    },
+    "Grund der Störung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reason for the disruption"
           }
         }
       }
