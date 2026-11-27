@@ -1333,6 +1333,19 @@
     "VBB" : {
       "shouldTranslate" : false
     },
+    "VRR Open Data" : {
+      "shouldTranslate" : false
+    },
+    "Weitere Aufzüge und Haltestellen in Nordrhein-Westfalen stammen vom Verkehrsverbund Rhein-Ruhr (VRR), CC BY 4.0." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Further elevators and stops in North Rhine-Westphalia come from Verkehrsverbund Rhein-Ruhr (VRR), CC BY 4.0."
+          }
+        }
+      }
+    },
     "Widgets und Live-Status listen nur Aufzüge, die nicht in Betrieb sind. Läuft alles, zeigen sie das Hissi-Zeichen." : {
       "localizations" : {
         "en" : {

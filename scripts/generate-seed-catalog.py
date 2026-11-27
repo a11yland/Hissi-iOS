@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """Generate the bundled seed catalog (format version 2).
 
-transit.accessibility.cloud is the only source of elevators: every seed
-record is a live elevator under its live numeric id, so a favorite created
+Every seed record is a live elevator under its live id, so a favorite created
 from the seed (first launch, offline search) is a live favorite from the
-start. The seed backfills what the app's depth=0 list fetch doesn't carry —
+start. Two sources supply elevators: transit.accessibility.cloud (numeric
+ids) and the VRR infrastructure API (ids `vrr:<resourceId>`; the apps derive
+the source from the id, ElevatorSource). The seed backfills what the app's depth=0 list fetch doesn't carry —
 station, region and transport modes for elevators the platform hasn't linked
 to a stop place, source and operator names, station coordinates — and
 carries the search when there is no network.
@@ -28,10 +29,20 @@ Sources:
   Datenlizenz Deutschland – Namensnennung 2.0): the region of a gtfs.de
   station, which has no DHID to read it from. Only the state's name reaches
   the seed.
+- **VRR infrastructure API** (MIP, https://www.opendata-oepnv.de/ht/de/api,
+  CC BY 4.0, public API key from that page): the elevators of the municipal
+  networks in Nordrhein-Westfalen (Stadtbahn, U-Bahn, Schwebebahn — ~275 at
+  ~146 stops on 2026-11-24) that transit.accessibility.cloud doesn't carry,
+  with their stops (DHID, name, coordinate). Escalators and ramps are left
+  out. The apps fetch the status from the same endpoint; only identity and
+  place reach the seed. `VRR_API_KEY` overrides the key. Unlike the other
+  sources, a failed or implausibly short VRR answer does not fail the run:
+  the bundled seed's VRR records are carried over instead.
 
 Station names and coordinates in the seed come from DELFI e.V. (via
-gtfs.de, CC BY 4.0) and VBB Verkehrsverbund Berlin-Brandenburg GmbH (CC BY)
-— both apps name them in their about screens.
+gtfs.de, CC BY 4.0) and VBB Verkehrsverbund Berlin-Brandenburg GmbH (CC BY),
+the NRW elevators and their stops from VRR (Verkehrsverbund Rhein-Ruhr AöR,
+CC BY 4.0) — both apps name them in their about screens.
 
 Downloads are cached for a week in the temp directory; `VBB_GTFS_ZIP`,
 `GTFS_DE_RV_ZIP`, `GTFS_DE_FV_ZIP` and `STATES_GEOJSON` point at local copies
@@ -73,6 +84,13 @@ BUNDLED = DEFAULT_OUTPUT  # carry-over source for legacyIds
 FORMAT_VERSION = 2
 
 TRANSIT_HOST = "https://transit.accessibility.cloud"
+
+# The VRR infrastructure API ("MIP"). The key is printed on
+# https://www.opendata-oepnv.de/ht/de/api — public, not a secret.
+VRR_INFRASTRUCTURE_URL = "https://mip.vrr.de/vrr-api/rest/stop/all/infrastructure"
+VRR_PUBLIC_API_KEY = "F3E46748D2DED"
+VRR_ID_PREFIX = "vrr:"
+VRR_SOURCE_NAME = "VRR"
 TRANSIT_PAGE_SIZE = 1000
 
 # The `feeds` collection is closed to app tokens (403), so the elevators
@@ -423,6 +441,152 @@ class StateLookup:
         return in_ring(polygon[0]) and not any(in_ring(hole) for hole in polygon[1:])
 
 
+# MARK: - VRR
+
+def seed_sort_key(elevator_id: str) -> tuple:
+    """Numeric (transit.accessibility.cloud) ids first, in numeric order;
+    other sources after them, by id."""
+    return (0, int(elevator_id), "") if elevator_id.isdigit() else (1, 0, elevator_id)
+
+
+def fetch_vrr() -> list[dict] | None:
+    """All VRR stops with their infrastructure; None when the API fails —
+    the caller then keeps what the bundled seed has."""
+    key = (os.environ.get("VRR_API_KEY") or VRR_PUBLIC_API_KEY).strip()
+    req = urllib.request.Request(VRR_INFRASTRUCTURE_URL, headers={
+        "User-Agent": "Hissi-seed-generator",
+        "x-api-key": key,
+    })
+    for attempt in range(3):
+        try:
+            with urllib.request.urlopen(req, timeout=60) as resp:
+                data = json.load(resp)
+            return data if isinstance(data, list) else None
+        except (urllib.error.URLError, TimeoutError, ValueError) as error:
+            print(f"  VRR request failed ({error})", file=sys.stderr)
+            if isinstance(error, urllib.error.HTTPError) and error.code < 500:
+                return None
+        time.sleep(5 * (attempt + 1))
+    return None
+
+
+def vrr_station_name(name: str, place: str) -> str:
+    """The stop's name with its town spelled out. The feed is not uniform:
+    most names start with the town ("Duisburg Duissern U-Bf"), some
+    abbreviate it ("D-Kirchplatz U", "GE Heinrich-König-Platz"), a few carry
+    none ("St. Anna Krankenhaus")."""
+    name = " ".join((name or "").split())
+    place = " ".join((place or "").split())
+    if not place:
+        return name
+    if name.startswith(place):
+        # "Bielefeld, Nordpark" → "Bielefeld Nordpark"
+        return " ".join((place + " " + name[len(place):].lstrip(" ,")).split())
+    abbreviation = re.match(r"([A-ZÄÖÜ]{1,3})[- ]", name)
+    if abbreviation and fold_station(place).startswith(fold_station(abbreviation.group(1))):
+        return f"{place} {name[abbreviation.end():].lstrip()}"
+    return f"{place} {name}"
+
+
+def fold_station(name: str) -> str:
+    """Station names compared loosely: case, diacritics, punctuation and the
+    Hbf/Hauptbahnhof, Bf/Bahnhof spellings folded away."""
+    folded = "".join(c for c in unicodedata.normalize("NFD", name) if not unicodedata.combining(c)).lower()
+    folded = folded.replace("ß", "ss").replace("hauptbahnhof", "hbf")
+    folded = re.sub(r"\b(bahnhof|bhf|bf)\b", "", folded)
+    return re.sub(r"[^a-z0-9]", "", folded)
+
+
+def vrr_records(stops: list[dict], known_stations: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Seed records and stations for the VRR elevators. `known_stations` are
+    the stations already in this generation: a VRR stop standing at one of
+    them under the same (folded) name takes its spelling, so the apps — which
+    group by station name — show one station ("Wuppertal Hbf": DB's lifts and
+    the Schwebebahn's)."""
+    records: dict[str, dict] = {}
+    stations: dict[str, dict] = {}
+    adopted = misplaced = 0
+    for stop in stops:
+        dhid = (stop.get("ifopt") or "").strip()
+        lifts = [i for i in stop.get("infrastructure") or []
+                 if i.get("type") == "Aufzug" and (i.get("resourceId") or "").strip()]
+        if not dhid or not lifts or stop.get("latitude") is None or stop.get("longitude") is None:
+            continue
+        stop_point = (stop["latitude"], stop["longitude"])
+        name = vrr_station_name(stop.get("name"), stop.get("place"))
+        for known in known_stations:
+            if (fold_station(known["name"]) == fold_station(name)
+                    and haversine_m(stop_point, (known["latitude"], known["longitude"])) <= ASSIGN_RADIUS_M):
+                if known["name"] != name:
+                    print(f"    {name} → {known['name']} (existing station)", file=sys.stderr)
+                name = known["name"]
+                adopted += 1
+                break
+        region = region_of_dhid(dhid)
+        if region is None:
+            print(f"  VRR stop without region: {dhid} {name}", file=sys.stderr)
+        station = {"stationId": dhid, "dhid": dhid, "name": name, "region": region,
+                   "latitude": round(stop_point[0], 6), "longitude": round(stop_point[1], 6)}
+        stations[dhid] = {k: v for k, v in station.items() if v is not None}
+        for lift in lifts:
+            # The area label ("Allgemeiner Bereich", "SWB_O") says nothing;
+            # the description is what tells two lifts apart.
+            description = " ".join((lift.get("description") or "").split())
+            # The lift's own coordinate — unless it is missing or plainly
+            # wrong (the feed places some lifts kilometres away, a few in
+            # the Norwegian Sea): then the stop's.
+            point = stop_point
+            if lift.get("latitude") is not None and lift.get("longitude") is not None:
+                own = (lift["latitude"], lift["longitude"])
+                if haversine_m(own, stop_point) <= ASSIGN_RADIUS_M:
+                    point = own
+                else:
+                    misplaced += 1
+            record = {
+                "id": VRR_ID_PREFIX + lift["resourceId"].strip(),
+                "stationId": dhid,
+                "stationName": name,
+                "stationModes": [],
+                "region": region,
+                "description": description,
+                "latitude": round(point[0], 6),
+                "longitude": round(point[1], 6),
+                "sourceName": VRR_SOURCE_NAME,
+                "organizationName": "",
+            }
+            record = {k: v for k, v in record.items() if v is not None}
+            # The feed lists a lift twice now and then — the fuller
+            # description wins.
+            previous = records.get(record["id"])
+            if previous is None or len(description) > len(previous["description"]):
+                records[record["id"]] = record
+    print(f"  {len(records)} VRR elevators at {len(stations)} stops, "
+          f"{adopted} stops under an existing station's name, "
+          f"{misplaced} lift coordinates further than {ASSIGN_RADIUS_M} m from their stop replaced by the stop's")
+    return list(records.values()), [stations[k] for k in sorted(stations)]
+
+
+def vrr_block(bundled: dict | None, known_stations: list[dict]) -> tuple[list[dict], list[dict]]:
+    """The VRR part of the seed — fresh, or carried over from the bundled
+    seed when the API fails or answers with less than half of what the seed
+    knows (an outage must not turn into a pull request deleting NRW)."""
+    carried = [r for r in (bundled or {}).get("elevators", []) if r["id"].startswith(VRR_ID_PREFIX)]
+    carried_ids = {r["stationId"] for r in carried}
+    carried_stations = [s for s in (bundled or {}).get("stations", []) if s["stationId"] in carried_ids]
+    print("Fetching the VRR infrastructure API…")
+    stops = fetch_vrr()
+    if stops is not None:
+        records, stations = vrr_records(stops, known_stations)
+        if len(records) * 2 >= len(carried):
+            return records, stations
+        print(f"  warning: VRR answered with {len(records)} elevators, the bundled seed has "
+              f"{len(carried)} — keeping the bundled ones", file=sys.stderr)
+    else:
+        print(f"  warning: VRR unavailable — keeping the bundled seed's {len(carried)} VRR elevators",
+              file=sys.stderr)
+    return carried, carried_stations
+
+
 # MARK: - Build
 
 def build(token: str, bundled: dict | None) -> dict:
@@ -565,6 +729,13 @@ def build(token: str, bundled: dict | None) -> dict:
         }
         station_list.append({k: v for k, v in entry.items() if v is not None})
 
+    # Legacy ids only ever point at transit.accessibility.cloud records.
+    legacy = legacy_ids(bundled, elevators, records)
+
+    vrr_elevators, vrr_stations = vrr_block(bundled, station_list)
+    records = records + vrr_elevators
+    station_list = sorted(station_list + vrr_stations, key=lambda s: s["stationId"])
+
     report_name_collisions(station_list)
     print(f"  {len(records)} elevators at {len(station_list)} stations, "
           f"regions: {dict(Counter(r.get('region') for r in records).most_common())}")
@@ -572,9 +743,9 @@ def build(token: str, bundled: dict | None) -> dict:
     return {
         "version": FORMAT_VERSION,
         "generatedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "elevators": sorted(records, key=lambda r: int(r["id"])),
+        "elevators": sorted(records, key=lambda r: seed_sort_key(r["id"])),
         "stations": station_list,
-        "legacyIds": legacy_ids(bundled, elevators, records),
+        "legacyIds": legacy,
     }
 
 
