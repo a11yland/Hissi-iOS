@@ -1,0 +1,156 @@
+[
+  {
+    "ifopt": "de:05112:16580",
+    "subnet": "OPNV / SPNV",
+    "name": "Duisburg Duissern U-Bf",
+    "place": "Duisburg",
+    "latitude": 51.439212,
+    "longitude": 6.782882,
+    "infrastructure": [
+      {
+        "resourceId": "de:05112:16580:44",
+        "type": "Fahrtreppe",
+        "name": "Allgemeiner Bereich",
+        "description": "Verteilerebene (abwärts) zum Bahnsteig",
+        "emsText": null,
+        "latitude": null,
+        "longitude": null,
+        "state": { "timestamp": "2026-06-10T04:19:17.000Z", "state": "in Ordnung", "description": "" }
+      },
+      {
+        "resourceId": "de:05112:16580:31",
+        "type": "Aufzug",
+        "name": "Allgemeiner Bereich",
+        "description": "Straßenebene (nahe Eingang Duissernplatz) zum Bahnsteig",
+        "emsText": null,
+        "latitude": 51.43889,
+        "longitude": 6.78278,
+        "state": { "timestamp": "2026-05-28T14:19:06.000Z", "state": "in Ordnung", "description": "Normalbetrieb" }
+      }
+    ]
+  },
+  {
+    "ifopt": "de:05111:18250",
+    "subnet": "OPNV / SPNV",
+    "name": "D-Kirchplatz U",
+    "place": "Düsseldorf",
+    "latitude": 51.213707,
+    "longitude": 6.774519,
+    "infrastructure": [
+      {
+        "resourceId": "de:05111:18250:31",
+        "type": "Aufzug",
+        "name": "AZ",
+        "description": "Zugang zur Verteilerebene",
+        "emsText": null,
+        "latitude": 51.21375,
+        "longitude": 6.7746,
+        "state": { "timestamp": "2026-06-19T22:13:55.000Z", "state": "Störung", "description": "kein Betrieb" }
+      },
+      {
+        "resourceId": "de:05111:18250:32",
+        "type": "Aufzug",
+        "name": "AZ",
+        "description": "zwischen Verteilerebene und den Steigen 1 und 2",
+        "emsText": null,
+        "latitude": null,
+        "longitude": null,
+        "state": {
+          "timestamp": "2026-06-23T10:20:05.000Z",
+          "state": "Störung",
+          "description": "23.06.2026 10:20:05 / Erika Mustermann\nAufzug faehrt nicht nach Stromausfall"
+        }
+      },
+      {
+        "resourceId": "de:05111:18250:33",
+        "type": "Aufzug",
+        "name": "AZ",
+        "description": "Ausgang Fürstenwall",
+        "emsText": null,
+        "latitude": 67.77754,
+        "longitude": 5.123515,
+        "state": null
+      },
+      {
+        "resourceId": "de:05111:18250:34",
+        "type": "Aufzug",
+        "name": "AZ",
+        "description": "Ausgang Kirchplatz",
+        "emsText": null,
+        "latitude": null,
+        "longitude": null,
+        "state": { "timestamp": "2026-06-20T08:00:00.000Z", "state": "Wartung", "description": null }
+      },
+      {
+        "resourceId": "de:05111:18250:61",
+        "type": "Rampe",
+        "name": "AZ",
+        "description": "Rampe zum Bahnsteig",
+        "emsText": null,
+        "latitude": null,
+        "longitude": null,
+        "state": { "timestamp": "2026-06-01T08:00:00.000Z", "state": "in Ordnung", "description": "" }
+      }
+    ]
+  },
+  {
+    "ifopt": "de:05911:5554",
+    "subnet": "OPNV / SPNV",
+    "name": "Bochum  Gesundheitscampus",
+    "place": "Bochum",
+    "latitude": 51.446981,
+    "longitude": 7.258113,
+    "infrastructure": [
+      {
+        "resourceId": "de:05911:5554:31",
+        "type": "Aufzug",
+        "name": "Allgemeiner Bereich",
+        "description": "Run11",
+        "emsText": null,
+        "latitude": 51.44701,
+        "longitude": 7.25816,
+        "state": { "timestamp": "2026-06-11T09:00:00.000Z", "state": "in Ordnung", "description": "" }
+      },
+      {
+        "resourceId": "de:05911:5554:31",
+        "type": "Aufzug",
+        "name": "Run11",
+        "description": "Run11 - Zugang Uni-Center zum Bahnsteig",
+        "emsText": null,
+        "latitude": 51.44701,
+        "longitude": 7.25816,
+        "state": { "timestamp": "2026-06-11T09:00:00.000Z", "state": "in Ordnung", "description": "" }
+      },
+      {
+        "resourceId": "de:05911:5554:32",
+        "type": "Aufzug",
+        "name": "Allgemeiner Bereich",
+        "description": "Bahnsteig Richtung Hustadt",
+        "emsText": null,
+        "latitude": null,
+        "longitude": null,
+        "state": { "timestamp": "2026-08-01T09:00:00.000Z", "state": "Störung", "description": "Stoerung Personbefreiung" }
+      }
+    ]
+  },
+  {
+    "ifopt": "de:05113:9289",
+    "subnet": "OPNV / SPNV",
+    "name": "Essen Hbf",
+    "place": "Essen",
+    "latitude": 51.451351,
+    "longitude": 7.012938,
+    "infrastructure": [
+      {
+        "resourceId": "de:05113:9289:41",
+        "type": "Fahrtreppe",
+        "name": "Allgemeiner Bereich",
+        "description": "Verteilerebene zum Bahnsteig",
+        "emsText": null,
+        "latitude": null,
+        "longitude": null,
+        "state": { "timestamp": "2026-06-10T04:19:17.000Z", "state": "Störung", "description": "" }
+      }
+    ]
+  }
+]
