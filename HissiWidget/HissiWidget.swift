@@ -156,7 +156,9 @@ private func previewElevators(showBroken: Bool) -> [MonitoredElevator] {
             stationName: name,
             elevatorDescription: desc,
             isWorking: working,
-            lastChecked: .now
+            lastChecked: .now,
+            // The gallery preview shows the duration line too.
+            statusSince: working ? nil : Date.now.addingTimeInterval(-26 * 3600)
         )
     }
 }
@@ -309,8 +311,20 @@ struct HissiWidgetListView: View {
                 }
             }
             Spacer()
-            statusText(statusLabel(elevator.isWorking), status)
-                .font(.caption2.weight(.medium))
+            // Status over its duration ("Defekt" / "seit 3 Tagen"), next to
+            // the two-line station block — the row grows no taller. Dated
+            // against the entry, not the wall clock: the tile is a snapshot.
+            VStack(alignment: .trailing, spacing: 0) {
+                statusText(statusLabel(elevator.isWorking), status)
+                    .font(.caption2.weight(.medium))
+                if let since = elevator.statusSinceLabel(now: entry.date) {
+                    Text(since)
+                        .font(.caption2)
+                        .foregroundStyle(Color.hissiTextSecondary)
+                        .lineLimit(1)
+                }
+            }
+            .fixedSize(horizontal: true, vertical: false)
         }
         // One row, one sentence for VoiceOver.
         .accessibilityElement(children: .ignore)
@@ -320,7 +334,7 @@ struct HissiWidgetListView: View {
     private func accessibleRow(_ elevator: MonitoredElevator, status: ElevatorStatus) -> String {
         [elevator.stationName,
          elevator.elevatorDescription.isEmpty ? nil : elevator.elevatorDescription,
-         status.label]
+         status.sentence(since: elevator.shownStatusSince, now: entry.date)]
             .compactMap { $0 }
             .joined(separator: ", ")
     }

@@ -112,6 +112,7 @@ nonisolated enum SearchGrouping {
             isWorking: equipment.isWorking,
             lastChecked: Date(),
             lastUpdated: equipment.lastUpdate,
+            statusSince: equipment.statusSince,
             sourceName: equipment.sourceName,
             organizationName: equipment.organizationName,
             stateExplanation: equipment.stateExplanation,

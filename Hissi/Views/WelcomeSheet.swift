@@ -151,6 +151,29 @@ struct WhatsNewSheet: View {
                 title: "DB-Aufzüge in ganz Deutschland",
                 detail: "Hissi kennt jetzt auch die Aufzüge der Deutschen Bahn an Bahnhöfen außerhalb von Berlin und Brandenburg. Suchergebnisse sind nach Bundesland sortiert."
             )
+        case "1.5.0":
+            // Disruptions first — in the list and in these notes; the data
+            // update is the footnote.
+            FeatureRow(
+                symbol: "arrow.up.arrow.down",
+                title: "Störungen zuerst",
+                detail: "Aufzüge außer Betrieb stehen in deinen Favoriten jetzt oben. Die bisherige Reihenfolge findest du im Sortieren-Menü."
+            )
+            FeatureRow(
+                symbol: "clock",
+                title: "Wie lange schon",
+                detail: "Gestörte Aufzüge zeigen, seit wann sie außer Betrieb sind – auch in Widgets und im Live-Status."
+            )
+            FeatureRow(
+                symbol: "text.bubble",
+                title: "Grund der Störung",
+                detail: "Bei deinen Favoriten steht jetzt zuverlässig dabei, warum ein Aufzug außer Betrieb ist."
+            )
+            FeatureRow(
+                symbol: "arrow.triangle.2.circlepath",
+                title: "Aktualisierte Aufzugsdaten",
+                detail: "Einige Aufzüge haben genauere Beschreibungen, zum Beispiel mit Straßenname und Fahrtrichtung."
+            )
         default:
             EmptyView()
         }

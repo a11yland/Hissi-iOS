@@ -166,6 +166,16 @@
         }
       }
     },
+    "Aktualisierte Aufzugsdaten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Updated elevator data"
+          }
+        }
+      }
+    },
     "Alle Aufzüge einer Station mit Live-Status." : {
       "localizations" : {
         "en" : {
@@ -212,16 +222,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "All monitored elevators in one list."
-          }
-        }
-      }
-    },
-    "am %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "on %@"
           }
         }
       }
@@ -332,6 +332,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Check elevator status"
+          }
+        }
+      }
+    },
+    "Aufzüge außer Betrieb stehen in deinen Favoriten jetzt oben. Die bisherige Reihenfolge findest du im Sortieren-Menü." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elevators that are out of service now come first in your favorites. You can find the previous order in the sort menu."
+          }
+        }
+      }
+    },
+    "Bei deinen Favoriten steht jetzt zuverlässig dabei, warum ein Aufzug außer Betrieb ist." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your favorites now reliably say why an elevator is out of service."
           }
         }
       }
@@ -576,6 +596,16 @@
         }
       }
     },
+    "Einige Aufzüge haben genauere Beschreibungen, zum Beispiel mit Straßenname und Fahrtrichtung." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Some elevators have more precise descriptions, for example with the street name and the direction of travel."
+          }
+        }
+      }
+    },
     "Einstellungen öffnen" : {
       "localizations" : {
         "en" : {
@@ -723,6 +753,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "just now"
+          }
+        }
+      }
+    },
+    "Gestörte Aufzüge zeigen, seit wann sie außer Betrieb sind – auch in Widgets und im Live-Status." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elevators that are out of service show for how long – in widgets and the live status too."
+          }
+        }
+      }
+    },
+    "Grund der Störung" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reason for the disruption"
           }
         }
       }
@@ -1180,6 +1230,116 @@
         }
       }
     },
+    "seit %lld Jahren" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for %lld years"
+          }
+        }
+      }
+    },
+    "seit %lld Min." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for %lld min"
+          }
+        }
+      }
+    },
+    "seit %lld Minuten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for %lld minutes"
+          }
+        }
+      }
+    },
+    "seit %lld Monaten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for %lld months"
+          }
+        }
+      }
+    },
+    "seit %lld Std." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for %lld hr"
+          }
+        }
+      }
+    },
+    "seit %lld Stunden" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for %lld hours"
+          }
+        }
+      }
+    },
+    "seit %lld Tagen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for %lld days"
+          }
+        }
+      }
+    },
+    "seit %lld Wochen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for %lld weeks"
+          }
+        }
+      }
+    },
+    "seit 1 Minute" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for 1 minute"
+          }
+        }
+      }
+    },
+    "seit 1 Stunde" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for 1 hour"
+          }
+        }
+      }
+    },
+    "seit 1 Tag" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for 1 day"
+          }
+        }
+      }
+    },
     "Stationen in der Nähe öffnest du jetzt über das Standortsymbol neben der Glocke." : {
       "localizations" : {
         "en" : {
@@ -1196,6 +1356,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Station names and locations come from DELFI e.V. via gtfs.de (CC BY 4.0) and VBB Verkehrsverbund Berlin-Brandenburg GmbH (CC BY)."
+          }
+        }
+      }
+    },
+    "Störungen zuerst" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Disruptions first"
           }
         }
       }
@@ -1223,6 +1393,76 @@
     "VBB" : {
       "shouldTranslate" : false
     },
+    "vor %lld Jahren" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld years ago"
+          }
+        }
+      }
+    },
+    "vor %lld Minuten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld minutes ago"
+          }
+        }
+      }
+    },
+    "vor %lld Monaten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld months ago"
+          }
+        }
+      }
+    },
+    "vor %lld Stunden" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld hours ago"
+          }
+        }
+      }
+    },
+    "vor %lld Wochen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld weeks ago"
+          }
+        }
+      }
+    },
+    "vor 1 Minute" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 minute ago"
+          }
+        }
+      }
+    },
+    "vor 1 Stunde" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 hour ago"
+          }
+        }
+      }
+    },
     "Widgets und Live-Status listen nur Aufzüge, die nicht in Betrieb sind. Läuft alles, zeigen sie das Hissi-Zeichen." : {
       "localizations" : {
         "en" : {
@@ -1239,6 +1479,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Widgets show only what's not working"
+          }
+        }
+      }
+    },
+    "Wie lange schon" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "For how long"
           }
         }
       }

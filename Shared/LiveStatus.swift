@@ -54,6 +54,10 @@ nonisolated struct LiveStatusState: Codable, Hashable {
         let stationName: String
         let elevatorDescription: String
         let isWorking: Bool?
+        // Since when the status holds ("seit 3 Tagen"); optional, so a state
+        // encoded before the field existed — a running activity across an
+        // app update — still decodes.
+        var statusSince: Date? = nil
 
         var status: ElevatorStatus { ElevatorStatus(isWorking: isWorking) }
     }
@@ -95,7 +99,8 @@ nonisolated struct LiveStatusState: Codable, Hashable {
                     id: $0.id,
                     stationName: $0.stationName,
                     elevatorDescription: $0.elevatorDescription,
-                    isWorking: $0.isWorking
+                    isWorking: $0.isWorking,
+                    statusSince: $0.statusSince
                 )
             }
         self.checkedAt = checkedAt ?? elevators.compactMap(\.lastChecked).max() ?? Date()

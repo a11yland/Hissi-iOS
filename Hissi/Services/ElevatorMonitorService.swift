@@ -29,9 +29,14 @@ class ElevatorMonitorService: ObservableObject {
         FavoritesStore.migrateIfNeeded()
         FavoritesStore.removeLegacyFavoritesIfNeeded()
         FavoritesStore.backfillAddedAtIfNeeded()
+        FavoritesStore.adoptBrokenFirstDefaultIfNeeded()
         #if DEBUG
         if DemoMode.seedsFavorites {
-            FavoritesStore.replace(with: DemoFixtures.favorites(from: DemoFixtures.catalog()), order: .recentlyAdded)
+            // In the default order, as a fresh install would show them.
+            FavoritesStore.replace(
+                with: FavoritesOrdering.apply(.default, to: DemoFixtures.favorites(from: DemoFixtures.catalog())),
+                order: .default
+            )
         }
         #endif
         // After the one-time migrations, so iCloud never receives a list they
@@ -99,7 +104,9 @@ class ElevatorMonitorService: ObservableObject {
         // Mirror the store's dedup: a seed-id and a live-id favorite of the
         // same elevator collapse into one entry once the bridge unifies them.
         var seen = Set<String>()
-        elevators = updated.filter { seen.insert($0.id).inserted }
+        // "Störungen zuerst" follows the statuses that just arrived (the
+        // fan-out below stores the same order).
+        elevators = FavoritesOrdering.apply(order, to: updated.filter { seen.insert($0.id).inserted })
         if !failed.isEmpty {
             errorMessage = String(localized: "Ein oder mehrere Aufzüge konnten nicht abgerufen werden.")
         }
@@ -155,7 +162,9 @@ class ElevatorMonitorService: ObservableObject {
             // new favorite sits (newest first).
             let now = Date()
             FavoritesStore.add(elevator, now: now)
-            elevators = FavoritesOrdering.inserting(elevator, into: elevators, at: now)
+            elevators = FavoritesOrdering.apply(
+                order, to: FavoritesOrdering.inserting(elevator, into: elevators, at: now)
+            )
             // Search results can carry no status (e.g. a superseded catalog
             // build) — fetch it now instead of waiting for the next cycle.
             if elevator.isWorking == nil {

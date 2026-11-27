@@ -164,6 +164,17 @@ struct LiveStatusRowView: View {
                     .lineLimit(1)
             }
             Spacer(minLength: 4)
+            // The duration stays on the row's one line (the Lock Screen's
+            // height is spent) and yields nothing: the description truncates
+            // first. The expanded island is too narrow — there it is spoken
+            // only.
+            if !compact, let since = row.statusSince {
+                Text(MonitoredElevator.sinceLabel(since))
+                    .font(.caption2)
+                    .foregroundStyle(Color.hissiTextSecondary)
+                    .lineLimit(1)
+                    .fixedSize()
+            }
             Text(row.status.shortLabel)
                 .font(.caption2.weight(.medium))
                 .foregroundStyle(row.status.textColor)
@@ -172,7 +183,7 @@ struct LiveStatusRowView: View {
         .accessibilityLabel(
             [row.stationName,
              row.elevatorDescription.isEmpty ? nil : row.elevatorDescription,
-             row.status.label]
+             row.status.sentence(since: row.statusSince)]
                 .compactMap { $0 }
                 .joined(separator: ", ")
         )
@@ -387,7 +398,8 @@ private extension LiveStatusState {
                 stationName: station,
                 elevatorDescription: description,
                 isWorking: working,
-                lastChecked: .now
+                lastChecked: .now,
+                statusSince: working ? nil : Date.now.addingTimeInterval(-26 * 3600)
             )
         }
         return LiveStatusState(elevators)

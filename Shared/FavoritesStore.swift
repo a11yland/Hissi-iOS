@@ -15,6 +15,7 @@ enum FavoritesStore {
     private static let transitCleanupKey = "favoritesCleanedForTransitAPI"
     private static let removalNoticeKey = "legacyFavoritesRemovalNoticePending"
     private static let orderKey = "favoritesOrder"
+    private static let brokenFirstDefaultKey = "favoritesOrderBrokenFirstAdopted"
     private static let addedAtBackfillKey = "favoritesAddedAtBackfilled"
 
     // One-time cleanup on upgrade: earlier favorites were keyed by
@@ -66,6 +67,42 @@ enum FavoritesStore {
         persist(FavoritesOrdering.apply(order, to: load()))
     }
 
+    // One-time upgrade step (1.5.0): "Störungen zuerst" became the default.
+    // "Zuletzt hinzugefügt" used to be the only automatic order, so having
+    // it stored was never a choice against the new one — such a list moves
+    // to the new default once. A manual order is the user's and stays. The
+    // former order remains selectable in the sort menu.
+    static func adoptBrokenFirstDefaultIfNeeded() {
+        guard !defaults.bool(forKey: brokenFirstDefaultKey) else { return }
+        defaults.set(true, forKey: brokenFirstDefaultKey)
+        guard defaults.string(forKey: orderKey) == FavoritesOrder.recentlyAdded.rawValue else { return }
+        setOrder(.brokenFirst)
+    }
+
+    // After a refresh: the statuses changed, so a status-dependent order
+    // ("Störungen zuerst") has to be re-derived. `refreshed` carries the
+    // fresh statuses; the stored favorites are put into the same order, so
+    // every reader of the store (widget, Shortcuts, the next launch) sees
+    // it. Returns the list as it is to be displayed. Other modes: unchanged.
+    @discardableResult
+    static func reordered(afterRefresh refreshed: [MonitoredElevator]) -> [MonitoredElevator] {
+        guard order == .brokenFirst else { return refreshed }
+        let ordered = FavoritesOrdering.byBrokenFirst(refreshed)
+        let position = Dictionary(
+            ordered.enumerated().map { ($1.id, $0) }, uniquingKeysWith: { first, _ in first }
+        )
+        let stored = load()
+        // Favorites the refresh didn't carry (a toggle that raced it) keep
+        // their place at the end, in their stored order.
+        let sorted = stored.enumerated()
+            .sorted { lhs, rhs in
+                (position[lhs.element.id] ?? Int.max, lhs.offset) < (position[rhs.element.id] ?? Int.max, rhs.offset)
+            }
+            .map(\.element)
+        if sorted.map(\.id) != stored.map(\.id) { persist(sorted) }
+        return ordered
+    }
+
     // The user dragged rows into place: store that order verbatim and stop
     // re-deriving it, otherwise the next write would undo the drag.
     static func setManualOrder(_ elevators: [MonitoredElevator]) {
@@ -112,7 +149,8 @@ enum FavoritesStore {
         let current = load()
         let updated = FavoritesOrdering.inserting(elevator, into: current, at: now)
         guard updated.count != current.count else { return }
-        persist(updated)
+        // "Störungen zuerst": on top of its status group, not of the list.
+        persist(order == .brokenFirst ? FavoritesOrdering.byBrokenFirst(updated) : updated)
     }
 
     static func remove(_ id: String) {

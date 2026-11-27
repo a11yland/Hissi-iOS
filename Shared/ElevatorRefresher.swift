@@ -9,6 +9,11 @@ nonisolated struct StatusSources: Sendable {
     // (EquipmentCatalog.equipment(for:)) — never one request per favorite,
     // never a full catalog build. Keys of the result = the requested ids.
     var equipment: @Sendable (Set<String>) async -> [String: AccessibilityCloudClient.Equipment]
+    // Whether the records come with the bundled seed overlaid — then their
+    // source and operator names are the whole truth and replace what a
+    // favorite carries, an empty name included (StatusMerge). Not so in a
+    // target without the seed (the watch widget extension).
+    var metadataIsComplete = SeedCatalog.isBundled
 
     static let live = StatusSources(
         equipment: { await EquipmentCatalog.shared.equipment(for: $0) }
@@ -38,7 +43,7 @@ nonisolated enum ElevatorRefresher {
                 failed.insert(elevator.id)
                 return elevator
             }
-            return StatusMerge.apply(equipment, to: elevator)
+            return StatusMerge.apply(equipment, to: elevator, replacingMetadata: sources.metadataIsComplete)
         }
         return (updated, failed)
     }

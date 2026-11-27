@@ -60,6 +60,20 @@ import Testing
     }
 
     // An all-clear is the header alone — a working elevator is no news.
+    // "Seit" travels with the row; a state encoded before the field existed
+    // (an activity running across an app update) still decodes.
+    @Test func rowsCarryTheStatusStartAndOldStatesStillDecode() throws {
+        let since = Date(timeIntervalSince1970: 1_800_000_000)
+        var broken = elevator("a", false)
+        broken.statusSince = since
+        let state = LiveStatusState([broken, elevator("b", nil)])
+        #expect(state.rows.map(\.statusSince) == [since, nil])
+
+        let old = #"{"id":"a","stationName":"S","elevatorDescription":"","isWorking":false}"#
+        let row = try JSONDecoder().decode(LiveStatusState.Row.self, from: Data(old.utf8))
+        #expect(row.statusSince == nil)
+    }
+
     @Test func allClearCarriesNoRows() {
         let state = LiveStatusState((1...3).map { elevator("e\($0)", true) })
         #expect(state.verdict == .allWorking)

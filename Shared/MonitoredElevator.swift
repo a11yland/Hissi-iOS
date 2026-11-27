@@ -20,6 +20,10 @@ nonisolated struct MonitoredElevator: Identifiable, Codable, Equatable {
     // `lastUpdate`). Distinct from lastChecked: a fresh poll can still return
     // stale source data.
     var lastUpdated: Date?
+    // When the current status began ("seit …") — a real transition time or
+    // nil, never a guess (AccessibilityCloudClient.statusSince, in `join`).
+    // Shown for disruptions only (shownStatusSince).
+    var statusSince: Date?
     // accessibility.cloud source/organization for this record, e.g.
     // "BVG Elevators (2025)" / "BVG Berliner Verkehrsbetriebe AöR".
     var sourceName: String = ""
@@ -52,6 +56,7 @@ nonisolated struct MonitoredElevator: Identifiable, Codable, Equatable {
         isWorking: Bool?,
         lastChecked: Date?,
         lastUpdated: Date? = nil,
+        statusSince: Date? = nil,
         sourceName: String = "",
         organizationName: String = "",
         stateExplanation: String? = nil,
@@ -69,6 +74,7 @@ nonisolated struct MonitoredElevator: Identifiable, Codable, Equatable {
         self.isWorking = isWorking
         self.lastChecked = lastChecked
         self.lastUpdated = lastUpdated
+        self.statusSince = statusSince
         self.sourceName = sourceName
         self.organizationName = organizationName
         self.stateExplanation = stateExplanation
@@ -91,6 +97,7 @@ nonisolated struct MonitoredElevator: Identifiable, Codable, Equatable {
         isWorking = try c.decodeIfPresent(Bool.self, forKey: .isWorking)
         lastChecked = try c.decodeIfPresent(Date.self, forKey: .lastChecked)
         lastUpdated = try c.decodeIfPresent(Date.self, forKey: .lastUpdated)
+        statusSince = try c.decodeIfPresent(Date.self, forKey: .statusSince)
         sourceName = try c.decodeIfPresent(String.self, forKey: .sourceName) ?? ""
         organizationName = try c.decodeIfPresent(String.self, forKey: .organizationName) ?? ""
         stateExplanation = try c.decodeIfPresent(String.self, forKey: .stateExplanation)
@@ -100,25 +107,90 @@ nonisolated struct MonitoredElevator: Identifiable, Codable, Equatable {
         addedAt = try c.decodeIfPresent(Date.self, forKey: .addedAt)
     }
 
-    // Localized relative time, e.g. "gerade eben" / "vor 3 Min." / "vor 2 Std."
-    // / "vor 3 Tagen"; beyond a week an absolute date ("am 12.12.2024") — some
-    // sources (VBB S-Bahn) go stale for months and huge relative values are
-    // meaningless. nonisolated: pure formatting, referenced from nonisolated
-    // contexts (the project defaults to MainActor isolation).
-    nonisolated static func relativeTime(since date: Date) -> String {
-        let minutes = Int(-date.timeIntervalSinceNow / 60)
-        switch minutes {
-        case ..<1:            return String(localized: "gerade eben")
-        case 1..<60:          return String(localized: "vor \(minutes) Min.")
-        case 60..<1440:       return String(localized: "vor \(minutes / 60) Std.")
-        case 1440..<(7*1440):
+    // An age in the coarsest unit that still says something. Times are
+    // always shown relative — never as a date: days for two weeks, then
+    // weeks, months and years. Pure; `relativeTime` and `sinceLabel` word it.
+    enum Age: Equatable {
+        case minutes(Int), hours(Int), days(Int), weeks(Int), months(Int), years(Int)
+
+        init(minutes: Int) {
             let days = minutes / 1440
-            return days == 1
-                ? String(localized: "vor 1 Tag")
-                : String(localized: "vor \(days) Tagen")
-        default:
-            return String(localized: "am \(date.formatted(Date.FormatStyle(date: .numeric)))")
+            switch minutes {
+            case ..<60:                self = .minutes(minutes)
+            case ..<1440:              self = .hours(minutes / 60)
+            case ..<(14 * 1440):       self = .days(days)
+            case ..<(60 * 1440):       self = .weeks(days / 7)
+            case ..<(730 * 1440):      self = .months(days / 30)
+            default:                   self = .years(days / 365)
+            }
         }
+    }
+
+    // Localized relative time, e.g. "gerade eben" / "vor 3 Min." / "vor 2 Std."
+    // / "vor 3 Tagen" / "vor 5 Wochen" / "vor 4 Monaten" / "vor 2 Jahren".
+    // `spoken` writes the short units out for VoiceOver ("vor 8 Stunden").
+    // nonisolated: pure formatting, referenced from nonisolated contexts
+    // (the project defaults to MainActor isolation).
+    nonisolated static func relativeTime(since date: Date, now: Date = Date(), spoken: Bool = false) -> String {
+        let minutes = Int(now.timeIntervalSince(date) / 60)
+        guard minutes >= 1 else { return String(localized: "gerade eben") }
+        switch Age(minutes: minutes) {
+        case .minutes(let count):
+            if spoken {
+                return count == 1 ? String(localized: "vor 1 Minute") : String(localized: "vor \(count) Minuten")
+            }
+            return String(localized: "vor \(count) Min.")
+        case .hours(let count):
+            if spoken {
+                return count == 1 ? String(localized: "vor 1 Stunde") : String(localized: "vor \(count) Stunden")
+            }
+            return String(localized: "vor \(count) Std.")
+        case .days(let count):
+            return count == 1 ? String(localized: "vor 1 Tag") : String(localized: "vor \(count) Tagen")
+        case .weeks(let count):   return String(localized: "vor \(count) Wochen")
+        case .months(let count):  return String(localized: "vor \(count) Monaten")
+        case .years(let count):   return String(localized: "vor \(count) Jahren")
+        }
+    }
+
+    // How long a status has held: "seit 5 Min." / "seit 3 Std." / "seit 1
+    // Tag" / "seit 3 Tagen" / "seit 5 Wochen" / "seit 4 Monaten" / "seit 2
+    // Jahren" — the same wording in the row, the detail, the widget and the
+    // Live Activity, always relative. `spoken` writes the short units out
+    // for VoiceOver. `now` is explicit so widgets format against their entry
+    // date and tests stay deterministic.
+    nonisolated static func sinceLabel(_ date: Date, now: Date = Date(), spoken: Bool = false) -> String {
+        // Under a minute — or a start slightly ahead of this device's clock —
+        // counts as one minute: "seit 0 Min." says nothing.
+        switch Age(minutes: max(1, Int(now.timeIntervalSince(date) / 60))) {
+        case .minutes(let count):
+            if spoken {
+                return count == 1 ? String(localized: "seit 1 Minute") : String(localized: "seit \(count) Minuten")
+            }
+            return String(localized: "seit \(count) Min.")
+        case .hours(let count):
+            if spoken {
+                return count == 1 ? String(localized: "seit 1 Stunde") : String(localized: "seit \(count) Stunden")
+            }
+            return String(localized: "seit \(count) Std.")
+        case .days(let count):
+            return count == 1 ? String(localized: "seit 1 Tag") : String(localized: "seit \(count) Tagen")
+        case .weeks(let count):  return String(localized: "seit \(count) Wochen")
+        case .months(let count): return String(localized: "seit \(count) Monaten")
+        case .years(let count):  return String(localized: "seit \(count) Jahren")
+        }
+    }
+
+    // Since when the current status holds, as far as it is shown: only for
+    // a status that is not "in Betrieb". How long an outage has lasted is
+    // what matters; a working lift needs no duration. nil also while the
+    // source doesn't say when the status began.
+    var shownStatusSince: Date? { isWorking == true ? nil : statusSince }
+
+    // The row's "seit …" line; nil when there is nothing to show — the line
+    // is then left out.
+    func statusSinceLabel(now: Date = Date(), spoken: Bool = false) -> String? {
+        shownStatusSince.map { Self.sinceLabel($0, now: now, spoken: spoken) }
     }
 
     // Individual records can silently decouple from their disruption feed
