@@ -54,12 +54,27 @@ private func ago(minutes: Int) -> Date {
         #expect(MonitoredElevator.relativeTime(since: ago(minutes: 3 * 24 * 60)) == "vor 3 Tagen")
     }
 
-    // The date now follows the user's locale; the package has no string
-    // catalog, so the "am %@" key falls back to its German source form.
-    @Test func beyondAWeekIsAbsoluteLocalizedDate() {
-        let date = Date(timeIntervalSinceNow: -400 * 24 * 60 * 60)
-        let expected = "am " + date.formatted(Date.FormatStyle(date: .numeric))
-        #expect(MonitoredElevator.relativeTime(since: date) == expected)
+    // VoiceOver gets the short units written out.
+    @Test func spokenFormWritesTheUnitsOut() {
+        #expect(MonitoredElevator.relativeTime(since: ago(minutes: 1), spoken: true) == "vor 1 Minute")
+        #expect(MonitoredElevator.relativeTime(since: ago(minutes: 5), spoken: true) == "vor 5 Minuten")
+        #expect(MonitoredElevator.relativeTime(since: ago(minutes: 60), spoken: true) == "vor 1 Stunde")
+        #expect(MonitoredElevator.relativeTime(since: ago(minutes: 8 * 60), spoken: true) == "vor 8 Stunden")
+        #expect(MonitoredElevator.relativeTime(since: ago(minutes: 3 * 1440), spoken: true) == "vor 3 Tagen")
+    }
+
+    // Times are always relative, never a date: after two weeks of days come
+    // weeks, months and years.
+    @Test func daysRunForTwoWeeks() {
+        #expect(MonitoredElevator.relativeTime(since: ago(minutes: 13 * 1440)) == "vor 13 Tagen")
+        #expect(MonitoredElevator.relativeTime(since: ago(minutes: 14 * 1440)) == "vor 2 Wochen")
+    }
+
+    @Test func weeksMonthsAndYears() {
+        #expect(MonitoredElevator.relativeTime(since: ago(minutes: 59 * 1440)) == "vor 8 Wochen")
+        #expect(MonitoredElevator.relativeTime(since: ago(minutes: 60 * 1440)) == "vor 2 Monaten")
+        #expect(MonitoredElevator.relativeTime(since: ago(minutes: 400 * 1440)) == "vor 13 Monaten")
+        #expect(MonitoredElevator.relativeTime(since: ago(minutes: 730 * 1440)) == "vor 2 Jahren")
     }
 }
 
@@ -99,21 +114,13 @@ private func ago(minutes: Int) -> Date {
     }
 }
 
-// "Seit": how long a status has held. Fixed `now`, calendar and locale — the
-// buckets must not depend on when or where the tests run.
+// "Seit": how long a status has held — always relative. Fixed `now`, so the
+// buckets don't depend on when the tests run.
 @Suite struct SinceLabelTests {
     private let now = ISO8601DateFormatter().date(from: "2026-11-24T12:00:00Z")!
-    private var calendar: Calendar {
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = TimeZone(identifier: "Europe/Berlin")!
-        return calendar
-    }
 
     private func label(minutes: Double, spoken: Bool = false) -> String {
-        MonitoredElevator.sinceLabel(
-            now.addingTimeInterval(-minutes * 60), now: now, spoken: spoken,
-            calendar: calendar, locale: Locale(identifier: "de_DE")
-        )
+        MonitoredElevator.sinceLabel(now.addingTimeInterval(-minutes * 60), now: now, spoken: spoken)
     }
 
     @Test func minutes() {
@@ -138,14 +145,14 @@ private func ago(minutes: Int) -> Date {
         #expect(label(minutes: 14 * 1440 - 1) == "seit 13 Tagen")
     }
 
-    // From the stale threshold on, a date says more than a day count.
-    @Test func twoWeeksAndMoreNameTheDate() {
-        #expect(label(minutes: 14 * 1440) == "seit dem 10. November")
-        #expect(label(minutes: 40 * 1440) == "seit dem 15. Oktober")
-    }
-
-    @Test func anotherYearIsNamed() {
-        #expect(label(minutes: 400 * 1440) == "seit dem 20. Oktober 2025")
+    // Never a date: weeks, then months, then years.
+    @Test func weeksMonthsAndYears() {
+        #expect(label(minutes: 14 * 1440) == "seit 2 Wochen")
+        #expect(label(minutes: 40 * 1440) == "seit 5 Wochen")
+        #expect(label(minutes: 60 * 1440) == "seit 2 Monaten")
+        #expect(label(minutes: 400 * 1440) == "seit 13 Monaten")
+        #expect(label(minutes: 730 * 1440) == "seit 2 Jahren")
+        #expect(label(minutes: 1500 * 1440, spoken: true) == "seit 4 Jahren")
     }
 
     @Test func spokenFormWritesTheUnitsOut() {
@@ -163,10 +170,20 @@ private func ago(minutes: Int) -> Date {
         #expect(ElevatorStatus.unknown.sentence(since: nil, now: now) == "Status unbekannt")
     }
 
-    @Test func rowLabelIsLeftOutWithoutAStart() {
-        #expect(elevator().statusSinceLabel(now: now) == nil)
-        var dated = elevator()
-        dated.statusSince = now.addingTimeInterval(-86_400)
-        #expect(dated.statusSinceLabel(now: now) == "seit 1 Tag")
+    // The duration is shown for disruptions only: left out without a start,
+    // and for a lift that works — however long it has.
+    @Test func rowLabelIsForDisruptionsOnly() {
+        func dated(_ isWorking: Bool?, since: Date?) -> MonitoredElevator {
+            MonitoredElevator(
+                id: "e1", stationId: "1", elevatorId: "e1", stationName: "S", elevatorDescription: "",
+                isWorking: isWorking, lastChecked: nil, statusSince: since
+            )
+        }
+        let yesterday = now.addingTimeInterval(-86_400)
+        #expect(dated(false, since: nil).statusSinceLabel(now: now) == nil)
+        #expect(dated(false, since: yesterday).statusSinceLabel(now: now) == "seit 1 Tag")
+        #expect(dated(nil, since: yesterday).statusSinceLabel(now: now) == "seit 1 Tag")
+        #expect(dated(true, since: yesterday).statusSinceLabel(now: now) == nil)
+        #expect(dated(true, since: yesterday).shownStatusSince == nil)
     }
 }

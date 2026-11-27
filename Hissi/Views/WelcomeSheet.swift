@@ -155,7 +155,7 @@ struct WhatsNewSheet: View {
             FeatureRow(
                 symbol: "clock",
                 title: "Wie lange schon",
-                detail: "Jeder Aufzug zeigt, seit wann er in Betrieb oder außer Betrieb ist – auch in Widgets und im Live-Status."
+                detail: "Gestörte Aufzüge zeigen, seit wann sie außer Betrieb sind – auch in Widgets und im Live-Status."
             )
         default:
             EmptyView()

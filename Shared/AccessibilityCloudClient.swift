@@ -247,12 +247,13 @@ nonisolated enum AccessibilityCloudClient {
         return joinTargeted(parseElevators(data).items)
     }
 
-    // MARK: - Status history (the "seit" of span-less elevators)
+    // MARK: - Status spans (the "seit" of a disruption)
 
     // The most recent spans of the given elevators, newest first, in one
-    // request — closed ones included, which no other fetch asks for. A
-    // working elevator has no current span; when it came back is the end of
-    // its last one (StatusHistory.since). One page: the collection averages
+    // request. The targeted status request carries no current span
+    // (upstream leaves `current_status_span` empty), so the span running
+    // now is what says since when a lift is out of service
+    // (StatusHistory.since). One page: the collection averages
     // ~6 spans per elevator, so a page holds the latest span of far more
     // favorites than anyone keeps; an elevator crowded out of it simply stays
     // undated. Nil on failure.

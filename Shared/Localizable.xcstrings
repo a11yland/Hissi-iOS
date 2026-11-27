@@ -216,16 +216,6 @@
         }
       }
     },
-    "am %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "on %@"
-          }
-        }
-      }
-    },
     "Auch Stationen, deren Aufzüge ohne Standort gemeldet werden, erscheinen jetzt in der Nähe – zum Beispiel U Klosterstraße." : {
       "localizations" : {
         "en" : {
@@ -727,6 +717,16 @@
         }
       }
     },
+    "Gestörte Aufzüge zeigen, seit wann sie außer Betrieb sind – auch in Widgets und im Live-Status." : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elevators that are out of service show for how long – in widgets and the live status too."
+          }
+        }
+      }
+    },
     "gtfs.de" : {
       "shouldTranslate" : false
     },
@@ -833,16 +833,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Open in Maps"
-          }
-        }
-      }
-    },
-    "Jeder Aufzug zeigt, seit wann er in Betrieb oder außer Betrieb ist – auch in Widgets und im Live-Status." : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Every elevator shows how long it has been in service or out of service – in widgets and the live status too."
           }
         }
       }
@@ -1190,6 +1180,16 @@
         }
       }
     },
+    "seit %lld Jahren" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for %lld years"
+          }
+        }
+      }
+    },
     "seit %lld Min." : {
       "localizations" : {
         "en" : {
@@ -1206,6 +1206,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "for %lld minutes"
+          }
+        }
+      }
+    },
+    "seit %lld Monaten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for %lld months"
           }
         }
       }
@@ -1240,6 +1250,16 @@
         }
       }
     },
+    "seit %lld Wochen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "for %lld weeks"
+          }
+        }
+      }
+    },
     "seit 1 Minute" : {
       "localizations" : {
         "en" : {
@@ -1270,16 +1290,6 @@
         }
       }
     },
-    "seit dem %@" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "since %@"
-          }
-        }
-      }
-    },
     "Stationen in der Nähe öffnest du jetzt über das Standortsymbol neben der Glocke." : {
       "localizations" : {
         "en" : {
@@ -1296,16 +1306,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Station names and locations come from DELFI e.V. via gtfs.de (CC BY 4.0) and VBB Verkehrsverbund Berlin-Brandenburg GmbH (CC BY)."
-          }
-        }
-      }
-    },
-    "Status seit" : {
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Status since"
           }
         }
       }
@@ -1332,6 +1332,76 @@
     },
     "VBB" : {
       "shouldTranslate" : false
+    },
+    "vor %lld Jahren" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld years ago"
+          }
+        }
+      }
+    },
+    "vor %lld Minuten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld minutes ago"
+          }
+        }
+      }
+    },
+    "vor %lld Monaten" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld months ago"
+          }
+        }
+      }
+    },
+    "vor %lld Stunden" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld hours ago"
+          }
+        }
+      }
+    },
+    "vor %lld Wochen" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld weeks ago"
+          }
+        }
+      }
+    },
+    "vor 1 Minute" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 minute ago"
+          }
+        }
+      }
+    },
+    "vor 1 Stunde" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 hour ago"
+          }
+        }
+      }
     },
     "Widgets und Live-Status listen nur Aufzüge, die nicht in Betrieb sind. Läuft alles, zeigen sie das Hissi-Zeichen." : {
       "localizations" : {

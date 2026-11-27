@@ -219,18 +219,35 @@ struct ElevatorDetailView: View {
                     .font(.title2)
                     .foregroundStyle(status.symbolColor)
                     .accessibilityHidden(true)
-                Text(status.label)
-                    .font(.headline)
-                    .foregroundStyle(status.textColor)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(status.label)
+                        .font(.headline)
+                        .foregroundStyle(status.textColor)
+                    // The same relative wording as the list row, right under
+                    // the status it belongs to — for disruptions only.
+                    if let since = elevator.statusSinceLabel() {
+                        Text(since)
+                            .font(.subheadline)
+                            .foregroundStyle(Color.hissiTextSecondary)
+                    }
+                }
             }
+            // Status and duration are one statement — one VoiceOver element,
+            // one sentence with the units written out ("Außer Betrieb seit 9
+            // Stunden"), as in the list row and the widgets.
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel(status.sentence(since: elevator.shownStatusSince))
             if !elevator.elevatorDescription.isEmpty {
                 LabeledContent("Aufzug", value: elevator.elevatorDescription)
             }
-            // The exact moment — the row's "seit 3 Tagen" as a date and time.
-            if let since = elevator.statusSince {
-                LabeledContent("Status seit", value: since.formatted(date: .abbreviated, time: .shortened))
-            }
-            LabeledContent("Datenstand", value: elevator.lastUpdated.map(MonitoredElevator.relativeTime(since:)) ?? "unbekannt")
+            LabeledContent("Datenstand", value: elevator.lastUpdated.map { MonitoredElevator.relativeTime(since: $0) } ?? "unbekannt")
+                // Spoken with the units written out ("vor 8 Stunden").
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("Datenstand")
+                .accessibilityValue(
+                    elevator.lastUpdated.map { MonitoredElevator.relativeTime(since: $0, spoken: true) }
+                        ?? String(localized: "unbekannt")
+                )
             if elevator.isDataStale {
                 Label("Status möglicherweise veraltet", systemImage: "exclamationmark.triangle.fill")
                     .font(.footnote)

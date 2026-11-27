@@ -1,28 +1,34 @@
 import Foundation
 
-// Since when a status holds that no current span dates — above all "in
-// Betrieb": a working elevator has no active span, the moment it came back is
-// the end of the span before. Pure and unit-tested; the spans come from
+// Since when a disruption holds that the status request itself doesn't date.
+// transit.accessibility.cloud serves no current span with the elevator
+// (`current_status_span` comes back empty), so the targeted favorites
+// request knows that a lift is out of service, not since when. The spans
+// themselves say it: the one running now — started, not yet ended (upstream
+// gives a running span a planned end a month ahead) — began when the status
+// did. Pure and unit-tested; the spans come from
 // AccessibilityCloudClient.fetchLatestSpans.
+//
+// Only disruptions are dated ("außer Betrieb" / "unbekannt"): how long a
+// lift has been working is not shown anywhere, so it is not asked for.
 nonisolated enum StatusHistory {
     typealias StatusSpan = AccessibilityCloudClient.StatusSpan
 
-    // The latest-started span decides. Closed with another status than the
-    // current one ⇒ its end is the transition (upstream chains spans, often
-    // through `unknown`: out_of_service → unknown → in_service). Still open ⇒
-    // nil: had it agreed with the status, the join would have dated it; as it
-    // doesn't, the order of events is unclear. Closed with the same status ⇒
-    // nil, the gap after it is unaccounted for. Never a guess.
+    // The latest-started span decides, if it runs now and agrees with the
+    // status it is quoted for: its start. A span that has ended, or one of
+    // another status (the elevator moved on and upstream hasn't caught up),
+    // dates nothing — never a guess. A working elevator is never dated.
     static func since(isWorking: Bool?, spans: [StatusSpan], now: Date = Date()) -> Date? {
+        guard isWorking != true else { return nil }
         let latest = spans
             .filter { span in span.start.map { $0 <= now } ?? false }
             .max { ($0.start ?? .distantPast) < ($1.start ?? .distantPast) }
-        guard let latest, let end = latest.end, end <= now, latest.isWorking != isWorking else { return nil }
-        return end
+        guard let latest, latest.end.map({ $0 > now }) ?? true, latest.isWorking == isWorking else { return nil }
+        return latest.start
     }
 
     // Fills `statusSince` where it is still unknown; a known value is never
-    // overwritten (the current span's start is the better witness).
+    // overwritten.
     static func applied(
         to elevators: [MonitoredElevator],
         spans: [StatusSpan],

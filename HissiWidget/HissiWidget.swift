@@ -334,7 +334,7 @@ struct HissiWidgetListView: View {
     private func accessibleRow(_ elevator: MonitoredElevator, status: ElevatorStatus) -> String {
         [elevator.stationName,
          elevator.elevatorDescription.isEmpty ? nil : elevator.elevatorDescription,
-         status.sentence(since: elevator.statusSince, now: entry.date)]
+         status.sentence(since: elevator.shownStatusSince, now: entry.date)]
             .compactMap { $0 }
             .joined(separator: ", ")
     }
