@@ -149,7 +149,11 @@ nonisolated enum AccessibilityCloudClient {
     // slow enough that the pages need the catalog session's long timeout.
     static func fetchCatalog() async -> [Equipment]? {
         #if DEBUG
-        if DemoMode.isActive { return DemoFixtures.catalog() }
+        // Demo mode serves each source its own records (VRRClient.fetchAll
+        // answers for the VRR ones).
+        if DemoMode.isActive {
+            return DemoFixtures.catalog().filter { ElevatorSource(id: $0.id) == .accessibilityCloud }
+        }
         #endif
         let nowISO = ISO8601DateFormatter().string(from: Date())
         async let elevators = fetchAllPages(
