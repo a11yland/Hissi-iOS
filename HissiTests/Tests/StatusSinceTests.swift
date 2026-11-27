@@ -105,80 +105,61 @@ private let fixtureNow = date("2026-07-01T12:00:00Z")
     }
 }
 
-// "Außer Betrieb seit": the start of the span running now. The status
-// request itself carries no current span, so the spans are asked for.
-@Suite struct StatusHistoryTests {
-    private func spans() throws -> [Client.StatusSpan] {
-        Client.parseStatusSpans(try fixtureData("status_history")).items
+// The targeted favorites request as upstream really answers it: no
+// `current_status_span`, but the elevator's newest spans inline. The span
+// running now gives a disruption its text and its start — in the one
+// request, on every refresh.
+@Suite struct TargetedSpansTests {
+    private func equipment(_ id: String) throws -> Client.Equipment {
+        let elevators = Client.parseElevators(try fixtureData("elevators_targeted_spans")).items
+        return try #require(Client.joinTargeted(elevators, now: fixtureNow).first { $0.id == id })
     }
 
-    private func spans(of id: String) throws -> [Client.StatusSpan] {
-        try spans().filter { $0.elevatorIds.contains(id) }
+    // Upstream gives a running span a planned end a month ahead; it runs now.
+    @Test func brokenElevatorGetsReasonAndStartFromItsRunningSpan() throws {
+        let broken = try equipment("5564")
+        #expect(broken.isWorking == false)
+        #expect(broken.statusSince == date("2026-06-27T12:00:00.000Z"))
+        #expect(broken.stateExplanation == "Aufzug außer Betrieb – Technik ist informiert.")
+        #expect(broken.stationName == "Oranienburger Straße (Berlin)")
     }
 
-    // 7400: an out_of_service span without an end, after a closed one.
-    @Test func runningSpanDatesTheDisruption() throws {
-        #expect(
-            StatusHistory.since(isWorking: false, spans: try spans(of: "7400"), now: fixtureNow)
-                == date("2026-06-20T07:00:00.000Z")
-        )
+    @Test func unknownStatusIsDatedFromAnUnknownSpan() throws {
+        let unknown = try equipment("7377")
+        #expect(unknown.isWorking == nil)
+        #expect(unknown.statusSince == date("2026-06-27T02:19:09.401Z"))
+        // A reason is a disruption's; "unknown" carries none.
+        #expect(unknown.stateExplanation == nil)
     }
 
-    // Upstream gives a running span a planned end a month ahead — it still
-    // runs now.
-    @Test func plannedEndInTheFutureStillCounts() {
-        let start = date("2026-06-26T06:52:35Z")
-        let running = Client.StatusSpan(
-            elevatorIds: ["1"], isWorking: false, start: start, end: date("2026-07-26T06:52:35Z")
-        )
-        #expect(StatusHistory.since(isWorking: false, spans: [running], now: fixtureNow) == start)
+    // Only ended spans: nothing runs now, so nothing is dated and no old
+    // outage text is shown.
+    @Test func workingElevatorTakesNothingFromEndedSpans() throws {
+        let working = try equipment("7349")
+        #expect(working.isWorking == true)
+        #expect(working.statusSince == nil)
+        #expect(working.stateExplanation == nil)
     }
 
-    // An unknown status is dated the same way, from an "unknown" span.
-    @Test func unknownStatusIsDatedFromItsRunningSpan() {
-        let start = date("2026-06-27T02:19:09Z")
-        let running = Client.StatusSpan(elevatorIds: ["1"], isWorking: nil, start: start)
-        #expect(StatusHistory.since(isWorking: nil, spans: [running], now: fixtureNow) == start)
+    @Test func brokenElevatorWithoutSpansStaysUndated() throws {
+        let bare = try equipment("6622")
+        #expect(bare.isWorking == false)
+        #expect(bare.statusSince == nil)
+        #expect(bare.stateExplanation == nil)
     }
 
-    // How long a lift has been working is not shown — and not derived.
-    @Test func workingElevatorsAreNeverDated() throws {
-        #expect(StatusHistory.since(isWorking: true, spans: try spans(of: "7349"), now: fixtureNow) == nil)
-        #expect(StatusHistory.since(isWorking: true, spans: try spans(of: "7401"), now: fixtureNow) == nil)
+    // The running span disagrees with the elevator (out of service vs.
+    // unknown): its start says nothing about when the outage began.
+    @Test func disagreeingRunningSpanDatesNothing() throws {
+        #expect(try equipment("7400").statusSince == nil)
     }
 
-    // The last span has ended (7349) or is of another status: the elevator
-    // moved on and upstream hasn't caught up — no date, never a guess.
-    @Test func endedOrDisagreeingSpanDatesNothing() throws {
-        #expect(StatusHistory.since(isWorking: false, spans: try spans(of: "7349"), now: fixtureNow) == nil)
-        #expect(StatusHistory.since(isWorking: nil, spans: try spans(of: "7400"), now: fixtureNow) == nil)
-    }
-
-    @Test func spansThatHaveNotStartedAreIgnored() {
-        let running = Client.StatusSpan(elevatorIds: ["1"], isWorking: false, start: date("2026-06-01T00:00:00Z"))
-        let planned = Client.StatusSpan(
-            elevatorIds: ["1"], isWorking: false, start: fixtureNow.addingTimeInterval(86_400)
-        )
-        #expect(StatusHistory.since(isWorking: false, spans: [planned, running], now: fixtureNow) == running.start)
-    }
-
-    @Test func noSpansGiveNothing() {
-        #expect(StatusHistory.since(isWorking: false, spans: [], now: fixtureNow) == nil)
-    }
-
-    @Test func appliedFillsOnlyWhatIsUndated() throws {
-        func favorite(_ id: String, isWorking: Bool? = false, since: Date? = nil) -> MonitoredElevator {
-            MonitoredElevator(
-                id: id, stationId: "1", elevatorId: id, stationName: "S", elevatorDescription: "",
-                isWorking: isWorking, lastChecked: nil, statusSince: since
-            )
-        }
-        let known = date("2026-01-01T00:00:00Z")
-        let result = StatusHistory.applied(
-            to: [favorite("7400"), favorite("7400", since: known), favorite("7402"), favorite("7400", isWorking: true)],
-            spans: try spans(), now: fixtureNow
-        )
-        #expect(result.map(\.statusSince) == [date("2026-06-20T07:00:00.000Z"), known, nil, nil])
+    // Bare ids in the join (a depth=0 answer) are not spans.
+    @Test func bareSpanIdsAreIgnored() throws {
+        let elevators = Client.parseElevators(try fixtureData("elevators_targeted_spans")).items
+        #expect(elevators.first { $0.id == "7401" }?.inlineSpans.isEmpty == true)
+        #expect(elevators.first { $0.id == "5564" }?.inlineSpans.count == 3)
+        #expect(try equipment("7401").statusSince == nil)
     }
 }
 
@@ -207,31 +188,42 @@ private let fixtureNow = date("2026-07-01T12:00:00Z")
         #expect(merged.statusSince == newer)
     }
 
-    // The catalog cache carries no history — an undated record must not
-    // erase what a targeted refresh found out.
-    @Test func undatedRecordKeepsTheDateWhileTheStatusHolds() {
+    // Every path dates a disruption from the span running now, so a record
+    // without a date means there is none: an old date is not kept alive.
+    @Test func undatedRecordClearsTheDate() {
         let merged = StatusMerge.apply(
-            equipment(isWorking: true, since: nil), to: favorite(isWorking: true, since: since)
-        )
-        #expect(merged.statusSince == since)
-    }
-
-    @Test func changedStatusDropsTheOldDate() {
-        let merged = StatusMerge.apply(
-            equipment(isWorking: true, since: nil), to: favorite(isWorking: false, since: since)
+            equipment(isWorking: false, since: nil), to: favorite(isWorking: false, since: since)
         )
         #expect(merged.statusSince == nil)
     }
 
-    @Test func dateSurvivesTheIdMigration() {
-        var seedFavorite = favorite(isWorking: true, since: since)
-        seedFavorite = MonitoredElevator(
+    @Test func dateComesWithTheRecordThroughTheIdMigration() {
+        let seedFavorite = MonitoredElevator(
             id: "fasta-1", stationId: "1", elevatorId: "fasta-1", stationName: "S", elevatorDescription: "",
-            isWorking: true, lastChecked: nil, statusSince: seedFavorite.statusSince
+            isWorking: false, lastChecked: nil
         )
-        let merged = StatusMerge.apply(equipment(id: "101", isWorking: true, since: nil), to: seedFavorite)
+        let merged = StatusMerge.apply(equipment(id: "101", isWorking: false, since: since), to: seedFavorite)
         #expect(merged.id == "101")
         #expect(merged.statusSince == since)
+    }
+
+    // Source and operator: with the seed overlaid the record is complete,
+    // an empty name replaces one the favorite carries from an older seed.
+    // Without the seed (watch widget extension) the favorite keeps it.
+    @Test func seedBackedRecordReplacesAStaleSourceName() {
+        var stale = favorite(isWorking: false, since: nil)
+        stale.sourceName = "VBB Anlagen (S-Bahn)"
+        stale.organizationName = "Alter Betreiber"
+        let record = Client.Equipment(
+            id: "101", stationId: "1", stationName: "S", description: "", isWorking: false,
+            lastUpdate: nil, sourceName: "", organizationName: "DB InfraGO"
+        )
+        let replaced = StatusMerge.apply(record, to: stale, replacingMetadata: true)
+        #expect(replaced.sourceName.isEmpty)
+        #expect(replaced.organizationName == "DB InfraGO")
+        let kept = StatusMerge.apply(record, to: stale, replacingMetadata: false)
+        #expect(kept.sourceName == "VBB Anlagen (S-Bahn)")
+        #expect(kept.organizationName == "DB InfraGO")
     }
 
     // The date is status: it stays out of the iCloud copy and the export,
@@ -250,109 +242,5 @@ private let fixtureNow = date("2026-07-01T12:00:00Z")
         let old = #"{"id":"1","stationId":"1","elevatorId":"1","stationName":"S","elevatorDescription":""}"#
         let decoded = try JSONDecoder().decode(MonitoredElevator.self, from: Data(old.utf8))
         #expect(decoded.statusSince == nil)
-    }
-}
-
-private actor SpanLog {
-    var requests: [Set<String>] = []
-    func record(_ ids: Set<String>) { requests.append(ids) }
-}
-
-// Dating disruptions costs at most one extra request, and none in the
-// steady state — or for favorites that work.
-@Suite struct StatusSinceRefreshTests {
-    private let log = SpanLog()
-    private let brokeAt = date("2026-06-20T07:00:00Z")
-
-    private func favorite(_ id: String, isWorking: Bool? = false, since: Date? = nil) -> MonitoredElevator {
-        MonitoredElevator(
-            id: id, stationId: "1", elevatorId: id, stationName: "S", elevatorDescription: "",
-            isWorking: isWorking, lastChecked: nil, statusSince: since
-        )
-    }
-
-    private func equipment(_ id: String, isWorking: Bool? = false, since: Date? = nil) -> Client.Equipment {
-        Client.Equipment(
-            id: id, stationId: "1", stationName: "S", description: "", isWorking: isWorking,
-            lastUpdate: nil, statusSince: since
-        )
-    }
-
-    private func sources(
-        _ equipment: [Client.Equipment],
-        spans: [Client.StatusSpan]? = nil,
-        asksHistory: Bool = true
-    ) -> StatusSources {
-        let log = log
-        let byId = Dictionary(uniqueKeysWithValues: equipment.map { ($0.id, $0) })
-        var sources = StatusSources(equipment: { _ in byId })
-        if asksHistory {
-            sources.latestSpans = { ids in
-                await log.record(ids)
-                return spans
-            }
-        }
-        return sources
-    }
-
-    private var running: [Client.StatusSpan] {
-        [Client.StatusSpan(elevatorIds: ["7400"], isWorking: false, start: brokeAt)]
-    }
-
-    @Test func oneRequestForExactlyTheUndatedDisruptions() async {
-        let known = date("2026-06-01T00:00:00Z")
-        let (updated, _) = await ElevatorRefresher.refreshAll(
-            [favorite("7400"), favorite("102", since: known), favorite("103"), favorite("104", isWorking: true)],
-            sources: sources(
-                [equipment("7400"), equipment("102"), equipment("103"), equipment("104", isWorking: true)],
-                spans: running
-            )
-        )
-        // Not the dated one, not the working one.
-        #expect(await log.requests == [["7400", "103"]])
-        #expect(updated.map(\.statusSince) == [brokeAt, known, nil, nil])
-    }
-
-    @Test func noRequestWhenEveryDisruptionIsDated() async {
-        let known = date("2026-06-01T00:00:00Z")
-        _ = await ElevatorRefresher.refreshAll(
-            [favorite("101", since: known), favorite("102")],
-            sources: sources([equipment("101"), equipment("102", since: known)], spans: running)
-        )
-        #expect(await log.requests.isEmpty)
-    }
-
-    @Test func workingFavoritesCostNoRequest() async {
-        _ = await ElevatorRefresher.refreshAll(
-            [favorite("101", isWorking: true), favorite("102", isWorking: true)],
-            sources: sources([equipment("101", isWorking: true), equipment("102", isWorking: true)], spans: running)
-        )
-        #expect(await log.requests.isEmpty)
-    }
-
-    @Test func failedSpanRequestChangesNothing() async {
-        let (updated, failed) = await ElevatorRefresher.refreshAll(
-            [favorite("7400")], sources: sources([equipment("7400")], spans: nil)
-        )
-        #expect(updated.first?.statusSince == nil)
-        #expect(updated.first?.lastChecked != nil)
-        #expect(failed.isEmpty)
-    }
-
-    // A favorite the status request didn't answer for is not asked about.
-    @Test func unansweredFavoritesAreNotAskedAbout() async {
-        _ = await ElevatorRefresher.refreshAll(
-            [favorite("7400"), favorite("999")], sources: sources([equipment("7400")], spans: running)
-        )
-        #expect(await log.requests == [["7400"]])
-    }
-
-    @Test func statusOnlySourcesNeverAsk() async {
-        let (updated, _) = await ElevatorRefresher.refreshAll(
-            [favorite("7400")], sources: sources([equipment("7400")], spans: running, asksHistory: false)
-        )
-        #expect(await log.requests.isEmpty)
-        #expect(updated.first?.statusSince == nil)
-        #expect(StatusSources.statusOnly.latestSpans == nil)
     }
 }

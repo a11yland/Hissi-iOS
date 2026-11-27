@@ -201,11 +201,7 @@ struct ElevatorDetailView: View {
             guard !service.isFavorite(initial.id) else { return }
             let records = await EquipmentCatalog.shared.equipment(for: [initial.id])
             guard !Task.isCancelled, let record = records[initial.id] else { return }
-            // Plus the span history for the "seit" the record doesn't carry
-            // (a working elevator has no current span).
-            let merged = await ElevatorRefresher.withHistory([StatusMerge.apply(record, to: initial)])
-                .first ?? initial
-            guard !Task.isCancelled else { return }
+            let merged = StatusMerge.apply(record, to: initial)
             refreshed = merged
             onRefreshed?(merged)
         }

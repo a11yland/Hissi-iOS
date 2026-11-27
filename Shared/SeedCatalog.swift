@@ -105,6 +105,9 @@ nonisolated enum SeedCatalog {
 
     static let records: [Record] = file?.elevators ?? []
     static let stations: [Station] = file?.stations ?? []
+    // Whether this target carries the seed at all (the watch widget
+    // extension and the test package don't).
+    static let isBundled = !records.isEmpty
     static let legacyIds: [String: String] = file?.legacyIds ?? [:]
 
     private struct File: Decodable {

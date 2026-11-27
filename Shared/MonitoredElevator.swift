@@ -21,7 +21,7 @@ nonisolated struct MonitoredElevator: Identifiable, Codable, Equatable {
     // stale source data.
     var lastUpdated: Date?
     // When the current status began ("seit …") — a real transition time or
-    // nil, never a guess (AccessibilityCloudClient.statusSince, StatusHistory).
+    // nil, never a guess (AccessibilityCloudClient.statusSince, in `join`).
     // Shown for disruptions only (shownStatusSince).
     var statusSince: Date?
     // accessibility.cloud source/organization for this record, e.g.

@@ -31,7 +31,7 @@ private func fetchAllElevators() async -> [MonitoredElevator] {
        Date().timeIntervalSince(checked) < RefreshInterval.cacheReuseSeconds {
         return cached
     }
-    let (updated, _) = await ElevatorRefresher.refreshAll(cached, sources: .statusOnly)
+    let (updated, _) = await ElevatorRefresher.refreshAll(cached)
     ElevatorCache.save(updated)
     return updated
 }

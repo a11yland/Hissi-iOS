@@ -75,7 +75,7 @@ nonisolated enum AccessibilityCloudClient {
         let lastUpdate: Date?
         // When the current status began — a real transition time (the
         // current span's start, or the end of the span before a span-less
-        // stretch, StatusHistory), never a record-touch time. Nil when the
+        // stretch), never a record-touch time. Nil when the
         // source doesn't say: "seit …" is then left out, not guessed.
         let statusSince: Date?
         let sourceName: String
@@ -235,6 +235,12 @@ nonisolated enum AccessibilityCloudClient {
             ["location", "centroid"], ["location", "stopPlaceCentroid"],
             ["operational_status", "operational_status"],
             ["operational_status", "current_status_span"],
+            // The elevator's newest spans, inline (a join field). Upstream
+            // leaves `current_status_span` empty (verified live 2026-11-27),
+            // so this is where the targeted request gets the span running
+            // now — the disruption's text and its start — without a second
+            // request.
+            ["operational_status", "status_spans"],
             ["linked_data", "operator_inventory_id"],
             ["elevator_type"], ["stop_place_name"],
             ["internal_description"], ["updatedAt"]
@@ -245,31 +251,6 @@ nonisolated enum AccessibilityCloudClient {
             return nil
         }
         return joinTargeted(parseElevators(data).items)
-    }
-
-    // MARK: - Status spans (the "seit" of a disruption)
-
-    // The most recent spans of the given elevators, newest first, in one
-    // request. The targeted status request carries no current span
-    // (upstream leaves `current_status_span` empty), so the span running
-    // now is what says since when a lift is out of service
-    // (StatusHistory.since). One page: the collection averages
-    // ~6 spans per elevator, so a page holds the latest span of far more
-    // favorites than anyone keeps; an elevator crowded out of it simply stays
-    // undated. Nil on failure.
-    static func fetchLatestSpans(elevatorIds: Set<String>, now: Date = Date()) async -> [StatusSpan]? {
-        let ids = elevatorIds.filter { Int($0) != nil }.sorted()
-        guard !ids.isEmpty else { return [] }
-        #if DEBUG
-        if DemoMode.isActive { return [] }
-        #endif
-        let query = select(["elevator"], ["operational_status"], ["start_date"], ["end_date"]) + [
-            URLQueryItem(name: "where[elevator][in]", value: ids.joined(separator: ",")),
-            URLQueryItem(name: "where[start_date][less_than_equal]", value: ISO8601DateFormatter().string(from: now)),
-            URLQueryItem(name: "sort", value: "-start_date"),
-        ]
-        guard let data = await fetchPage(TransitAPI.statusSpans, extraQuery: query, page: 1) else { return nil }
-        return parseStatusSpans(data).items
     }
 
     // The populated span carries every span field by default — trim it to
@@ -283,7 +264,7 @@ nonisolated enum AccessibilityCloudClient {
     static func joinTargeted(_ elevators: [Elevator], now: Date = Date()) -> [Equipment] {
         join(
             elevators: elevators,
-            statusSpans: elevators.compactMap(\.inlineStatusSpan),
+            statusSpans: elevators.flatMap { ($0.inlineStatusSpan.map { [$0] } ?? []) + $0.inlineSpans },
             stopPlaces: [],
             now: now
         )
@@ -558,6 +539,11 @@ nonisolated enum AccessibilityCloudClient {
         // The current span as a populated object — only in targeted (depth=1)
         // responses; nil when the relation is a bare id.
         let inlineStatusSpan: StatusSpan?
+        // operational_status.status_spans — the elevator's newest spans as
+        // populated objects, again only in targeted (depth=1) responses.
+        // The one running now is found by `currentSpan`, like in the list
+        // join.
+        let inlineSpans: [StatusSpan]
         let inventoryId: String?          // linked_data.operator_inventory_id
         let stopPlaceName: String?        // cached stop name, fallback only
         let lastUpdate: Date?
@@ -572,6 +558,7 @@ nonisolated enum AccessibilityCloudClient {
             isWorking: Bool? = nil,
             currentStatusSpanId: String? = nil,
             inlineStatusSpan: StatusSpan? = nil,
+            inlineSpans: [StatusSpan] = [],
             inventoryId: String? = nil,
             stopPlaceName: String? = nil,
             lastUpdate: Date? = nil,
@@ -585,6 +572,7 @@ nonisolated enum AccessibilityCloudClient {
             self.isWorking = isWorking
             self.currentStatusSpanId = currentStatusSpanId
             self.inlineStatusSpan = inlineStatusSpan
+            self.inlineSpans = inlineSpans
             self.inventoryId = inventoryId
             self.stopPlaceName = stopPlaceName
             self.lastUpdate = lastUpdate
@@ -622,6 +610,11 @@ nonisolated enum AccessibilityCloudClient {
             inlineStatusSpan = status.flatMap {
                 try? $0.decode(StatusSpan.self, forKey: AnyKey("current_status_span"))
             }
+            // A join field: {"docs": […], "hasNextPage": …}. At depth=0 the
+            // docs are bare ids, which don't decode as spans — none, then.
+            inlineSpans = status
+                .flatMap { try? $0.nestedContainer(keyedBy: AnyKey.self, forKey: AnyKey("status_spans")) }
+                .flatMap { try? $0.decode([StatusSpan].self, forKey: AnyKey("docs")) } ?? []
             inventoryId = linked.flatMap { Lenient.string($0, ["operator_inventory_id"]) }
             stopPlaceName = Lenient.localizedText(c, ["stop_place_name"])
             lastUpdate = AccessibilityCloudClient.date(from: Lenient.string(c, ["updatedAt"]))

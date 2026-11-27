@@ -9,20 +9,13 @@ nonisolated struct StatusSources: Sendable {
     // (EquipmentCatalog.equipment(for:)) — never one request per favorite,
     // never a full catalog build. Keys of the result = the requested ids.
     var equipment: @Sendable (Set<String>) async -> [String: AccessibilityCloudClient.Equipment]
-    // The latest status spans of the given elevators, for the "seit" of
-    // disruptions the status request doesn't date. Nil result =
-    // failure; a nil closure = this surface doesn't ask (`statusOnly`).
-    var latestSpans: (@Sendable (Set<String>) async -> [AccessibilityCloudClient.StatusSpan]?)?
+    // Whether the records come with the bundled seed overlaid — then their
+    // source and operator names are the whole truth and replace what a
+    // favorite carries, an empty name included (StatusMerge). Not so in a
+    // target without the seed (the watch widget extension).
+    var metadataIsComplete = SeedCatalog.isBundled
 
     static let live = StatusSources(
-        equipment: { await EquipmentCatalog.shared.equipment(for: $0) },
-        latestSpans: { await AccessibilityCloudClient.fetchLatestSpans(elevatorIds: $0) }
-    )
-
-    // Status without the span request: the widget extensions and the watch.
-    // The app dates the disruptions and caches the result; a favorite whose
-    // status is unchanged keeps that date here (StatusMerge).
-    static let statusOnly = StatusSources(
         equipment: { await EquipmentCatalog.shared.equipment(for: $0) }
     )
 }
@@ -50,29 +43,8 @@ nonisolated enum ElevatorRefresher {
                 failed.insert(elevator.id)
                 return elevator
             }
-            return StatusMerge.apply(equipment, to: elevator)
+            return StatusMerge.apply(equipment, to: elevator, replacingMetadata: sources.metadataIsComplete)
         }
-        return (await withHistory(updated, skipping: failed, sources: sources), failed)
-    }
-
-    // Dates the disruptions that are still undated ("seit") from the spans:
-    // at most one extra request, and only when a favorite that is not
-    // working lacks the date — one whose status didn't change keeps the one
-    // it has (StatusMerge), and working favorites are never dated, so the
-    // steady state asks nothing. A failed request changes nothing.
-    static func withHistory(
-        _ elevators: [MonitoredElevator],
-        skipping skipped: Set<String> = [],
-        sources: StatusSources = .live,
-        now: Date = Date()
-    ) async -> [MonitoredElevator] {
-        guard let latestSpans = sources.latestSpans else { return elevators }
-        let undated = Set(
-            elevators
-                .filter { $0.isWorking != true && $0.statusSince == nil && !skipped.contains($0.id) }
-                .map(\.id)
-        )
-        guard !undated.isEmpty, let spans = await latestSpans(undated) else { return elevators }
-        return StatusHistory.applied(to: elevators, spans: spans, now: now)
+        return (updated, failed)
     }
 }

@@ -1,0 +1,229 @@
+{
+  "docs": [
+    {
+      "id": 5564,
+      "operational_status": {
+        "operational_status": "out_of_service",
+        "current_status_span": null,
+        "status_spans": {
+          "docs": [
+            {
+              "id": 21114,
+              "elevator": [
+                5564
+              ],
+              "start_date": "2026-06-27T12:00:00.000Z",
+              "end_date": "2026-07-28T12:00:00.000Z",
+              "operational_status": "out_of_service",
+              "description": "Aufzug außer Betrieb – Technik ist informiert.",
+              "updatedAt": "2026-06-27T12:00:00.000Z",
+              "deletedAt": null
+            },
+            {
+              "id": 1976,
+              "elevator": [
+                5564
+              ],
+              "start_date": "2026-03-31T17:35:05.000Z",
+              "end_date": "2026-03-31T18:53:10.132Z",
+              "operational_status": "out_of_service",
+              "description": "Aufzug wegen planmäßiger Wartung vorübergehend außer Betrieb.",
+              "updatedAt": "2026-03-31T17:35:05.000Z",
+              "deletedAt": null
+            },
+            {
+              "id": 1972,
+              "elevator": [
+                5564
+              ],
+              "start_date": "2026-03-31T17:57:33.830Z",
+              "end_date": "2026-03-31T19:18:13.318Z",
+              "operational_status": "out_of_service",
+              "description": "Aufzug außer Betrieb. Wir arbeiten an einer schnellen Behebung.",
+              "updatedAt": "2026-03-31T17:57:33.830Z",
+              "deletedAt": null
+            }
+          ],
+          "hasNextPage": false
+        }
+      },
+      "function": {
+        "short_visual": {
+          "de": "Tucholskystr. ↔ Gleis 1/2 (S-Bahn)",
+          "en": null
+        }
+      },
+      "stop_place_name": "Oranienburger Straße (Berlin)",
+      "linked_data": {
+        "operator_inventory_id": "10505564"
+      },
+      "updatedAt": "2026-06-27T12:24:43.556Z"
+    },
+    {
+      "id": 7377,
+      "operational_status": {
+        "operational_status": "unknown",
+        "current_status_span": null,
+        "status_spans": {
+          "docs": [
+            {
+              "id": 21068,
+              "elevator": [
+                7377
+              ],
+              "start_date": "2026-06-27T02:19:09.401Z",
+              "end_date": null,
+              "operational_status": "unknown",
+              "description": "Für diesen Aufzug liegen keine Echtzeit-Statusdaten vor.",
+              "updatedAt": "2026-06-27T02:19:09.401Z",
+              "deletedAt": null
+            }
+          ],
+          "hasNextPage": false
+        }
+      },
+      "function": {
+        "short_visual": {
+          "de": "→ Gleis 1",
+          "en": null
+        }
+      },
+      "stop_place_name": null,
+      "linked_data": {
+        "operator_inventory_id": "10507377"
+      },
+      "updatedAt": "2026-06-27T12:24:43.556Z"
+    },
+    {
+      "id": 7349,
+      "operational_status": {
+        "operational_status": "in_service",
+        "current_status_span": null,
+        "status_spans": {
+          "docs": [
+            {
+              "id": 20757,
+              "elevator": [
+                7349
+              ],
+              "start_date": "2026-06-25T12:00:41.546Z",
+              "end_date": "2026-06-26T15:29:22.429Z",
+              "operational_status": "out_of_service",
+              "description": "Aufzug wegen planmäßiger Wartung vorübergehend außer Betrieb.",
+              "updatedAt": "2026-06-25T12:00:41.546Z",
+              "deletedAt": null
+            },
+            {
+              "id": 20485,
+              "elevator": [
+                7349
+              ],
+              "start_date": "2026-06-24T05:32:25.047Z",
+              "end_date": "2026-06-25T12:00:41.546Z",
+              "operational_status": "unknown",
+              "description": "Für diesen Aufzug liegen keine Echtzeit-Statusdaten vor.",
+              "updatedAt": "2026-06-24T05:32:25.047Z",
+              "deletedAt": null
+            }
+          ],
+          "hasNextPage": false
+        }
+      },
+      "function": {
+        "short_visual": {
+          "de": "→ Gleis 2/3",
+          "en": null
+        }
+      },
+      "stop_place_name": null,
+      "linked_data": {
+        "operator_inventory_id": "10507349"
+      },
+      "updatedAt": "2026-06-27T12:24:43.556Z"
+    },
+    {
+      "id": 6622,
+      "operational_status": {
+        "operational_status": "out_of_service",
+        "current_status_span": null,
+        "status_spans": {
+          "docs": [],
+          "hasNextPage": false
+        }
+      },
+      "function": {
+        "short_visual": {
+          "de": "→ Gleis 4",
+          "en": null
+        }
+      },
+      "stop_place_name": null,
+      "linked_data": {
+        "operator_inventory_id": "10506622"
+      },
+      "updatedAt": "2026-06-27T12:24:43.556Z"
+    },
+    {
+      "id": 7400,
+      "operational_status": {
+        "operational_status": "out_of_service",
+        "current_status_span": null,
+        "status_spans": {
+          "docs": [
+            {
+              "id": 20100,
+              "elevator": [
+                7400
+              ],
+              "start_date": "2026-06-20T07:00:00.000Z",
+              "end_date": null,
+              "operational_status": "unknown",
+              "description": "Für diesen Aufzug liegen keine Echtzeit-Statusdaten vor.",
+              "updatedAt": "2026-06-20T07:00:00.000Z",
+              "deletedAt": null
+            }
+          ],
+          "hasNextPage": false
+        }
+      },
+      "function": {
+        "short_visual": {
+          "de": "→ Gleis 5",
+          "en": null
+        }
+      },
+      "stop_place_name": null,
+      "linked_data": {
+        "operator_inventory_id": "10507400"
+      },
+      "updatedAt": "2026-06-27T12:24:43.556Z"
+    },
+    {
+      "id": 7401,
+      "operational_status": {
+        "operational_status": "out_of_service",
+        "current_status_span": null,
+        "status_spans": {
+          "docs": [
+            20999,
+            20998
+          ],
+          "hasNextPage": false
+        }
+      },
+      "function": {
+        "short_visual": {
+          "de": "→ Gleis 6",
+          "en": null
+        }
+      },
+      "stop_place_name": null,
+      "linked_data": {
+        "operator_inventory_id": "10507401"
+      },
+      "updatedAt": "2026-06-27T12:24:43.556Z"
+    }
+  ],
+  "hasNextPage": false,
+  "totalPages": 1
+}
